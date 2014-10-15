@@ -1,3 +1,11 @@
+###
+MWAVE
+artoo.scrape('.tit_song a, .tit_artist a:first-child')
+
+artoo.scrape('.item-title, .txt-container div:nth-child(2), .title, .other')
+
+###
+
 client_id = "2721807f620a4047d473472d46865f14"
 SC.initialize client_id: client_id
 
@@ -7,7 +15,29 @@ exclude_tags = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "
 
 hangul = new RegExp "[\u1100-\u11FF|\u3130-\u318F|\uA960-\uA97F|\uAC00-\uD7AF|\uD7B0-\uD7FF]"
 
-top_queries = ["Younha Wasted", "Madtown YOLO", "VIXX Error", "BTOB You're so fly", "PSY Hangover", "Boyfriend Witch", "Raina You End And Me", "Song Ji Eun Don't look at me like that", "Ailee Don't touch me"]
+top_queries = [ "Madtown YOLO", "VIXX Error", "BTOB You're so fly", "PSY Hangover", 
+                "Boyfriend Witch", "Raina You End And Me", "Song Ji Eun Don't look at me like that", 
+                "Ailee Don't touch me", "Holler Taetiseo", "The Space Between Soyu", "Go Crazy 2PM",
+                "Missing Teen Top", "I Swear Sistar", "Empty B.I", "Anticipation Note NS YOON-G", 
+                "Beautiful PARK BO RAM", "Because I love You VIBE","양화대교 Yanghwa Bridge Zion. T",
+                "Sugar Free T-ara","소격동 Sogyeokdong IU","Let’s Not Go Crazy 8Eight",
+                "How I Am Kim Dong Ryul","Darling Girl’s Day","연애하나 봐 I Think I’m In Love Juniel",
+                "쳐다보지마 Don’t Look At Me Like That Song Ji Eun Secret","HER Block B",
+                "울컥 All Of A Sudden Krystal","눈물나는 내 사랑 Teardrop Of My Heart Kim Bum Soo",
+                "A Real Man Swings, Ailee","너무 보고 싶어 I Miss You So Much Acoustic Collabo",
+                "I Love You Yoon Mi Rae","MAMACITA Super Junior","I’ll Remain As A Friend Wheesung, Geeks",
+                "맘마미아 Mamma Mia Kara","The Day Noel","You’re So Fly BTOB",
+                "괜찮아 사랑이야 It’s Okay, That’s Love Davichi","Give Your Love? SPICA.S",
+                "I’m Fine Thank You Ladies’ Code","Still I’m By Your Side Clazziquai",
+                "Love Fiction Ulala Session","Body Language feat. Bumkey San E",
+                "눈, 코, 입 Eyes, Nose, Lips Taeyang","잠 못드는 밤 Sleepless Night feat. Punch Crush",
+                "노크 KNOCK Nasty Nasty","최고의 행운 Best Luck Chen EXO-M","컬러링 Color Ring WINNER",
+                "Love Me feat. Kim Tae Chun Linus’ Blanket","두 번 죽이는 말 Words To Kill Monday Kiz",
+                "Cha-Ga-Wa F.Cuz","빨개요 Red HyunA","그 한 사람 That One Person Lee Seung Hwan",
+                "Difficult Woman Jang Bum Joon","자전거 Bicycle Gary, Jung In","Pitiful feat. Hip Job Gavy NJ",
+                "Everyone Else But Me Yoo Seung Woo","가을냄새 I Smell The Autumn  Verbal Jint"]
+
+
 currently_playing = null
 
 playRandom = ->
