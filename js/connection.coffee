@@ -2,10 +2,12 @@ client_id = "2721807f620a4047d473472d46865f14"
 SC.initialize client_id: client_id
 
 priority_tags = ["kpop", "k pop", "k-pop", "korean", "korea"]
+
 exclude_tags = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "cvr"]
+
 hangul = new RegExp "[\u1100-\u11FF|\u3130-\u318F|\uA960-\uA97F|\uAC00-\uD7AF|\uD7B0-\uD7FF]"
 
-top_queries = ["Block B Very Good"]
+top_queries = ["Younha Wasted", "Madtown YOLO", "VIXX Error", "BTOB You're so fly", "PSY Hangover", "Boyfriend Witch", "Raina You End And Me", "Song Ji Eun Don't look at me like that", "Ailee Don't touch me"]
 currently_playing = null
 
 playRandom = ->
@@ -26,8 +28,8 @@ playRandom = ->
 
     SC.get '/tracks', {q: selected_song}, (tracks) ->
 
-        # If query returns nothing, try again
-        if tracks.length is 0 then playRandom() 
+        # If query returns nothing, try to find a different song
+        if tracks? and tracks.length is 0 then playRandom() 
 
         # Otherwise, break the found tracks into two arrays
         else
@@ -125,7 +127,7 @@ playRandom = ->
                 tags = track.tag_list
 
             #Check untagged songs array
-            else 
+            else if untagged_songs.length > 0
                 untagged_songs.sort (a, b) ->
                     keyA = a.playback_count
                     keyB = b.playback_count
@@ -138,6 +140,8 @@ playRandom = ->
                 title = track.title
                 stream_url = track.stream_url
 
+            else alert "There was a problem!"
+
             # Setup player
             $("#player").attr "src", stream_url + "?client_id=" + client_id
             $("#title").text title
@@ -147,4 +151,7 @@ playRandom = ->
     return
 
 $("#next").click ->
+    playRandom()
+
+$(document).ready ->
     playRandom()
