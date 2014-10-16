@@ -76,7 +76,7 @@ em     { font-style: italic; }
 
 /* STRUCTURE */
 input, select, button, textarea, a {
-    transition: 0.4s all;
+    transition: 0.2s all;
 }
 
 #container {
@@ -88,7 +88,9 @@ input, select, button, textarea, a {
 
 /* PROJECT */
 #title {
-    font-size: 4.5rem;
+    max-height: 40vh;
+    overflow: hidden;
+    font-size: 4rem;
     letter-spacing: -5px;
     text-align: center;
     font-family: $sans-rounded;
@@ -110,36 +112,57 @@ button {
     outline: none;
     border: 4px solid black;
     border-radius: 50%;
-    box-shadow:
-       3px 3px 0 $dark-grey,
-     -1px -1px 0 $dark-grey,  
-      1px -1px 0 $dark-grey,
-      -1px 1px 0 $dark-grey,
-       1px 1px 0 $dark-grey;
-
     -webkit-text-stroke: 4px black;
     color: white;
 }
 
 #nextButton {
     position: absolute;
-    bottom: 50px;
-    right: 50px;
+    bottom: 20px;
+    right: 20px;
     background: $red;
+    box-shadow: 2px 2px 0px black;
+    &:active {
+        box-shadow: none;
+        bottom: 18px;
+        right: 18px;
+    }
 }
 
 #playButton {
     position: absolute;
-    bottom: 50px;
-    left: 50px;
+    bottom: 20px;
+    left: 20px;
     background: $seafoam;
+    box-shadow: 2px 2px 0px black;
+
+    &:active {
+        box-shadow: none;
+        bottom: 18px;
+        left: 22px;
+    }
 }
 
 #seek {
+    outline: none;
     -webkit-appearance: none;
-    background: red;
-    color: red;
-    border: 1px solid red;
+    background: $teal;
+    border: 4px solid black;
+    padding: 3px;
+    border-radius: 10px;
     width: 50%;
-    margin: 0 auto;
+    position: absolute;
+    left: 25%;
+    top: 50vh;
+    box-shadow: 2px 2px 0px black;
+
+}
+
+input[type="range"]::-webkit-slider-thumb {
+     -webkit-appearance: none;
+    background-color: white;
+    border: 3px solid black;
+    width: 20px;
+    height: 40px;
+    border-radius: 10px;
 }

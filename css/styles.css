@@ -1,1 +1,638 @@
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}table{border-collapse:collapse;border-spacing:0}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-300.otf");font-weight:300;font-style:normal}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-300i.otf");font-weight:300;font-style:italic}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-400i.otf");font-weight:400;font-style:italic}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-500i.otf");font-weight:500;font-style:italic}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-600.otf");font-weight:600;font-style:normal}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-600i.otf");font-weight:600;font-style:italic}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"Archer";src:url("../font/Archer/Archer-700i.otf");font-weight:700;font-style:italic}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-300.otf");font-weight:300;font-style:normal}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-300i.otf");font-weight:300;font-style:italic}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-400i.otf");font-weight:400;font-style:italic}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-500i.otf");font-weight:500;font-style:italic}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-600.otf");font-weight:600;font-style:normal}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-600i.otf");font-weight:600;font-style:italic}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"Gotham";src:url("../font/Gotham/Gotham-700i.otf");font-weight:700;font-style:italic}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-300.otf");font-weight:300;font-style:normal}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-300i.otf");font-weight:300;font-style:italic}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-400i.otf");font-weight:400;font-style:italic}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-500i.otf");font-weight:500;font-style:italic}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-600.otf");font-weight:600;font-style:normal}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-600i.otf");font-weight:600;font-style:italic}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"GothamNarrow";src:url("../font/GothamNarrow/GothamNarrow-700i.otf");font-weight:700;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-100.otf");font-weight:100;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-100i.otf");font-weight:100;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-200.otf");font-weight:200;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-200i.otf");font-weight:200;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-300.otf");font-weight:300;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-300i.otf");font-weight:300;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-400i.otf");font-weight:400;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-500i.otf");font-weight:500;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-600.otf");font-weight:600;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-600i.otf");font-weight:600;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-700i.otf");font-weight:700;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-800.otf");font-weight:800;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-800i.otf");font-weight:800;font-style:italic}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-900.otf");font-weight:900;font-style:normal}@font-face{font-family:"GothamXNarrow";src:url("../font/GothamXNarrow/GothamXNarrow-900i.otf");font-weight:900;font-style:italic}@font-face{font-family:"GothamCondensed";src:url("../font/GothamCondensed/GothamCondensed-300.otf");font-weight:300;font-style:normal}@font-face{font-family:"GothamCondensed";src:url("../font/GothamCondensed/GothamCondensed-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"GothamCondensed";src:url("../font/GothamCondensed/GothamCondensed-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"GothamCondensed";src:url("../font/GothamCondensed/GothamCondensed-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-300.otf");font-weight:300;font-style:normal}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-300i.otf");font-weight:300;font-style:italic}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-400i.otf");font-weight:400;font-style:italic}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-500i.otf");font-weight:500;font-style:italic}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"GothamRounded";src:url("../font/GothamRounded/GothamRounded-700i.otf");font-weight:700;font-style:italic}@font-face{font-family:"Knockout";src:url("../font/Knockout/Knockout-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"Knockout";src:url("../font/Knockout/Knockout-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"Knockout";src:url("../font/Knockout/Knockout-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"MercuryG1";src:url("../font/MercuryG1/MercuryG1-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"MercuryG1";src:url("../font/MercuryG1/MercuryG1-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"MercuryG1";src:url("../font/MercuryG1/MercuryG1-700.otf");font-weight:700;font-style:normal}@font-face{font-family:"MercuryG4";src:url("../font/MercuryG4/MercuryG4-400.otf");font-weight:400;font-style:normal}@font-face{font-family:"MercuryG4";src:url("../font/MercuryG4/MercuryG4-500.otf");font-weight:500;font-style:normal}@font-face{font-family:"MercuryG4";src:url("../font/MercuryG4/MercuryG4-700.otf");font-weight:700;font-style:normal}*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}html,body{font-style:normal;font-weight:400;font-family:"MercuryG1";font-size:18px;line-height:1.5;color:#2d3033;background:#f7f7f7;width:100%;height:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}h1,h2,h3,h4,h5,h6{font-family:"Gotham";font-weight:600;line-height:1.2;color:#222}h1{font-size:300%}h2{font-size:225%}h3{font-size:180%}h4{font-size:180%}h5{font-size:150%}h6{font-size:130%}p,ol,ul{margin:0 0 1rem 0;font-size:100%}ol{list-style:decimal}ul{list-style:square}li{margin-left:2.5rem}strong{font-weight:500}em{font-style:italic}.error{color:#d7431b;display:block}input,select,button,textarea,a{-webkit-transition:0.4s all;transition:0.4s all}#container{height:100vh;width:100vw;position:relative}#title{font-size:4.5rem;letter-spacing:-5px;text-align:center;font-family:"GothamRounded";font-weight:700;padding:1rem;color:#d7a627;-webkit-text-stroke:4px black;text-shadow:3px 3px 0 black, -1px -1px 0 black,   1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black}button{width:200px;height:200px;outline:none;border:4px solid black;border-radius:50%;-webkit-box-shadow:3px 3px 0 #2d3033,-1px -1px 0 #2d3033,1px -1px 0 #2d3033,-1px 1px 0 #2d3033,1px 1px 0 #2d3033;box-shadow:3px 3px 0 #2d3033,-1px -1px 0 #2d3033,1px -1px 0 #2d3033,-1px 1px 0 #2d3033,1px 1px 0 #2d3033;-webkit-text-stroke:4px black;color:white}#nextButton{position:absolute;bottom:50px;right:50px;background:#d7431b}#playButton{position:absolute;bottom:50px;left:50px;background:#31a480}#seek{-webkit-appearance:none;background:red;color:red;border:1px solid red;width:50%;margin:0 auto}
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* ARCHER */
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-300.otf");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-300i.otf");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-400i.otf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-500i.otf");
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-600.otf");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-600i.otf");
+  font-weight: 600;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Archer";
+  src: url("../font/Archer/Archer-700i.otf");
+  font-weight: 700;
+  font-style: italic;
+}
+/* GOTHAM */
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-300.otf");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-300i.otf");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-400i.otf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-500i.otf");
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-600.otf");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-600i.otf");
+  font-weight: 600;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gotham";
+  src: url("../font/Gotham/Gotham-700i.otf");
+  font-weight: 700;
+  font-style: italic;
+}
+/* GOTHAM NARROW */
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-300.otf");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-300i.otf");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-400i.otf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-500i.otf");
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-600.otf");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-600i.otf");
+  font-weight: 600;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamNarrow";
+  src: url("../font/GothamNarrow/GothamNarrow-700i.otf");
+  font-weight: 700;
+  font-style: italic;
+}
+/* GOTHAM XNARROW */
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-100.otf");
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-100i.otf");
+  font-weight: 100;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-200.otf");
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-200i.otf");
+  font-weight: 200;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-300.otf");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-300i.otf");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-400i.otf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-500i.otf");
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-600.otf");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-600i.otf");
+  font-weight: 600;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-700i.otf");
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-800.otf");
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-800i.otf");
+  font-weight: 800;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-900.otf");
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamXNarrow";
+  src: url("../font/GothamXNarrow/GothamXNarrow-900i.otf");
+  font-weight: 900;
+  font-style: italic;
+}
+/* GOTHAM CONDENSED */
+@font-face {
+  font-family: "GothamCondensed";
+  src: url("../font/GothamCondensed/GothamCondensed-300.otf");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamCondensed";
+  src: url("../font/GothamCondensed/GothamCondensed-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamCondensed";
+  src: url("../font/GothamCondensed/GothamCondensed-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamCondensed";
+  src: url("../font/GothamCondensed/GothamCondensed-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+/* GOTHAM ROUNDED */
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-300.otf");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-300i.otf");
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-400i.otf");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-500i.otf");
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "GothamRounded";
+  src: url("../font/GothamRounded/GothamRounded-700i.otf");
+  font-weight: 700;
+  font-style: italic;
+}
+/* KNOCKOUT */
+@font-face {
+  font-family: "Knockout";
+  src: url("../font/Knockout/Knockout-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Knockout";
+  src: url("../font/Knockout/Knockout-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Knockout";
+  src: url("../font/Knockout/Knockout-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+/* MERCURY G1 */
+@font-face {
+  font-family: "MercuryG1";
+  src: url("../font/MercuryG1/MercuryG1-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MercuryG1";
+  src: url("../font/MercuryG1/MercuryG1-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MercuryG1";
+  src: url("../font/MercuryG1/MercuryG1-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+/* MERCURY G4 */
+@font-face {
+  font-family: "MercuryG4";
+  src: url("../font/MercuryG4/MercuryG4-400.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MercuryG4";
+  src: url("../font/MercuryG4/MercuryG4-500.otf");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "MercuryG4";
+  src: url("../font/MercuryG4/MercuryG4-700.otf");
+  font-weight: 700;
+  font-style: normal;
+}
+/* BASE */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-style: normal;
+  font-weight: 400;
+  font-family: "MercuryG1";
+  font-size: 18px;
+  line-height: 1.5;
+  color: #2d3033;
+  background: #f7f7f7;
+  width: 100%;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* TYPOGRAPHY */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Gotham";
+  font-weight: 600;
+  line-height: 1.2;
+  color: #222;
+}
+
+h1 {
+  font-size: 300%;
+}
+
+h2 {
+  font-size: 225%;
+}
+
+h3 {
+  font-size: 180%;
+}
+
+h4 {
+  font-size: 180%;
+}
+
+h5 {
+  font-size: 150%;
+}
+
+h6 {
+  font-size: 130%;
+}
+
+p, ol, ul {
+  margin: 0 0 1rem 0;
+  font-size: 100%;
+}
+
+ol {
+  list-style: decimal;
+}
+
+ul {
+  list-style: square;
+}
+
+li {
+  margin-left: 2.5rem;
+}
+
+strong {
+  font-weight: 500;
+}
+
+em {
+  font-style: italic;
+}
+
+.error {
+  color: #d7431b;
+  display: block;
+}
+
+/* STRUCTURE */
+input, select, button, textarea, a {
+  transition: 0.2s all;
+}
+
+#container {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+/* PROJECT */
+#title {
+  max-height: 40vh;
+  overflow: hidden;
+  font-size: 4rem;
+  letter-spacing: -5px;
+  text-align: center;
+  font-family: "GothamRounded";
+  font-weight: 700;
+  padding: 1rem;
+  color: #d7a627;
+  -webkit-text-stroke: 4px black;
+  text-shadow: 3px 3px 0 black, -1px -1px 0 black,   1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+}
+
+button {
+  width: 200px;
+  height: 200px;
+  outline: none;
+  border: 4px solid black;
+  border-radius: 50%;
+  -webkit-text-stroke: 4px black;
+  color: white;
+}
+
+#nextButton {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: #d7431b;
+  box-shadow: 2px 2px 0px black;
+}
+#nextButton:active {
+  box-shadow: none;
+  bottom: 18px;
+  right: 18px;
+}
+
+#playButton {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: #31a480;
+  box-shadow: 2px 2px 0px black;
+}
+#playButton:active {
+  box-shadow: none;
+  bottom: 18px;
+  left: 22px;
+}
+
+#seek {
+  outline: none;
+  -webkit-appearance: none;
+  background: #278998;
+  border: 4px solid black;
+  padding: 3px;
+  border-radius: 10px;
+  width: 50%;
+  position: absolute;
+  left: 25%;
+  top: 50vh;
+  box-shadow: 2px 2px 0px black;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background-color: white;
+  border: 3px solid black;
+  width: 20px;
+  height: 40px;
+  border-radius: 10px;
+}

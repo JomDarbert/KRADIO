@@ -4,6 +4,7 @@ artoo.scrape('.tit_song a, .tit_artist a:first-child')
 
 artoo.scrape('.item-title, .txt-container div:nth-child(2), .title, .other')
 
+add current time / max time label
 ###
 
 client_id = "2721807f620a4047d473472d46865f14"
@@ -239,20 +240,22 @@ $(document).bind "onMediaTimeUpdate.scPlayer", (event) ->
   console.log event.target, "the track is at " + event.position + " out of " + event.duration + " which is " + event.relative + " of the total"
   return
 
-
-player.addEventListener("playing", ->
-    nextButton.className = "fa fa-refresh fa-5x"
-)
-
 player.addEventListener("timeupdate", ->
     $('#seek').val(player.currentTime)
 )
 
+$('#seek').on("input", ->
+    player.pause()
+    player.currentTime = $('#seek').val()
+)
 
+$('#seek').on("change", ->
+    player.play()
+    player.currentTime = $('#seek').val()
+)
 
 $("#nextButton").click -> 
     playRandom()
-    nextButton.className = "fa fa-refresh fa-5x fa-spin"
 
 $("#playButton").click -> 
     playPause()
