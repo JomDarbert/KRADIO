@@ -448,11 +448,11 @@ input, select, button, textarea, a {
 
 /* PROJECT */
 #title {
-  height: 10rem;
-  max-height: 10rem;
+  height: 15rem;
+  max-height: 15rem;
   overflow: hidden;
   font-size: 4rem;
-  line-height: 4.5rem;
+  line-height: 4rem;
   letter-spacing: -6px;
   text-align: center;
   font-family: "GothamRounded";
@@ -464,10 +464,24 @@ input, select, button, textarea, a {
   width: 100%;
   display: block;
 }
+@media (max-width: 720px) {
+  #title {
+    font-size: 3rem;
+    line-height: 3rem;
+    letter-spacing: -3px;
+  }
+}
+@media (max-width: 500px) {
+  #title {
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+    letter-spacing: -2px;
+  }
+}
 
 button {
-  width: 200px;
-  height: 200px;
+  width: 100px;
+  height: 100px;
   min-width: 200px;
   min-height: 200px;
   outline: none;
@@ -476,12 +490,28 @@ button {
   -webkit-text-stroke: 4px black;
   color: white;
 }
+@media (max-width: 720px) {
+  button {
+    width: 185px;
+    height: 185px;
+    min-width: 185px;
+    min-height: 185px;
+  }
+}
+@media (max-width: 500px) {
+  button {
+    width: 155px;
+    height: 155px;
+    min-width: 155px;
+    min-height: 155px;
+  }
+}
 
 #bottomPanel {
   position: absolute;
   bottom: 0px;
   width: 100%;
-  height: 240px;
+  height: 300px;
   overflow: hidden;
   display: flex;
   flex-direction: row;
@@ -496,11 +526,21 @@ button {
   margin: auto 20px 20px auto;
   flex: 0 1 auto;
 }
+@media (max-width: 500px) {
+  #nextButton {
+    margin: auto 5px 5px auto;
+  }
+}
 
 #playButton {
   background: #31a480;
   margin: auto auto 20px 20px;
   flex: 0 1 auto;
+}
+@media (max-width: 500px) {
+  #playButton {
+    margin: auto auto 5px 5px;
+  }
 }
 
 #seek {
@@ -513,8 +553,13 @@ button {
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
-  margin-top: 50px;
+  margin-top: 100px;
   display: block;
+}
+@media (max-width: 720px) {
+  #seek {
+    margin-top: 50px;
+  }
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -535,4 +580,14 @@ input[type="range"]::-webkit-slider-thumb {
   font-weight: 700;
   color: white;
   -webkit-text-stroke: 2px black;
+}
+@media (max-width: 720px) {
+  #playerTime {
+    flex: none;
+    position: absolute;
+    top: -50px;
+    left: 12.5%;
+    width: 75%;
+    margin: 0;
+  }
 }

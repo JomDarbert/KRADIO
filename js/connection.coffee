@@ -236,17 +236,23 @@ getTimeFromSecs = (secs) ->
 playPause = ->
   if player.paused
     player.play()
-    playButton.className = ""
-    playButton.className = "fa fa-pause fa-5x"
   else
     player.pause()
-    playButton.className = ""
-    playButton.className = "fa fa-play fa-5x"
   return
 
 player.addEventListener("timeupdate", ->
     $('#seek').val(player.currentTime)
     $('#currentTime').text(getTimeFromSecs(player.currentTime))
+)
+
+player.addEventListener("playing", ->
+    playButton.className = ""
+    playButton.className = "fa fa-pause fa-5x"
+)
+
+player.addEventListener("pause", ->
+    playButton.className = ""
+    playButton.className = "fa fa-play fa-5x"
 )
 
 $('#seek').on("input", ->
@@ -261,8 +267,6 @@ $('#seek').on("change", ->
 
 $("#nextButton").click -> 
     playRandom()
-    playButton.className = ""
-    playButton.className = "fa fa-pause fa-5x"
 
 $("#playButton").click -> 
     playPause()
