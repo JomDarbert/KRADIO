@@ -1,0 +1,145 @@
+@import "reset", "font-face";
+
+$base-size:         18px;
+$base-lineheight:   1.5;
+$base-style:        normal;
+$container-width:   800px;
+
+$serif:            'MercuryG1';
+$sans:             'Gotham';
+$sans-narrow:      'GothamNarrow';
+$sans-xnarrow:     'GothamXNarrow';
+$sans-condensed:   'GothamCondensed';
+$sans-rounded:     'GothamRounded';
+$logo:             'Knockout';
+
+$light:     300;
+$book:      400;
+$medium:    500;
+$semi-bold: 600;
+$bold:      700;
+
+$off-white:   #f7f7f7;
+$dark-grey:   #2d3033;
+$blue:        #4D89C1;
+$teal:        #278998;
+$seafoam:     #31A480;
+$green:       #94D78E;
+$red:         #D7431B;
+$orange:      #B24626;
+$yellow:      #D7A627;
+$grey:        #585A5B;
+
+/* BASE */
+* {box-sizing: border-box;}
+
+html, body {
+    font-style:     $base-style;
+    font-weight:    $book;
+    font-family:    $serif;
+    font-size:      $base-size;
+    line-height:    $base-lineheight;
+    color:          $dark-grey;
+    background:     $off-white;
+    width:          100%;
+    height:         100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* TYPOGRAPHY */
+h1, h2, h3, h4, h5, h6 {
+    font-family: $sans;
+    font-weight: $semi-bold;
+    line-height: 1.2;
+    color: #222;
+}
+
+h1     { font-size: 300%; }
+h2     { font-size: 225%; }
+h3     { font-size: 180%; }
+h4     { font-size: 180%; }
+h5     { font-size: 150%; }
+h6     { font-size: 130%; }
+
+p,ol,ul { 
+    margin: 0 0 1rem 0; 
+    font-size: 100%;
+}
+
+ol     { list-style: decimal;}
+ul     { list-style: square;}
+li     { margin-left: 2.5rem;}
+strong { font-weight: 500; }
+em     { font-style: italic; }
+.error { color: $red; display: block;}
+
+/* STRUCTURE */
+input, select, button, textarea, a {
+    transition: 0.4s all;
+}
+
+#container {
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
+
+/* PROJECT */
+#title {
+    font-size: 4.5rem;
+    letter-spacing: -5px;
+    text-align: center;
+    font-family: $sans-rounded;
+    font-weight: $bold;
+    padding: 1rem;
+    color: $yellow;
+    -webkit-text-stroke: 4px black;
+    text-shadow:
+       3px 3px 0 black,
+     -1px -1px 0 black,  
+      1px -1px 0 black,
+      -1px 1px 0 black,
+       1px 1px 0 black;
+}
+
+button {
+    width: 200px;
+    height: 200px;
+    outline: none;
+    border: 4px solid black;
+    border-radius: 50%;
+    box-shadow:
+       3px 3px 0 $dark-grey,
+     -1px -1px 0 $dark-grey,  
+      1px -1px 0 $dark-grey,
+      -1px 1px 0 $dark-grey,
+       1px 1px 0 $dark-grey;
+
+    -webkit-text-stroke: 4px black;
+    color: white;
+}
+
+#nextButton {
+    position: absolute;
+    bottom: 50px;
+    right: 50px;
+    background: $red;
+}
+
+#playButton {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    background: $seafoam;
+}
+
+#seek {
+    -webkit-appearance: none;
+    background: red;
+    color: red;
+    border: 1px solid red;
+    width: 50%;
+    margin: 0 auto;
+}
