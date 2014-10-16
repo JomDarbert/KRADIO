@@ -13,9 +13,14 @@
         <h1 id="title"></h1>
         <audio id="player" autoplay></audio>
 
-        <button id="nextButton" class="fa fa-refresh fa-5x"></button>
-        <button id="playButton" class="fa fa-pause fa-5x"></button>
-        <input type="range" id="seek" value="0" max=""/>
+        <section id="bottomPanel">
+            <button id="playButton" class="fa fa-pause fa-5x"></button>
+            <div id="playerTime">
+                <input type="range" id="seek" value="0" max=""/>
+                <output id="currentTime">0</output> / <output id="endTime">0</output>
+            </div>
+            <button id="nextButton" class="fa fa-refresh fa-5x"></button>
+        </section>
     </div>
 
 

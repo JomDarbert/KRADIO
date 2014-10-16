@@ -216,6 +216,7 @@ playRandom = ->
             $("#player").attr "src", stream_url + "?client_id=" + client_id
             $("#title").text title
             $('#seek').attr "max", duration/1000
+            $('#endTime').text getTimeFromSecs(duration/1000)
             $("#container").css "background-size", "cover"
             $("#container").css "-webkit-background-size", "cover"
             $("#container").css "background", "url("+artwork+") no-repeat center center fixed"
@@ -223,7 +224,14 @@ playRandom = ->
 
     return
 
+pad = (d) -> (if (d < 10) then "0" + d.toString() else d.toString())
 
+getTimeFromSecs = (secs) ->
+    minutes = secs/60
+    seconds = (minutes % 1)*60
+    minString = Math.floor(minutes)
+    secString = Math.floor(seconds)
+    return "#{minString}:#{pad(secString)}"
 
 playPause = ->
   if player.paused
@@ -236,12 +244,9 @@ playPause = ->
     playButton.className = "fa fa-play fa-5x"
   return
 
-$(document).bind "onMediaTimeUpdate.scPlayer", (event) ->
-  console.log event.target, "the track is at " + event.position + " out of " + event.duration + " which is " + event.relative + " of the total"
-  return
-
 player.addEventListener("timeupdate", ->
     $('#seek').val(player.currentTime)
+    $('#currentTime').text(getTimeFromSecs(player.currentTime))
 )
 
 $('#seek').on("input", ->
@@ -256,6 +261,8 @@ $('#seek').on("change", ->
 
 $("#nextButton").click -> 
     playRandom()
+    playButton.className = ""
+    playButton.className = "fa fa-pause fa-5x"
 
 $("#playButton").click -> 
     playPause()
