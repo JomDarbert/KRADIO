@@ -4,7 +4,6 @@ artoo.scrape('.tit_song a, .tit_artist a:first-child')
 
 artoo.scrape('.item-title, .txt-container div:nth-child(2), .title, .other')
 
-add current time / max time label
 ###
 
 client_id = "2721807f620a4047d473472d46865f14"
@@ -210,7 +209,7 @@ playRandom = ->
                 stream_url = track.stream_url
                 duration = track.duration
 
-            else alert "There was a problem!"
+            else playRandom()
 
             # Setup player
             $("#player").attr "src", stream_url + "?client_id=" + client_id
@@ -246,13 +245,23 @@ player.addEventListener("timeupdate", ->
 )
 
 player.addEventListener("playing", ->
-    playButton.className = ""
-    playButton.className = "fa fa-pause fa-5x"
+    playButton.innerHTML = "&#xf04c;"
 )
 
 player.addEventListener("pause", ->
-    playButton.className = ""
-    playButton.className = "fa fa-play fa-5x"
+    playButton.innerHTML = "&#xf04b;"
+)
+
+player.addEventListener("ended", ->
+    playRandom()
+)
+
+player.addEventListener("canplaythrough", ->
+    $("#nextButton").removeClass('spin');
+)
+
+player.addEventListener("stalled waiting", ->
+    $("#nextButton").addClass('spin');
 )
 
 $('#seek').on("input", ->
@@ -267,6 +276,7 @@ $('#seek').on("change", ->
 
 $("#nextButton").click -> 
     playRandom()
+    $("#nextButton").addClass('spin');
 
 $("#playButton").click -> 
     playPause()
