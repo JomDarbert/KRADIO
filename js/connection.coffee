@@ -93,8 +93,8 @@ playRandom = ->
     5. Get artwork, song title, and stream url to create player
     ###
 
-    SC.get '/tracks', {q: selected_song}, (tracks) ->
-
+    SC.get '/tracks', {q: selected_song, limit: 200}, (tracks) ->
+        console.log tracks.length
         # If query returns nothing, try to find a different song
         if tracks? and tracks.length is 0 then playRandom() 
 
