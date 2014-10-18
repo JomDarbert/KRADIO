@@ -4,6 +4,9 @@ artoo.scrape('.tit_song a, .tit_artist a:first-child')
 
 artoo.scrape('.item-title, .txt-container div:nth-child(2), .title, .other')
 
+
+Auto-scraping
+Show buffered amount
 ###
 
 client_id = "2721807f620a4047d473472d46865f14"
@@ -94,7 +97,6 @@ playRandom = ->
     ###
 
     SC.get '/tracks', {q: selected_song, limit: 200}, (tracks) ->
-        console.log tracks.length
         # If query returns nothing, try to find a different song
         if tracks? and tracks.length is 0 then playRandom() 
 
@@ -254,6 +256,13 @@ player.addEventListener("pause", ->
 
 player.addEventListener("ended", ->
     playRandom()
+)
+
+player.addEventListener("progress", ->
+    endTime = $('#seek').attr "max"
+    buffered = (player.buffered.end(0)/endTime)*100+"%"
+    remaining = (100 - ((player.buffered.end(0)/endTime)*100))+"%"
+    $('#seek').css "background-image", "linear-gradient(to right,#278998 #{buffered},transparent #{remaining})"
 )
 
 player.addEventListener("canplaythrough", ->
