@@ -259,10 +259,10 @@ player.addEventListener("ended", ->
 )
 
 player.addEventListener("progress", ->
-    endTime = $('#seek').attr "max"
-    buffered = (player.buffered.end(0)/endTime)*100+"%"
-    remaining = (100 - ((player.buffered.end(0)/endTime)*100))+"%"
-    $('#seek').css "background-image", "linear-gradient(to right,#278998 #{buffered},transparent #{remaining})"
+    if player.buffered.length > 0
+        buffered = (player.buffered.end(0)/player.duration)*100+"%"
+        remaining = (100 - ((player.buffered.end(0)/player.duration)*100))+"%"
+        $('#seek').css "background-image", "linear-gradient(to right,#278998 #{buffered},transparent #{remaining})"
 )
 
 player.addEventListener("canplaythrough", ->
