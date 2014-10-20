@@ -81,6 +81,7 @@ player = document.getElementById("player")
 
 
 playRandom = ->
+    console.log "entered playRandom #{new Date()}"
     # Choose a random song to play. If that song is currently playing, choose a new random song until a song is found that is not currently playing.
     loop
         selected_song = top_queries[Math.floor(Math.random()*top_queries.length)]
@@ -97,6 +98,7 @@ playRandom = ->
     ###
 
     SC.get '/tracks', {q: selected_song, limit: 200}, (tracks) ->
+        console.log "starting get request: #{new Date()}"
         # If query returns nothing, try to find a different song
         if tracks? and tracks.length is 0 then playRandom() 
 
@@ -214,14 +216,13 @@ playRandom = ->
             else playRandom()
 
             # Setup player
-            $("#player").attr "src", stream_url + "?client_id=" + client_id
+            player.src = stream_url + "?client_id=" + client_id
             $("#title").text title
             $('#seek').attr "max", duration/1000
             $('#endTime').text getTimeFromSecs(duration/1000)
             $("#container").css "background-size", "cover"
             $("#container").css "-webkit-background-size", "cover"
             $("#container").css "background", "url("+artwork+") no-repeat center center fixed"
-            player.play()
         return
 
     return
@@ -238,46 +239,82 @@ getTimeFromSecs = (secs) ->
 ###
 timeupdate - song progress
 progress - buffer progress
+
+
 ###
 
-player.addEventListener("canplay", ->
-    console.log "#{new Date()}: Canplay"
-    $("#nextButton").removeClass('spin')
-    console.log $('#player').attr "src"
-)
+player.addEventListener "error", (failed = (e) ->
+  switch e.target.error.code
+    when e.target.error.MEDIA_ERR_ABORTED
+      console.log "You aborted the video playback."
+    when e.target.error.MEDIA_ERR_NETWORK
+      console.log "A network error caused the audio download to fail."
+    when e.target.error.MEDIA_ERR_DECODE
+      console.log "The audio playback was aborted due to a corruption problem or because the video used features your browser did not support."
+    when e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED
+      console.log "The video audio not be loaded, either because the server or network failed or because the format is not supported."
+    else
+      console.log "An unknown error occurred."
+), true
 
-player.addEventListener("playing", ->
-    console.log "#{new Date()}: playing"
+logEvent = (event) ->
+    time = new Date().toTimeString().split(' ')[0]
+    console.log "#{time} - #{event.type}"
+
+player.addEventListener("load",logEvent)
+player.addEventListener("abort",logEvent)
+player.addEventListener("canplay",logEvent)
+player.addEventListener("canplaythrough",logEvent)
+player.addEventListener("durationchange",logEvent)
+player.addEventListener("emptied",logEvent)
+player.addEventListener("interruptbegin",logEvent)
+player.addEventListener("interruptend",logEvent)
+player.addEventListener("loadeddata",logEvent)
+player.addEventListener("loadedmetadata",logEvent)
+player.addEventListener("loadstart",logEvent)
+player.addEventListener("pause",logEvent)
+player.addEventListener("play",logEvent)
+player.addEventListener("playing",logEvent)
+player.addEventListener("ratechange",logEvent)
+player.addEventListener("seeked",logEvent)
+player.addEventListener("seeking",logEvent)
+player.addEventListener("stalled",logEvent)
+#player.addEventListener("progress",logEvent)
+#player.addEventListener("suspend",logEvent)
+#player.addEventListener("timeupdate",logEvent)
+player.addEventListener("volumechange",logEvent)
+player.addEventListener("waiting",logEvent)
+player.addEventListener("error",logEvent)
+
+player.addEventListener "canplay", ->
     $("#nextButton").removeClass('spin')
+
+player.addEventListener "playing", ->
     playButton.innerHTML = "&#xf04c;"
-)
 
-player.addEventListener("timeupdate", ->
-    #console.log "#{new Date()}: timeupdate"
+player.addEventListener "pause", ->
+    playButton.innerHTML = "&#xf04b;"
+
+
+player.addEventListener "timeupdate", ->
     $('#seek').val(player.currentTime)
     $('#currentTime').text(getTimeFromSecs(player.currentTime))
-)
 
-player.addEventListener("progress", ->
-    #console.log "#{new Date()}: progress"
+player.addEventListener "progress", ->
     if player.buffered.length > 0
         buffered = (player.buffered.end(0)/player.duration)*100+"%"
         remaining = (100 - ((player.buffered.end(0)/player.duration)*100))+"%"
         $('#seek').css "background-image", "linear-gradient(to right,#278998 #{buffered},transparent #{remaining})"
-)
 
-player.addEventListener("pause", ->
-    playButton.innerHTML = "&#xf04b;"
-)
-
-player.addEventListener("stalled waiting", ->
-    $("#nextButton").addClass('spin')
-)
-
-player.addEventListener("ended", ->
-    player.src = ""
+player.addEventListener "ended", ->
     playRandom()
-)
+
+
+# Error handling
+player.addEventListener "stalled waiting", ->
+    $("#nextButton").addClass('spin')
+
+
 
 
 $('#seek').on("input", ->
@@ -291,14 +328,15 @@ $('#seek').on("change", ->
 )
 
 $("#nextButton").click -> 
+    console.log "---------- NEXT PRESSED ----------"
+    console.log new Date()
     $("#nextButton").addClass('spin')
-    player.src = ""
     playRandom()
+
 
 $("#playButton").click -> 
     if player.paused then player.play()
     else player.pause()
 
 $(document).ready ->
-    player.src = ""
     playRandom()
