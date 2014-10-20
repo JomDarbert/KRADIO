@@ -6,7 +6,7 @@ artoo.scrape('.item-title, .txt-container div:nth-child(2), .title, .other')
 
 
 Auto-scraping
-Show buffered amount
+http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playing
 ###
 
 client_id = "2721807f620a4047d473472d46865f14"
