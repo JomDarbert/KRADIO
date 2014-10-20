@@ -226,21 +226,26 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
     }
   };
 
-  player.addEventListener("timeupdate", function() {
-    $('#seek').val(player.currentTime);
-    return $('#currentTime').text(getTimeFromSecs(player.currentTime));
+
+  /*
+  timeupdate - song progress
+  progress - buffer progress
+   */
+
+  player.addEventListener("canplay", function() {
+    console.log("" + (new Date()) + ": Canplay");
+    $("#nextButton").removeClass('spin');
+    return console.log($('#player').attr("src"));
   });
 
   player.addEventListener("playing", function() {
+    console.log("" + (new Date()) + ": playing");
     return playButton.innerHTML = "&#xf04c;";
   });
 
-  player.addEventListener("pause", function() {
-    return playButton.innerHTML = "&#xf04b;";
-  });
-
-  player.addEventListener("ended", function() {
-    return playRandom();
+  player.addEventListener("timeupdate", function() {
+    $('#seek').val(player.currentTime);
+    return $('#currentTime').text(getTimeFromSecs(player.currentTime));
   });
 
   player.addEventListener("progress", function() {
@@ -252,12 +257,17 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
     }
   });
 
-  player.addEventListener("canplaythrough", function() {
-    return $("#nextButton").removeClass('spin');
+  player.addEventListener("pause", function() {
+    return playButton.innerHTML = "&#xf04b;";
   });
 
   player.addEventListener("stalled waiting", function() {
     return $("#nextButton").addClass('spin');
+  });
+
+  player.addEventListener("ended", function() {
+    player.src = "";
+    return playRandom();
   });
 
   $('#seek').on("input", function() {
@@ -271,8 +281,9 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
   });
 
   $("#nextButton").click(function() {
-    playRandom();
-    return $("#nextButton").addClass('spin');
+    $("#nextButton").addClass('spin');
+    player.src = "";
+    return playRandom();
   });
 
   $("#playButton").click(function() {
@@ -280,6 +291,7 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
   });
 
   $(document).ready(function() {
+    player.src = "";
     return playRandom();
   });
 

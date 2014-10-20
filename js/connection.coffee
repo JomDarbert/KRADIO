@@ -241,37 +241,49 @@ playPause = ->
     player.pause()
   return
 
+###
+timeupdate - song progress
+progress - buffer progress
+###
+
+player.addEventListener("canplay", ->
+    console.log "#{new Date()}: Canplay"
+    $("#nextButton").removeClass('spin')
+    console.log $('#player').attr "src"
+)
+
+player.addEventListener("playing", ->
+    console.log "#{new Date()}: playing"
+    playButton.innerHTML = "&#xf04c;"
+)
+
 player.addEventListener("timeupdate", ->
+    #console.log "#{new Date()}: timeupdate"
     $('#seek').val(player.currentTime)
     $('#currentTime').text(getTimeFromSecs(player.currentTime))
 )
 
-player.addEventListener("playing", ->
-    playButton.innerHTML = "&#xf04c;"
-)
-
-player.addEventListener("pause", ->
-    playButton.innerHTML = "&#xf04b;"
-)
-
-player.addEventListener("ended", ->
-    playRandom()
-)
-
 player.addEventListener("progress", ->
+    #console.log "#{new Date()}: progress"
     if player.buffered.length > 0
         buffered = (player.buffered.end(0)/player.duration)*100+"%"
         remaining = (100 - ((player.buffered.end(0)/player.duration)*100))+"%"
         $('#seek').css "background-image", "linear-gradient(to right,#278998 #{buffered},transparent #{remaining})"
 )
 
-player.addEventListener("canplaythrough", ->
-    $("#nextButton").removeClass('spin');
+player.addEventListener("pause", ->
+    playButton.innerHTML = "&#xf04b;"
 )
 
 player.addEventListener("stalled waiting", ->
-    $("#nextButton").addClass('spin');
+    $("#nextButton").addClass('spin')
 )
+
+player.addEventListener("ended", ->
+    player.src = ""
+    playRandom()
+)
+
 
 $('#seek').on("input", ->
     player.pause()
@@ -284,11 +296,13 @@ $('#seek').on("change", ->
 )
 
 $("#nextButton").click -> 
+    $("#nextButton").addClass('spin')
+    player.src = ""
     playRandom()
-    $("#nextButton").addClass('spin');
 
 $("#playButton").click -> 
     playPause()
 
 $(document).ready ->
+    player.src = ""
     playRandom()
