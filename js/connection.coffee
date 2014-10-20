@@ -221,6 +221,7 @@ playRandom = ->
             $("#container").css "background-size", "cover"
             $("#container").css "-webkit-background-size", "cover"
             $("#container").css "background", "url("+artwork+") no-repeat center center fixed"
+            player.play()
         return
 
     return
@@ -233,13 +234,6 @@ getTimeFromSecs = (secs) ->
     minString = Math.floor(minutes)
     secString = Math.floor(seconds)
     return "#{minString}:#{pad(secString)}"
-
-playPause = ->
-  if player.paused
-    player.play()
-  else
-    player.pause()
-  return
 
 ###
 timeupdate - song progress
@@ -254,6 +248,7 @@ player.addEventListener("canplay", ->
 
 player.addEventListener("playing", ->
     console.log "#{new Date()}: playing"
+    $("#nextButton").removeClass('spin')
     playButton.innerHTML = "&#xf04c;"
 )
 
@@ -301,7 +296,8 @@ $("#nextButton").click ->
     playRandom()
 
 $("#playButton").click -> 
-    playPause()
+    if player.paused then player.play()
+    else player.pause()
 
 $(document).ready ->
     player.src = ""

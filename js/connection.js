@@ -11,7 +11,7 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
  */
 
 (function() {
-  var client_id, currently_playing, exclude_tags, getTimeFromSecs, hangul, pad, playPause, playRandom, player, priority_tags, top_queries,
+  var client_id, currently_playing, exclude_tags, getTimeFromSecs, hangul, pad, playRandom, player, priority_tags, top_queries,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -197,6 +197,7 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
         $("#container").css("background-size", "cover");
         $("#container").css("-webkit-background-size", "cover");
         $("#container").css("background", "url(" + artwork + ") no-repeat center center fixed");
+        player.play();
       }
     });
   };
@@ -218,14 +219,6 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
     return "" + minString + ":" + (pad(secString));
   };
 
-  playPause = function() {
-    if (player.paused) {
-      player.play();
-    } else {
-      player.pause();
-    }
-  };
-
 
   /*
   timeupdate - song progress
@@ -240,6 +233,7 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
 
   player.addEventListener("playing", function() {
     console.log("" + (new Date()) + ": playing");
+    $("#nextButton").removeClass('spin');
     return playButton.innerHTML = "&#xf04c;";
   });
 
@@ -287,7 +281,11 @@ http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playi
   });
 
   $("#playButton").click(function() {
-    return playPause();
+    if (player.paused) {
+      return player.play();
+    } else {
+      return player.pause();
+    }
   });
 
   $(document).ready(function() {
