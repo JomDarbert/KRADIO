@@ -50,9 +50,16 @@ logEvent = (event) ->
     time = new Date().toTimeString().split(' ')[0]
     console.log "#{time} || #{event.target.id} - #{event.type}"
 
-setActivePlayer = (player) ->
+playNext = ->
+    current = getActivePlayer()
+    current.pause()
+    preparePlayer(current)
 
-    # Set Classes
+    next = getReadyPlayer()
+    setActivePlayer(next)
+    next.play()
+
+setActivePlayer = (player) ->
     players = document.getElementsByTagName "audio"
     for p in players
         isActive = p.classList.contains "active"
@@ -64,15 +71,8 @@ setActivePlayer = (player) ->
     song_title.innerHTML = player.getAttribute "title"
     endTime.innerHTML = getTimeFromSecs(player.getAttribute("duration")/ 1000)
     $('#seek').attr "max", player.getAttribute("duration")/1000
-
-
-    player.addEventListener "progress", ->
-        if player.buffered.length > 0
-            buffered = (player.buffered.end(0)/player.duration)*100+"%"
-            remaining = (100 - ((player.buffered.end(0)/player.duration)*100))+"%"
-            $('#seek').css "background-image", "none"
-            $('#seek').css "background-image", "linear-gradient(to right,#278998 #{buffered},transparent #{remaining})"
-
+    $('#container').css "background", "url("+player.getAttribute("artwork")+") no-repeat center center fixed"
+    $('#container').css "background-size", "cover"
 
     player.addEventListener "timeupdate", ->
         $('#seek').val(@currentTime)
@@ -83,6 +83,9 @@ setActivePlayer = (player) ->
 
     player.addEventListener "pause", ->
         playButton.innerHTML = "&#xf04b;"
+
+    player.addEventListener "ended", ->
+        playNext()
 
     player.play()
 
@@ -98,7 +101,7 @@ preparePlayer = (player) ->
     player.removeEventListener "timeupdate"
     player.removeEventListener "playing"
     player.removeEventListener "pause"
-
+    player.removeEventListener "ended"
 
     dfd = $.Deferred()
     getRandomSong().done (song) ->
@@ -261,7 +264,7 @@ getRandomSong = () ->
 
 
 SC.initialize client_id: client_id
-###
+
 for player in [player_one,player_two,player_three,player_four,player_five]
     player.addEventListener "error", (failed = (e) ->
       switch e.target.error.code
@@ -276,7 +279,7 @@ for player in [player_one,player_two,player_three,player_four,player_five]
         else
           console.log "An unknown error occurred."
     ), true
-
+###
     player.addEventListener("load",logEvent)
     player.addEventListener("abort",logEvent)
     player.addEventListener("canplay",logEvent)
@@ -301,17 +304,8 @@ for player in [player_one,player_two,player_three,player_four,player_five]
     player.addEventListener("volumechange",logEvent)
     player.addEventListener("waiting",logEvent)
     player.addEventListener("error",logEvent)
-
-
-
-    #player.addEventListener "ended", ->
-    #    getRandomSong()
-
-    player.addEventListener "stalled waiting", ->
-        current = getActivePlayer()
-        if player is current
-            $("#nextButton").addClass('spin')
 ###
+
 $('#seek').on("input", ->
     current = getActivePlayer()
     current.pause()
@@ -326,14 +320,7 @@ $('#seek').on("change", ->
 
 
 $("#nextButton").click -> 
-    current = getActivePlayer()
-    current.pause()
-    preparePlayer(current)
-
-    next = getReadyPlayer()
-    setActivePlayer(next)
-    next.play()
-    console.log "currently playing ("+next.id+")"+next.getAttribute "title"
+    playNext()
     
 
 $("#playButton").click ->
@@ -345,7 +332,7 @@ $(document).ready ->
     preparePlayer(player_one).done (player) ->
         setActivePlayer(player)
 
-        preparePlayer(player_two)
-        preparePlayer(player_three)
-        preparePlayer(player_four)
-        preparePlayer(player_five)
+        preparePlayer(player_two).done ->
+            preparePlayer(player_three).done ->
+                preparePlayer(player_four).done ->
+                    preparePlayer(player_five).done
