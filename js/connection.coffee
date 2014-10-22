@@ -2,6 +2,8 @@
 Auto-scraping
 http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playing
 http://stackoverflow.com/questions/7779697/javascript-asynchronous-return-value-assignment-with-jquery
+
+to do - is it currently playing
 ###
 
 client_id       =   "2721807f620a4047d473472d46865f14"
@@ -31,6 +33,7 @@ player_three        = document.getElementById("player_three")
 player_four         = document.getElementById("player_four")
 player_five         = document.getElementById("player_five")
 song_title          = document.getElementById("title")
+container           = document.getElementById("container")
 playButton          = document.getElementById("playButton")
 nextButton          = document.getElementById("nextButton")
 seek                = document.getElementById("seek")
@@ -70,13 +73,13 @@ setActivePlayer = (player) ->
 
     song_title.innerHTML = player.getAttribute "title"
     endTime.innerHTML = getTimeFromSecs(player.getAttribute("duration")/ 1000)
-    $('#seek').attr "max", player.getAttribute("duration")/1000
-    $('#container').css "background", "url("+player.getAttribute("artwork")+") no-repeat center center fixed"
-    $('#container').css "background-size", "cover"
+    seek.setAttribute "max", player.getAttribute("duration")/1000
+    container.style.background = "url("+player.getAttribute("artwork")+") no-repeat center center fixed"
+    container.style["background-size"] = "cover"
 
     player.addEventListener "timeupdate", ->
-        $('#seek').val(@currentTime)
-        $('#currentTime').text(getTimeFromSecs(@currentTime))
+        seek.value = @currentTime
+        currentTime.innerHTML = getTimeFromSecs(@currentTime)
 
     player.addEventListener "playing", ->
         playButton.innerHTML = "&#xf04c;"
@@ -259,76 +262,27 @@ getRandomSong = () ->
 
     return dfd.promise()
 
-
-
-
-
-SC.initialize client_id: client_id
-
-for player in [player_one,player_two,player_three,player_four,player_five]
-    player.addEventListener "error", (failed = (e) ->
-      switch e.target.error.code
-        when e.target.error.MEDIA_ERR_ABORTED
-          console.log "You aborted the video playback."
-        when e.target.error.MEDIA_ERR_NETWORK
-          console.log "A network error caused the audio download to fail."
-        when e.target.error.MEDIA_ERR_DECODE
-          console.log "The audio playback was aborted due to a corruption problem or because the video used features your browser did not support."
-        when e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED
-          console.log "The video audio not be loaded, either because the server or network failed or because the format is not supported."
-        else
-          console.log "An unknown error occurred."
-    ), true
-###
-    player.addEventListener("load",logEvent)
-    player.addEventListener("abort",logEvent)
-    player.addEventListener("canplay",logEvent)
-    player.addEventListener("canplaythrough",logEvent)
-    player.addEventListener("durationchange",logEvent)
-    player.addEventListener("emptied",logEvent)
-    player.addEventListener("interruptbegin",logEvent)
-    player.addEventListener("interruptend",logEvent)
-    player.addEventListener("loadeddata",logEvent)
-    player.addEventListener("loadedmetadata",logEvent)
-    player.addEventListener("loadstart",logEvent)
-    player.addEventListener("pause",logEvent)
-    player.addEventListener("play",logEvent)
-    player.addEventListener("playing",logEvent)
-    player.addEventListener("ratechange",logEvent)
-    player.addEventListener("seeked",logEvent)
-    player.addEventListener("seeking",logEvent)
-    player.addEventListener("stalled",logEvent)
-    #player.addEventListener("progress",logEvent)
-    #player.addEventListener("suspend",logEvent)
-    #player.addEventListener("timeupdate",logEvent)
-    player.addEventListener("volumechange",logEvent)
-    player.addEventListener("waiting",logEvent)
-    player.addEventListener("error",logEvent)
-###
-
-$('#seek').on("input", ->
-    current = getActivePlayer()
-    current.pause()
-    current.currentTime = $('#seek').val()
-)
-
-$('#seek').on("change", ->
-    current = getActivePlayer()
-    current.play()
-    current.currentTime = $('#seek').val()
-)
-
-
-$("#nextButton").click -> 
-    playNext()
-    
-
-$("#playButton").click ->
-    active = getActivePlayer()
-    if active.paused then active.play()
-    else active.pause()
-
 $(document).ready ->
+    SC.initialize client_id: client_id
+
+    seek.addEventListener "change", ->
+        current = getActivePlayer()
+        current.play()
+        current.currentTime = seek.value    
+
+    seek.addEventListener "input", ->
+        current = getActivePlayer()
+        current.pause()
+        current.currentTime = seek.value
+
+    nextButton.addEventListener "click", ->
+        playNext()
+
+    playButton.addEventListener "click", ->
+        active = getActivePlayer()
+        if active.paused then active.play()
+        else active.pause()   
+
     preparePlayer(player_one).done (player) ->
         setActivePlayer(player)
 
