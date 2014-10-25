@@ -12,7 +12,7 @@
 
   blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"];
 
-  hangul_chars = "[^\u1100-\u11FF|^\u3130-\u318F|^\uA960-\uA97F|^\uAC00-\uD7AF|^\uD7B0-\uD7FF]";
+  hangul_chars = "[^A-Z|a-z|1-9|\u1100-\u11FF|^\u3130-\u318F|^\uA960-\uA97F|^\uAC00-\uD7AF|^\uD7B0-\uD7FF \[\]]";
 
   english_chars = "[]";
 
@@ -52,7 +52,9 @@
 
   top_queries = [];
 
-  console.log(hangul.test("안녕 name 안녕[]."));
+  console.log(hangul.exec("안녕 name 안녕[]."));
+
+  console.log(hangul.exec("tom test اختبار"));
 
   for (_i = 0, _len = eyk.length; _i < _len; _i++) {
     song = eyk[_i];

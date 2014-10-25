@@ -15,7 +15,7 @@ blacklist = [
   "meditat"
   ]
 
-hangul_chars    =   "[^\u1100-\u11FF|^\u3130-\u318F|^\uA960-\uA97F|^\uAC00-\uD7AF|^\uD7B0-\uD7FF]"
+hangul_chars    =   "[^A-Z|a-z|1-9|\u1100-\u11FF|^\u3130-\u318F|^\uA960-\uA97F|^\uAC00-\uD7AF|^\uD7B0-\uD7FF \[\]]"
 
 english_chars   = "[]"
 english         = new RegExp english_chars
@@ -50,7 +50,9 @@ mwave = (->
 )()
 
 top_queries = []
-console.log hangul.test("안녕 name 안녕[].")
+console.log hangul.exec("안녕 name 안녕[].")
+
+console.log hangul.exec("tom test اختبار")
 
 for song in eyk
     top_queries.push song.title
