@@ -52,12 +52,8 @@ for song in mwave
 
 top_queries = arrayUnique(top_queries)
 
-for query in top_queries
-  checkBlacklist
-
 
 # --------------------------------------------------------------
-
 checkBlacklist = (song,query) ->
   # Don't want songs where critical values are missing
   if not song.title?    then return false
@@ -148,11 +144,14 @@ checkWhitelist = (song,query) ->
 getRandomSong = (query) ->
   dfd = $.Deferred()
   console.log "Entered at: #{new Date()}"
+
   SC.get '/tracks', {q: query, limit: 200}, (tracks) ->
+
     console.log "Got tracks: #{new Date()}"
     if not tracks? or tracks.length is 0
       dfd.resolve(false)
       return
+
     else
       finalists = []
       tracks.forEach (track) ->
@@ -182,7 +181,6 @@ getRandomSong = (query) ->
       if finalists.length > 0 then dfd.resolve(finalists[0])
       else dfd.resolve(false)
     return
-
   return dfd.promise()
 
 addToHistory = (song) ->
@@ -194,6 +192,9 @@ randomQuery = () ->
 
 count = 0
 $('#test').on "click", ->
-  getRandomSong(randomQuery()).done (song) ->
-    console.log "Exited: #{new Date()}"
-    console.log song
+  console.log top_queries.length + " songs"
+  for query in top_queries
+    getRandomSong(query).done (song) ->
+      console.log "Exited: #{new Date()}"
+      if song isnt false then count += 1
+      console.log count

@@ -1,5 +1,5 @@
 (function() {
-  var addToHistory, blacklist, checkBlacklist, checkWhitelist, client_id, count, eyk, getRandomSong, has_korean, history, mwave, not_kor_eng, query, randomQuery, song, top_queries, upcoming, whitelist, _i, _j, _k, _len, _len1, _len2,
+  var addToHistory, blacklist, checkBlacklist, checkWhitelist, client_id, count, eyk, getRandomSong, has_korean, history, mwave, not_kor_eng, randomQuery, song, top_queries, upcoming, whitelist, _i, _j, _len, _len1,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -64,13 +64,8 @@
 
   top_queries = arrayUnique(top_queries);
 
-  for (_k = 0, _len2 = top_queries.length; _k < _len2; _k++) {
-    query = top_queries[_k];
-    checkBlacklist;
-  }
-
   checkBlacklist = function(song, query) {
-    var arrays, cleaned_query, cleaned_song, created_date, date_limit, kor_eng_test, ok_months, query_array, result, song_array, term, _l, _len3, _len4, _len5, _m, _n;
+    var arrays, cleaned_query, cleaned_song, created_date, date_limit, kor_eng_test, ok_months, query_array, result, song_array, term, _k, _l, _len2, _len3, _len4, _m;
     if (song.title == null) {
       return false;
     }
@@ -86,20 +81,20 @@
     if (date_limit.diff(created_date, "months") > 0) {
       return false;
     }
+    for (_k = 0, _len2 = blacklist.length; _k < _len2; _k++) {
+      term = blacklist[_k];
+      if (song.title.indexOf(term) !== -1) {
+        return false;
+      }
+    }
     for (_l = 0, _len3 = blacklist.length; _l < _len3; _l++) {
       term = blacklist[_l];
-      if (song.title.indexOf(term) !== -1) {
+      if ((song.genre != null) && song.genre.indexOf(term) !== -1) {
         return false;
       }
     }
     for (_m = 0, _len4 = blacklist.length; _m < _len4; _m++) {
       term = blacklist[_m];
-      if ((song.genre != null) && song.genre.indexOf(term) !== -1) {
-        return false;
-      }
-    }
-    for (_n = 0, _len5 = blacklist.length; _n < _len5; _n++) {
-      term = blacklist[_n];
       if (__indexOf.call(song.tags, term) >= 0) {
         return false;
       }
@@ -128,7 +123,7 @@
   };
 
   checkWhitelist = function(song, query) {
-    var arrays, cleaned_query, cleaned_song, query_array, query_count, result, score, song_array, tags_count, term, test, _l, _len3, _ref;
+    var arrays, cleaned_query, cleaned_song, query_array, query_count, result, score, song_array, tags_count, term, test, _k, _len2, _ref;
     score = 0;
     tags_count = 0;
     query_count = 0;
@@ -137,8 +132,8 @@
     if (_ref = song.genre, __indexOf.call(whitelist, _ref) >= 0) {
       score += 1;
     }
-    for (_l = 0, _len3 = whitelist.length; _l < _len3; _l++) {
-      term = whitelist[_l];
+    for (_k = 0, _len2 = whitelist.length; _k < _len2; _k++) {
+      term = whitelist[_k];
       if (__indexOf.call(song.tags, term) >= 0) {
         tags_count += 1;
       }
@@ -258,10 +253,20 @@
   count = 0;
 
   $('#test').on("click", function() {
-    return getRandomSong(randomQuery()).done(function(song) {
-      console.log("Exited: " + (new Date()));
-      return console.log(song);
-    });
+    var query, _k, _len2, _results;
+    console.log(top_queries.length + " songs");
+    _results = [];
+    for (_k = 0, _len2 = top_queries.length; _k < _len2; _k++) {
+      query = top_queries[_k];
+      _results.push(getRandomSong(query).done(function(song) {
+        console.log("Exited: " + (new Date()));
+        if (song !== false) {
+          count += 1;
+        }
+        return console.log(count);
+      }));
+    }
+    return _results;
   });
 
 }).call(this);
