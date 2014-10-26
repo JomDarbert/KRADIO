@@ -2,21 +2,17 @@ client_id       =   "2721807f620a4047d473472d46865f14"
 SC.initialize client_id: client_id
 
 whitelist = [ 
-  "kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", 
-  "korean pop", "korean-pop", "kor-pop", "korean version", "kr",
-  "kr ver", "original"
+  "kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"
   ]
 
 blacklist = [ 
-  "cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", 
-  "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", 
-  "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", 
-  "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient",
-  "meditat"
-  ]
+  "cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"]
 
 not_kor_eng = /[^A-Za-z0-9\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF \♡\.\「\」\”\“\’\∞\♥\|\【\】\–\{\}\[\]\!\@\#\$\%\^\&\*\(\)\-\_\=\+\;\:\'\"\,\.\<\>\/\\\?\`\~]/g
 has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
+
+history = []
+upcoming = ""
 
 eyk = (->
   json = null
@@ -46,30 +42,23 @@ mwave = (->
   json
 )()
 
-arrayUnique = (array) ->
-  a = array.concat()
-  i = 0
-
-  while i < a.length
-    j = i + 1
-
-    while j < a.length
-      a.splice j--, 1  if a[i] is a[j]
-      ++j
-    ++i
-  a
-
 top_queries = []
+
 for song in eyk
     top_queries.push song.title
 
 for song in mwave
     top_queries.push song.artist + " " + song.title
+
 top_queries = arrayUnique(top_queries)
 
-console.log top_queries
+for query in top_queries
+  checkBlacklist
 
-checkBlacklist = (song) ->
+
+# --------------------------------------------------------------
+
+checkBlacklist = (song,query) ->
   # Don't want songs where critical values are missing
   if not song.title?    then return false
   if not song.url?      then return false
@@ -97,6 +86,20 @@ checkBlacklist = (song) ->
   # Don't want songs with characters that aren't English or Korean
   kor_eng_test = not_kor_eng.test(song.title)
   if kor_eng_test is true then return false
+
+  # Don't want songs where none of the song's title words are in query
+  cleaned_song = song.title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+  cleaned_query = query.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+  song_array = cleaned_song.split " "
+  query_array = cleaned_query.split " "
+  arrays = [song_array,query_array]
+  result = arrays.shift().reduce((res, v) ->
+    res.push v  if res.indexOf(v) is -1 and arrays.every((a) ->
+      a.indexOf(v) isnt -1
+    )
+    res
+  , [])
+  if result.length is 0 then return false
 
   # Song passed all checks
   return true
@@ -144,42 +147,53 @@ checkWhitelist = (song,query) ->
 
 getRandomSong = (query) ->
   dfd = $.Deferred()
+  console.log "Entered at: #{new Date()}"
   SC.get '/tracks', {q: query, limit: 200}, (tracks) ->
-    finalists = []
+    console.log "Got tracks: #{new Date()}"
+    if not tracks? or tracks.length is 0
+      dfd.resolve(false)
+      return
+    else
+      finalists = []
+      tracks.forEach (track) ->
+        if track.title?           then title    = track.title.toLowerCase()
+        if track.genre?           then genre    = track.genre.toLowerCase()
+        if track.tag_list?        then tags     = track.tag_list.toLowerCase().split(" ")
+        if track.created_at?      then created  = track.created_at
+        if track.stream_url?      then url      = track.stream_url
+        if track.artwork_url?     then artwork  = track.artwork_url.replace("-large","-t500x500")
+        if track.playback_count?  then views    = track.playback_count
+        if track.duration?        then duration = track.duration/1000
 
-    tracks.forEach (track) ->
-      if track.title?           then title    = track.title.toLowerCase()
-      if track.genre?           then genre    = track.genre.toLowerCase()
-      if track.tag_list?        then tags     = track.tag_list.toLowerCase().split(" ")
-      if track.created_at?      then created  = track.created_at
-      if track.stream_url?      then url      = track.stream_url
-      if track.artwork_url?     then artwork  = track.artwork_url.replace("-large","-t500x500")
-      if track.playback_count?  then views    = track.playback_count
-      if track.duration?        then duration = track.duration/1000
+        # Check song against blacklist and whitelist. Songs that have a positive whitelist score get pushed into finalists array.
+        song = title: title, genre: genre, tags: tags, created: created, url: url, artwork: artwork, duration: duration, views: views, score: 0, query: query
+        blacklist_pass = checkBlacklist(song,query)
+        song.score = checkWhitelist(song,query)
 
-      # Check song against blacklist and whitelist. Songs that have a positive whitelist score get pushed into finalists array.
-      song = title: title, genre: genre, tags: tags, created: created, url: url, artwork: artwork, duration: duration, views: views, score: 0, query: query
-      blacklist_pass = checkBlacklist(song)
-      song.score = checkWhitelist(song,query)
+        if blacklist_pass is true and song.score >= 2
+          finalists.push song
 
-      if blacklist_pass is true and song.score >= 2
-        finalists.push song
+      # Sort finalists by score and then number of views
+      finalists.sort (x, y) ->
+        n = y.score - x.score
+        return n unless n is 0
+        y.views - x.views
 
-    # Sort finalists by score and then number of views
-    finalists.sort (x, y) ->
-      n = y.score - x.score
-      return n unless n is 0
-      y.views - x.views
-
-    if finalists.length > 0 then dfd.resolve(finalists[0])
-    else dfd.resolve(false)
+      if finalists.length > 0 then dfd.resolve(finalists[0])
+      else dfd.resolve(false)
     return
 
   return dfd.promise()
 
-countSongs = 0
-SC.initialize client_id: client_id
-for query in top_queries
-  getRandomSong(query).done (arr) ->
-    if arr isnt false then countSongs += 1
-    console.log countSongs
+addToHistory = (song) ->
+  history.unshift song.title
+
+randomQuery = () ->
+  return top_queries[Math.floor(Math.random()*top_queries.length)]
+
+
+count = 0
+$('#test').on "click", ->
+  getRandomSong(randomQuery()).done (song) ->
+    console.log "Exited: #{new Date()}"
+    console.log song
