@@ -1,18 +1,15 @@
 client_id       =   "2721807f620a4047d473472d46865f14"
 SC.initialize client_id: client_id
-
-whitelist = [ 
-  "kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"
-  ]
-
-blacklist = [ 
-  "cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"]
-
+queryLimit = 100
+whitelist = ["kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"]
+blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"]
 not_kor_eng = /[^A-Za-z0-9\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF \♡\.\「\」\”\“\’\∞\♥\|\【\】\–\{\}\[\]\!\@\#\$\%\^\&\*\(\)\-\_\=\+\;\:\'\"\,\.\<\>\/\\\?\`\~]/g
 has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
 
 history = []
-upcoming = ""
+notAvailable = []
+upcoming = null
+error = false
 
 eyk = (->
   json = null
@@ -45,10 +42,14 @@ mwave = (->
 top_queries = []
 
 for song in eyk
-    top_queries.push song.title
+  song = song.title
+  song = song.toLowerCase()
+  top_queries.push song
 
 for song in mwave
-    top_queries.push song.artist + " " + song.title
+  song = song.artist+" "+song.title
+  song = song.toLowerCase()
+  top_queries.push song
 
 top_queries = arrayUnique(top_queries)
 
@@ -141,13 +142,10 @@ checkWhitelist = (song,query) ->
   return score
 
 
-getRandomSong = (query) ->
+loadSong = (query) ->
   dfd = $.Deferred()
-  console.log "Entered at: #{new Date()}"
-
-  SC.get '/tracks', {q: query, limit: 200}, (tracks) ->
-
-    console.log "Got tracks: #{new Date()}"
+  console.log "waiting for get..."
+  SC.get '/tracks', {q: query, limit: queryLimit}, (tracks) ->
     if not tracks? or tracks.length is 0
       dfd.resolve(false)
       return
@@ -159,13 +157,24 @@ getRandomSong = (query) ->
         if track.genre?           then genre    = track.genre.toLowerCase()
         if track.tag_list?        then tags     = track.tag_list.toLowerCase().split(" ")
         if track.created_at?      then created  = track.created_at
-        if track.stream_url?      then url      = track.stream_url
+        if track.stream_url?      then url      = track.stream_url+"?client_id="+client_id
         if track.artwork_url?     then artwork  = track.artwork_url.replace("-large","-t500x500")
         if track.playback_count?  then views    = track.playback_count
         if track.duration?        then duration = track.duration/1000
 
         # Check song against blacklist and whitelist. Songs that have a positive whitelist score get pushed into finalists array.
-        song = title: title, genre: genre, tags: tags, created: created, url: url, artwork: artwork, duration: duration, views: views, score: 0, query: query
+        song = 
+          title: title, 
+          genre: genre, 
+          tags: tags, 
+          created: created, 
+          url: url, 
+          artwork: artwork, 
+          duration: duration, 
+          views: views, 
+          score: 0, 
+          query: query
+
         blacklist_pass = checkBlacklist(song,query)
         song.score = checkWhitelist(song,query)
 
@@ -184,17 +193,64 @@ getRandomSong = (query) ->
   return dfd.promise()
 
 addToHistory = (song) ->
-  history.unshift song.title
+  len = history.length
+  max = 9 # 10 songs
 
+  if song.query? then history.unshift song.query
+  if len > max then history.splice max+1, len-max
+  console.log "done adding to history"
+  return
+
+# Gets a random query that isn't in the recently played list
 randomQuery = () ->
-  return top_queries[Math.floor(Math.random()*top_queries.length)]
+  availableSongs = top_queries.filter((x) ->
+    history.indexOf(x) < 0
+  )
+  availableSongs = availableSongs.filter((y) ->
+    notAvailable.indexOf(y) < 0
+  )
+  console.log "done random query"
+  return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
 
-count = 0
+processSong = (query) ->
+  dfd = $.Deferred()
+
+  loadSong(query).done (song) ->
+    console.log "loaded: "+song.title
+    if song isnt false
+      addToHistory(song)
+      upcoming = randomQuery()
+      console.log upcoming
+      dfd.resolve(song)
+    else
+      console.log "error: #{query}"
+      notAvailable.push query
+      error = true
+      upcoming = randomQuery()
+      dfd.resolve(false)
+    return
+  return dfd.promise()
+
+
 $('#test').on "click", ->
-  console.log top_queries.length + " songs"
-  for query in top_queries
-    getRandomSong(query).done (song) ->
-      console.log "Exited: #{new Date()}"
-      if song isnt false then count += 1
-      console.log count
+  if upcoming? then query = upcoming
+  else query = randomQuery()
+  console.log notAvailable
+
+  # not pass fail, song or false FIX
+  processSong(query).done (result_one) ->
+    console.log "result 1: #{result_one}"
+    $('#player_one').attr "src", result_one.url
+    player = document.getElementById "player_one"
+    player.play()
+
+    if result_one is false
+      query = randomQuery()
+      processSong(query).done (result_two) ->
+        console.log "result 2: #{result_two}"
+
+        if result_two is false
+          query = randomQuery()
+          processSong(query).done (result_three) ->
+            console.log "result 3: #{result_three}"

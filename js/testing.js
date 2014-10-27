@@ -1,5 +1,5 @@
 (function() {
-  var addToHistory, blacklist, checkBlacklist, checkWhitelist, client_id, count, eyk, getRandomSong, has_korean, history, mwave, not_kor_eng, randomQuery, song, top_queries, upcoming, whitelist, _i, _j, _len, _len1,
+  var addToHistory, blacklist, checkBlacklist, checkWhitelist, client_id, error, eyk, has_korean, history, loadSong, mwave, notAvailable, not_kor_eng, processSong, queryLimit, randomQuery, song, top_queries, upcoming, whitelist, _i, _j, _len, _len1,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -7,6 +7,8 @@
   SC.initialize({
     client_id: client_id
   });
+
+  queryLimit = 100;
 
   whitelist = ["kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"];
 
@@ -18,7 +20,11 @@
 
   history = [];
 
-  upcoming = "";
+  notAvailable = [];
+
+  upcoming = null;
+
+  error = false;
 
   eyk = (function() {
     var json;
@@ -54,12 +60,16 @@
 
   for (_i = 0, _len = eyk.length; _i < _len; _i++) {
     song = eyk[_i];
-    top_queries.push(song.title);
+    song = song.title;
+    song = song.toLowerCase();
+    top_queries.push(song);
   }
 
   for (_j = 0, _len1 = mwave.length; _j < _len1; _j++) {
     song = mwave[_j];
-    top_queries.push(song.artist + " " + song.title);
+    song = song.artist + " " + song.title;
+    song = song.toLowerCase();
+    top_queries.push(song);
   }
 
   top_queries = arrayUnique(top_queries);
@@ -165,16 +175,15 @@
     return score;
   };
 
-  getRandomSong = function(query) {
+  loadSong = function(query) {
     var dfd;
     dfd = $.Deferred();
-    console.log("Entered at: " + (new Date()));
+    console.log("waiting for get...");
     SC.get('/tracks', {
       q: query,
-      limit: 200
+      limit: queryLimit
     }, function(tracks) {
       var finalists;
-      console.log("Got tracks: " + (new Date()));
       if ((tracks == null) || tracks.length === 0) {
         dfd.resolve(false);
         return;
@@ -195,7 +204,7 @@
             created = track.created_at;
           }
           if (track.stream_url != null) {
-            url = track.stream_url;
+            url = track.stream_url + "?client_id=" + client_id;
           }
           if (track.artwork_url != null) {
             artwork = track.artwork_url.replace("-large", "-t500x500");
@@ -243,30 +252,78 @@
   };
 
   addToHistory = function(song) {
-    return history.unshift(song.title);
+    var len, max;
+    len = history.length;
+    max = 9;
+    if (song.query != null) {
+      history.unshift(song.query);
+    }
+    if (len > max) {
+      history.splice(max + 1, len - max);
+    }
+    console.log("done adding to history");
   };
 
   randomQuery = function() {
-    return top_queries[Math.floor(Math.random() * top_queries.length)];
+    var availableSongs;
+    availableSongs = top_queries.filter(function(x) {
+      return history.indexOf(x) < 0;
+    });
+    availableSongs = availableSongs.filter(function(y) {
+      return notAvailable.indexOf(y) < 0;
+    });
+    console.log("done random query");
+    return availableSongs[Math.floor(Math.random() * availableSongs.length)];
   };
 
-  count = 0;
+  processSong = function(query) {
+    var dfd;
+    dfd = $.Deferred();
+    loadSong(query).done(function(song) {
+      console.log("loaded: " + song.title);
+      if (song !== false) {
+        addToHistory(song);
+        upcoming = randomQuery();
+        console.log(upcoming);
+        dfd.resolve(song);
+      } else {
+        console.log("error: " + query);
+        notAvailable.push(query);
+        error = true;
+        upcoming = randomQuery();
+        dfd.resolve(false);
+      }
+    });
+    return dfd.promise();
+  };
 
   $('#test').on("click", function() {
-    var query, _k, _len2, _results;
-    console.log(top_queries.length + " songs");
-    _results = [];
-    for (_k = 0, _len2 = top_queries.length; _k < _len2; _k++) {
-      query = top_queries[_k];
-      _results.push(getRandomSong(query).done(function(song) {
-        console.log("Exited: " + (new Date()));
-        if (song !== false) {
-          count += 1;
-        }
-        return console.log(count);
-      }));
+    var query;
+    if (upcoming != null) {
+      query = upcoming;
+    } else {
+      query = randomQuery();
     }
-    return _results;
+    console.log(notAvailable);
+    return processSong(query).done(function(result_one) {
+      var player;
+      console.log("result 1: " + result_one);
+      $('#player_one').attr("src", result_one.url);
+      player = document.getElementById("player_one");
+      player.play();
+      if (result_one === false) {
+        query = randomQuery();
+        return processSong(query).done(function(result_two) {
+          console.log("result 2: " + result_two);
+          if (result_two === false) {
+            query = randomQuery();
+            return processSong(query).done(function(result_three) {
+              return console.log("result 3: " + result_three);
+            });
+          }
+        });
+      }
+    });
   });
 
 }).call(this);

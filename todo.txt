@@ -1,3 +1,12 @@
 History songs
 Upcoming song
 Forward and back
+
+On load:
+
+
+
+On next:
+    1. Load next song
+    2. Start playing next song
+    3. Update history
