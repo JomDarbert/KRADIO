@@ -147,52 +147,56 @@ checkWhitelist = (song,query) ->
   return score
 
 
+
 loadSong = (query) ->
   dfd = $.Deferred()
   SC.get '/tracks', {q: query, limit: queryLimit}, (tracks) ->
+
+    # No tracks found for that query or Soundcloud had a problem (e.g. a 503 error)
     if not tracks? or tracks.length is 0
-      dfd.resolve(false)
+      dfd.reject()
       return
 
     else
-      finalists = []
-      tracks.forEach (track) ->
-        if track.title?           then title    = track.title.toLowerCase()
-        if track.genre?           then genre    = track.genre.toLowerCase()
-        if track.tag_list?        then tags     = track.tag_list.toLowerCase().split(" ")
-        if track.created_at?      then created  = track.created_at
-        if track.stream_url?      then url      = track.stream_url+"?client_id="+client_id
-        if track.artwork_url?     then artwork  = track.artwork_url.replace("-large","-t500x500")
-        if track.playback_count?  then views    = track.playback_count
-        if track.duration?        then duration = track.duration/1000
+      acceptable = []
 
-        # Check song against blacklist and whitelist. Songs that have a positive whitelist score get pushed into finalists array.
+      # Create song object for each track and run tests to see if it is acceptable
+      tracks.forEach (t) ->
+        if t.title?           then title    = t.title.toLowerCase()
+        if t.genre?           then genre    = t.genre.toLowerCase()
+        if t.tag_list?        then tags     = t.tag_list.toLowerCase().split(" ")
+        if t.created_at?      then created  = t.created_at
+        if t.stream_url?      then url      = t.stream_url+"?client_id="+client_id
+        if t.artwork_url?     then artwork  = t.artwork_url.replace("-large","-t500x500")
+        if t.playback_count?  then views    = t.playback_count
+        if t.duration?        then duration = t.duration/1000
+
         song = 
-          title: title, 
-          genre: genre, 
-          tags: tags, 
-          created: created, 
-          url: url, 
-          artwork: artwork, 
-          duration: duration, 
-          views: views, 
-          score: 0, 
+          title: title
+          genre: genre
+          tags: tags
+          created: created
+          url: url
+          artwork: artwork
+          duration: duration
+          views: views
+          score: 0
           query: query
 
         blacklist_pass = checkBlacklist(song,query)
         song.score = checkWhitelist(song,query)
 
-        if blacklist_pass is true and song.score >= 2
-          finalists.push song
+        if blacklist_pass is true and song.score >= 2 then acceptable.push song
 
-      # Sort finalists by score and then number of views
-      finalists.sort (x, y) ->
+      # Sort acceptable by score and then number of views
+      acceptable.sort (x, y) ->
         n = y.score - x.score
         return n unless n is 0
         y.views - x.views
 
-      if finalists.length > 0 then dfd.resolve(finalists[0])
-      else dfd.resolve(false)
+      # If there are any acceptable songs, return the best one, otherwise fail
+      if acceptable.length > 0 then dfd.resolve(acceptable[0])
+      else dfd.reject()
     return
   return dfd.promise()
 
@@ -209,21 +213,24 @@ randomQuery = () ->
   availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y) < 0)
   return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
-
+# Tries to load a song, and if loading fails, tries to load a new song until success
 processSong = (query) ->
-  dfd = $.Deferred()
-
-  loadSong(query).done (song) ->
-    if song isnt false
+  request = (query) ->
+    loadSong(query).done((song) ->
       addToHistory(song)
       console.log "Loaded song: #{song.title}"
       dfd.resolve(song)
-    else
+    ).fail( ->
       notAvailable.push query
       console.log "Error loading song: #{song.query}"
-      dfd.resolve(false)
-    return
+      newQ = randomQuery()
+      request(newQ)
+    )
+
+  dfd = $.Deferred()
+  request(query)
   return dfd.promise()
+
 
 
 choosePlayer = () ->
@@ -258,87 +265,29 @@ choosePlayer = () ->
 
 
 # ----------------------------------------------------------
-
 $('#test').on "click", ->
   players = choosePlayer()
   query = randomQuery()
 
-  processSong(query).done (result_one) ->
-    if result_one isnt false
-      players.last.pause()
-      players.active.play()
-      players.last.setAttribute "src", result_one.url
-    else
-
-      notAvailable.push query
-      query = randomQuery()
-      processSong(query).done (result_two) ->
-        if result_two isnt false
-          players.active.setAttribute "src", result_two.url
-          players.last.pause()
-          players.active.play()
-        else
-
-          notAvailable.push query
-          query = randomQuery()
-          processSong(query).done (result_three) ->
-            players.active.setAttribute "src", result_three.url
-            players.last.pause()
-            players.active.play()
+  processSong(query).done (result) ->
+    console.log result
+    players.last.pause()
+    players.active.play()
+    players.last.setAttribute "src", result.url
 
 
 
 # On document ready, load the first song for all three players.
 $(document).ready ->
-  query = randomQuery()
+  q_one = randomQuery()
+  q_two = randomQuery()
+  q_three = randomQuery()
 
-  # Load player_one's first song
-  processSong(query).done (result_one) ->
-    if result_one isnt false then player_one.setAttribute "src", result_one.url
-    
-    else
-      notAvailable.push query
-      query = randomQuery()
-      processSong(query).done (result_two) ->
-        if result_two isnt false then player_one.setAttribute "src", result_two.url
+  processSong(q_one).done (res_one) ->
+    player_one.setAttribute "src", res_one.url
 
-        else
-          notAvailable.push query
-          query = randomQuery()
-          processSong(query).done (result_three) ->
-            player_one.setAttribute "src", result_three.url
+  processSong(q_two).done (res_two) ->
+    player_two.setAttribute "src", res_two.url
 
-    # Load player_two's first song after player_one is done        
-    query = randomQuery()
-    processSong(query).done (result_one) ->
-      if result_one isnt false then player_two.setAttribute "src", result_one.url
-
-      else
-        notAvailable.push query
-        query = randomQuery()
-        processSong(query).done (result_two) ->
-          if result_two isnt false then player_two.setAttribute "src", result_two.url
-
-          else
-            notAvailable.push query
-            query = randomQuery()
-            processSong(query).done (result_three) ->
-              player_two.setAttribute "src", result_three.url
-
-      # Load player_three's first song when player_one and player_two are done
-      query = randomQuery()
-      processSong(query).done (result_one) ->
-        if result_one isnt false then player_three.setAttribute "src", result_one.url
-
-        else
-          notAvailable.push query
-          query = randomQuery()
-          processSong(query).done (result_two) ->
-            if result_two isnt false then player_three.setAttribute "src", result_two.url
-
-            else
-              notAvailable.push query
-              query = randomQuery()
-              processSong(query).done (result_three) ->
-                player_three.setAttribute "src", result_three.url
-  return
+  processSong(q_three).done (res_three) ->
+    player_three.setAttribute "src", res_three.url

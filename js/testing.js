@@ -190,37 +190,37 @@
       q: query,
       limit: queryLimit
     }, function(tracks) {
-      var finalists;
+      var acceptable;
       if ((tracks == null) || tracks.length === 0) {
-        dfd.resolve(false);
+        dfd.reject();
         return;
       } else {
-        finalists = [];
-        tracks.forEach(function(track) {
+        acceptable = [];
+        tracks.forEach(function(t) {
           var artwork, blacklist_pass, created, duration, genre, tags, title, url, views;
-          if (track.title != null) {
-            title = track.title.toLowerCase();
+          if (t.title != null) {
+            title = t.title.toLowerCase();
           }
-          if (track.genre != null) {
-            genre = track.genre.toLowerCase();
+          if (t.genre != null) {
+            genre = t.genre.toLowerCase();
           }
-          if (track.tag_list != null) {
-            tags = track.tag_list.toLowerCase().split(" ");
+          if (t.tag_list != null) {
+            tags = t.tag_list.toLowerCase().split(" ");
           }
-          if (track.created_at != null) {
-            created = track.created_at;
+          if (t.created_at != null) {
+            created = t.created_at;
           }
-          if (track.stream_url != null) {
-            url = track.stream_url + "?client_id=" + client_id;
+          if (t.stream_url != null) {
+            url = t.stream_url + "?client_id=" + client_id;
           }
-          if (track.artwork_url != null) {
-            artwork = track.artwork_url.replace("-large", "-t500x500");
+          if (t.artwork_url != null) {
+            artwork = t.artwork_url.replace("-large", "-t500x500");
           }
-          if (track.playback_count != null) {
-            views = track.playback_count;
+          if (t.playback_count != null) {
+            views = t.playback_count;
           }
-          if (track.duration != null) {
-            duration = track.duration / 1000;
+          if (t.duration != null) {
+            duration = t.duration / 1000;
           }
           song = {
             title: title,
@@ -237,10 +237,10 @@
           blacklist_pass = checkBlacklist(song, query);
           song.score = checkWhitelist(song, query);
           if (blacklist_pass === true && song.score >= 2) {
-            return finalists.push(song);
+            return acceptable.push(song);
           }
         });
-        finalists.sort(function(x, y) {
+        acceptable.sort(function(x, y) {
           var n;
           n = y.score - x.score;
           if (n !== 0) {
@@ -248,10 +248,10 @@
           }
           return y.views - x.views;
         });
-        if (finalists.length > 0) {
-          dfd.resolve(finalists[0]);
+        if (acceptable.length > 0) {
+          dfd.resolve(acceptable[0]);
         } else {
-          dfd.resolve(false);
+          dfd.reject();
         }
       }
     });
@@ -282,19 +282,22 @@
   };
 
   processSong = function(query) {
-    var dfd;
-    dfd = $.Deferred();
-    loadSong(query).done(function(song) {
-      if (song !== false) {
+    var dfd, request;
+    request = function(query) {
+      return loadSong(query).done(function(song) {
         addToHistory(song);
         console.log("Loaded song: " + song.title);
-        dfd.resolve(song);
-      } else {
+        return dfd.resolve(song);
+      }).fail(function() {
+        var newQ;
         notAvailable.push(query);
         console.log("Error loading song: " + song.query);
-        dfd.resolve(false);
-      }
-    });
+        newQ = randomQuery();
+        return request(newQ);
+      });
+    };
+    dfd = $.Deferred();
+    request(query);
     return dfd.promise();
   };
 
@@ -354,94 +357,27 @@
     var players, query;
     players = choosePlayer();
     query = randomQuery();
-    return processSong(query).done(function(result_one) {
-      if (result_one !== false) {
-        players.last.pause();
-        players.active.play();
-        return players.last.setAttribute("src", result_one.url);
-      } else {
-        notAvailable.push(query);
-        query = randomQuery();
-        return processSong(query).done(function(result_two) {
-          if (result_two !== false) {
-            players.active.setAttribute("src", result_two.url);
-            players.last.pause();
-            return players.active.play();
-          } else {
-            notAvailable.push(query);
-            query = randomQuery();
-            return processSong(query).done(function(result_three) {
-              players.active.setAttribute("src", result_three.url);
-              players.last.pause();
-              return players.active.play();
-            });
-          }
-        });
-      }
+    return processSong(query).done(function(result) {
+      console.log(result);
+      players.last.pause();
+      players.active.play();
+      return players.last.setAttribute("src", result.url);
     });
   });
 
   $(document).ready(function() {
-    var query;
-    query = randomQuery();
-    processSong(query).done(function(result_one) {
-      if (result_one !== false) {
-        player_one.setAttribute("src", result_one.url);
-      } else {
-        notAvailable.push(query);
-        query = randomQuery();
-        processSong(query).done(function(result_two) {
-          if (result_two !== false) {
-            return player_one.setAttribute("src", result_two.url);
-          } else {
-            notAvailable.push(query);
-            query = randomQuery();
-            return processSong(query).done(function(result_three) {
-              return player_one.setAttribute("src", result_three.url);
-            });
-          }
-        });
-      }
-      query = randomQuery();
-      return processSong(query).done(function(result_one) {
-        if (result_one !== false) {
-          player_two.setAttribute("src", result_one.url);
-        } else {
-          notAvailable.push(query);
-          query = randomQuery();
-          processSong(query).done(function(result_two) {
-            if (result_two !== false) {
-              return player_two.setAttribute("src", result_two.url);
-            } else {
-              notAvailable.push(query);
-              query = randomQuery();
-              return processSong(query).done(function(result_three) {
-                return player_two.setAttribute("src", result_three.url);
-              });
-            }
-          });
-        }
-        query = randomQuery();
-        return processSong(query).done(function(result_one) {
-          if (result_one !== false) {
-            return player_three.setAttribute("src", result_one.url);
-          } else {
-            notAvailable.push(query);
-            query = randomQuery();
-            return processSong(query).done(function(result_two) {
-              if (result_two !== false) {
-                return player_three.setAttribute("src", result_two.url);
-              } else {
-                notAvailable.push(query);
-                query = randomQuery();
-                return processSong(query).done(function(result_three) {
-                  return player_three.setAttribute("src", result_three.url);
-                });
-              }
-            });
-          }
-        });
-      });
+    var q_one, q_three, q_two;
+    q_one = randomQuery();
+    q_two = randomQuery();
+    q_three = randomQuery();
+    processSong(q_one).done(function(res_one) {
+      return player_one.setAttribute("src", res_one.url);
+    });
+    processSong(q_two).done(function(res_two) {
+      return player_two.setAttribute("src", res_two.url);
+    });
+    return processSong(q_three).done(function(res_three) {
+      return player_three.setAttribute("src", res_three.url);
     });
   });
 
