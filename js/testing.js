@@ -1,5 +1,5 @@
 (function() {
-  var active, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, eyk, has_korean, history, loadSong, mwave, next, notAvailable, not_kor_eng, onDeck, player_one, player_three, player_two, processSong, queryLimit, randomQuery, song, top_queries, whitelist, _i, _j, _len, _len1,
+  var addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, eyk, has_korean, history, loadSong, mwave, notAvailable, not_kor_eng, player_one, player_three, player_two, processSong, queryLimit, randomQuery, song, top_queries, whitelist, _i, _j, _len, _len1,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -27,12 +27,6 @@
   player_two = document.getElementById("player_two");
 
   player_three = document.getElementById("player_three");
-
-  active = null;
-
-  next = null;
-
-  onDeck = null;
 
   eyk = (function() {
     var json;
@@ -186,11 +180,13 @@
   loadSong = function(query) {
     var dfd;
     dfd = $.Deferred();
+    console.log("Starting get at: " + (new Date()));
     SC.get('/tracks', {
       q: query,
       limit: queryLimit
     }, function(tracks) {
       var acceptable;
+      console.log("Got tracks at: " + (new Date()));
       if ((tracks == null) || tracks.length === 0) {
         dfd.reject();
         return;
@@ -286,12 +282,10 @@
     request = function(query) {
       return loadSong(query).done(function(song) {
         addToHistory(song);
-        console.log("Loaded song: " + song.title);
         return dfd.resolve(song);
       }).fail(function() {
         var newQ;
         notAvailable.push(query);
-        console.log("Error loading song: " + song.query);
         newQ = randomQuery();
         return request(newQ);
       });
@@ -302,67 +296,57 @@
   };
 
   choosePlayer = function() {
-    var c, len, players, sequence;
+    var a, c, len, n, o, players, seq;
     players = [player_one, player_two, player_three];
     c = players.indexOf(document.getElementsByClassName("active")[0]);
-    len = players.length;
-    if (c == null) {
-      console.log("no current active");
-      sequence = {
-        active: players[0],
-        next: players[1],
-        onDeck: players[2],
-        last: players[c]
-      };
-      return sequence;
+    len = players.length - 1;
+    if ((c == null) || c === len) {
+      a = 0;
     } else {
-      if (c === 0) {
-        sequence = {
-          active: players[1],
-          next: players[2],
-          onDeck: players[0],
-          last: players[c]
-        };
-        sequence.active.classList.add("active");
-        sequence.next.classList.remove("active");
-        sequence.onDeck.classList.remove("active");
-        return sequence;
-      } else if (c === 1) {
-        sequence = {
-          active: players[2],
-          next: players[0],
-          onDeck: players[1],
-          last: players[c]
-        };
-        sequence.active.classList.add("active");
-        sequence.next.classList.remove("active");
-        sequence.onDeck.classList.remove("active");
-        return sequence;
-      } else if (c === 2) {
-        sequence = {
-          active: players[0],
-          next: players[1],
-          onDeck: players[2],
-          last: players[c]
-        };
-        sequence.active.classList.add("active");
-        sequence.next.classList.remove("active");
-        sequence.onDeck.classList.remove("active");
-        return sequence;
-      }
+      a = c + 1;
     }
+    if (a === len) {
+      n = 0;
+    } else {
+      n = a + 1;
+    }
+    if (n === len) {
+      o = 0;
+    } else {
+      o = n + 1;
+    }
+    seq = {
+      active: players[a],
+      next: players[n],
+      onDeck: players[o],
+      last: players[c]
+    };
+    seq.active.classList.add("active");
+    seq.next.classList.remove("active");
+    seq.onDeck.classList.remove("active");
+    return seq;
   };
 
-  $('#test').on("click", function() {
+  $('#nextButton').on("click", function() {
     var players, query;
     players = choosePlayer();
     query = randomQuery();
+    players.last.pause();
+    players.active.play();
     return processSong(query).done(function(result) {
-      console.log(result);
-      players.last.pause();
-      players.active.play();
+      console.log("Got " + result.title + " at: " + (new Date()));
       return players.last.setAttribute("src", result.url);
     });
+  });
+
+  $('#playButton').on("click", function() {
+    var p;
+    p = document.getElementsByClassName("active")[0];
+    if (p.paused) {
+      return p.play();
+    } else {
+      return p.pause();
+    }
   });
 
   $(document).ready(function() {

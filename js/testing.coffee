@@ -11,10 +11,6 @@ notAvailable = []
 player_one = document.getElementById "player_one"
 player_two = document.getElementById "player_two"
 player_three = document.getElementById "player_three"
-active = null
-next = null
-onDeck = null
-
 
 eyk = (->
   json = null
@@ -150,8 +146,9 @@ checkWhitelist = (song,query) ->
 
 loadSong = (query) ->
   dfd = $.Deferred()
+  console.log "Starting get at: #{new Date()}"
   SC.get '/tracks', {q: query, limit: queryLimit}, (tracks) ->
-
+    console.log "Got tracks at: #{new Date()}"
     # No tracks found for that query or Soundcloud had a problem (e.g. a 503 error)
     if not tracks? or tracks.length is 0
       dfd.reject()
@@ -200,6 +197,7 @@ loadSong = (query) ->
     return
   return dfd.promise()
 
+
 addToHistory = (song) ->
   len = history.length
   max = 9 # 10 songs
@@ -207,22 +205,22 @@ addToHistory = (song) ->
   if len > max then history.splice max+1, len-max
   return
 
+
 # Gets a random query that isn't in the recently played list or not available list
 randomQuery = () ->
   availableSongs = top_queries.filter((x) -> history.indexOf(x) < 0)
   availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y) < 0)
   return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
+
 # Tries to load a song, and if loading fails, tries to load a new song until success
 processSong = (query) ->
   request = (query) ->
     loadSong(query).done((song) ->
       addToHistory(song)
-      console.log "Loaded song: #{song.title}"
       dfd.resolve(song)
     ).fail( ->
       notAvailable.push query
-      console.log "Error loading song: #{song.query}"
       newQ = randomQuery()
       request(newQ)
     )
@@ -236,46 +234,38 @@ processSong = (query) ->
 choosePlayer = () ->
   players = [player_one,player_two,player_three]
   c = players.indexOf(document.getElementsByClassName("active")[0])
-  len = players.length
+  len = players.length - 1
 
-  if not c?
-    console.log "no current active"
-    sequence = active: players[0], next: players[1], onDeck: players[2], last: players[c]
-    return sequence  
+  if not c? or c is len then a = 0
+  else a = c + 1
+  if a is len then n = 0
+  else n = a + 1
+  if n is len then o = 0
+  else o = n + 1
 
-  else
-    if c is 0
-      sequence = active: players[1], next: players[2], onDeck: players[0], last: players[c]
-      sequence.active.classList.add "active"
-      sequence.next.classList.remove "active"
-      sequence.onDeck.classList.remove "active"
-      return sequence
-    else if c is 1
-      sequence = active: players[2], next: players[0], onDeck: players[1], last: players[c]
-      sequence.active.classList.add "active"
-      sequence.next.classList.remove "active"
-      sequence.onDeck.classList.remove "active"
-      return sequence
-    else if c is 2
-      sequence = active: players[0], next: players[1], onDeck: players[2], last: players[c]
-      sequence.active.classList.add "active"
-      sequence.next.classList.remove "active"
-      sequence.onDeck.classList.remove "active"
-      return sequence
+  seq = active: players[a], next: players[n], onDeck: players[o], last: players[c]
+
+  seq.active.classList.add "active"
+  seq.next.classList.remove "active"
+  seq.onDeck.classList.remove "active"
+  return seq
 
 
 # ----------------------------------------------------------
-$('#test').on "click", ->
+$('#nextButton').on "click", ->
   players = choosePlayer()
   query = randomQuery()
+  players.last.pause()
+  players.active.play()
 
   processSong(query).done (result) ->
-    console.log result
-    players.last.pause()
-    players.active.play()
+    console.log "Got #{result.title} at: #{new Date()}"
     players.last.setAttribute "src", result.url
 
-
+$('#playButton').on "click", ->
+  p = document.getElementsByClassName("active")[0]
+  if p.paused then p.play()
+  else p.pause()
 
 # On document ready, load the first song for all three players.
 $(document).ready ->
