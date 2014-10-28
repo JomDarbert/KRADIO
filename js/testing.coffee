@@ -8,8 +8,13 @@ has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF
 
 history = []
 notAvailable = []
-upcoming = null
-error = false
+player_one = document.getElementById "player_one"
+player_two = document.getElementById "player_two"
+player_three = document.getElementById "player_three"
+active = null
+next = null
+onDeck = null
+
 
 eyk = (->
   json = null
@@ -144,7 +149,6 @@ checkWhitelist = (song,query) ->
 
 loadSong = (query) ->
   dfd = $.Deferred()
-  console.log "waiting for get..."
   SC.get '/tracks', {q: query, limit: queryLimit}, (tracks) ->
     if not tracks? or tracks.length is 0
       dfd.resolve(false)
@@ -195,21 +199,14 @@ loadSong = (query) ->
 addToHistory = (song) ->
   len = history.length
   max = 9 # 10 songs
-
   if song.query? then history.unshift song.query
   if len > max then history.splice max+1, len-max
-  console.log "done adding to history"
   return
 
-# Gets a random query that isn't in the recently played list
+# Gets a random query that isn't in the recently played list or not available list
 randomQuery = () ->
-  availableSongs = top_queries.filter((x) ->
-    history.indexOf(x) < 0
-  )
-  availableSongs = availableSongs.filter((y) ->
-    notAvailable.indexOf(y) < 0
-  )
-  console.log "done random query"
+  availableSongs = top_queries.filter((x) -> history.indexOf(x) < 0)
+  availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y) < 0)
   return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
 
@@ -217,40 +214,131 @@ processSong = (query) ->
   dfd = $.Deferred()
 
   loadSong(query).done (song) ->
-    console.log "loaded: "+song.title
     if song isnt false
       addToHistory(song)
-      upcoming = randomQuery()
-      console.log upcoming
+      console.log "Loaded song: #{song.title}"
       dfd.resolve(song)
     else
-      console.log "error: #{query}"
       notAvailable.push query
-      error = true
-      upcoming = randomQuery()
+      console.log "Error loading song: #{song.query}"
       dfd.resolve(false)
     return
   return dfd.promise()
 
 
+choosePlayer = () ->
+  players = [player_one,player_two,player_three]
+  c = players.indexOf(document.getElementsByClassName("active")[0])
+  len = players.length
+
+  if not c?
+    console.log "no current active"
+    sequence = active: players[0], next: players[1], onDeck: players[2], last: players[c]
+    return sequence  
+
+  else
+    if c is 0
+      sequence = active: players[1], next: players[2], onDeck: players[0], last: players[c]
+      sequence.active.classList.add "active"
+      sequence.next.classList.remove "active"
+      sequence.onDeck.classList.remove "active"
+      return sequence
+    else if c is 1
+      sequence = active: players[2], next: players[0], onDeck: players[1], last: players[c]
+      sequence.active.classList.add "active"
+      sequence.next.classList.remove "active"
+      sequence.onDeck.classList.remove "active"
+      return sequence
+    else if c is 2
+      sequence = active: players[0], next: players[1], onDeck: players[2], last: players[c]
+      sequence.active.classList.add "active"
+      sequence.next.classList.remove "active"
+      sequence.onDeck.classList.remove "active"
+      return sequence
+
+
+# ----------------------------------------------------------
+
 $('#test').on "click", ->
-  if upcoming? then query = upcoming
-  else query = randomQuery()
-  console.log notAvailable
+  players = choosePlayer()
+  query = randomQuery()
 
-  # not pass fail, song or false FIX
   processSong(query).done (result_one) ->
-    console.log "result 1: #{result_one}"
-    $('#player_one').attr "src", result_one.url
-    player = document.getElementById "player_one"
-    player.play()
+    if result_one isnt false
+      players.last.pause()
+      players.active.play()
+      players.last.setAttribute "src", result_one.url
+    else
 
-    if result_one is false
+      notAvailable.push query
       query = randomQuery()
       processSong(query).done (result_two) ->
-        console.log "result 2: #{result_two}"
+        if result_two isnt false
+          players.active.setAttribute "src", result_two.url
+          players.last.pause()
+          players.active.play()
+        else
 
-        if result_two is false
+          notAvailable.push query
           query = randomQuery()
           processSong(query).done (result_three) ->
-            console.log "result 3: #{result_three}"
+            players.active.setAttribute "src", result_three.url
+            players.last.pause()
+            players.active.play()
+
+
+
+# On document ready, load the first song for all three players.
+$(document).ready ->
+  query = randomQuery()
+
+  # Load player_one's first song
+  processSong(query).done (result_one) ->
+    if result_one isnt false then player_one.setAttribute "src", result_one.url
+    
+    else
+      notAvailable.push query
+      query = randomQuery()
+      processSong(query).done (result_two) ->
+        if result_two isnt false then player_one.setAttribute "src", result_two.url
+
+        else
+          notAvailable.push query
+          query = randomQuery()
+          processSong(query).done (result_three) ->
+            player_one.setAttribute "src", result_three.url
+
+    # Load player_two's first song after player_one is done        
+    query = randomQuery()
+    processSong(query).done (result_one) ->
+      if result_one isnt false then player_two.setAttribute "src", result_one.url
+
+      else
+        notAvailable.push query
+        query = randomQuery()
+        processSong(query).done (result_two) ->
+          if result_two isnt false then player_two.setAttribute "src", result_two.url
+
+          else
+            notAvailable.push query
+            query = randomQuery()
+            processSong(query).done (result_three) ->
+              player_two.setAttribute "src", result_three.url
+
+      # Load player_three's first song when player_one and player_two are done
+      query = randomQuery()
+      processSong(query).done (result_one) ->
+        if result_one isnt false then player_three.setAttribute "src", result_one.url
+
+        else
+          notAvailable.push query
+          query = randomQuery()
+          processSong(query).done (result_two) ->
+            if result_two isnt false then player_three.setAttribute "src", result_two.url
+
+            else
+              notAvailable.push query
+              query = randomQuery()
+              processSong(query).done (result_three) ->
+                player_three.setAttribute "src", result_three.url
+  return

@@ -1,5 +1,5 @@
 (function() {
-  var addToHistory, blacklist, checkBlacklist, checkWhitelist, client_id, error, eyk, has_korean, history, loadSong, mwave, notAvailable, not_kor_eng, processSong, queryLimit, randomQuery, song, top_queries, upcoming, whitelist, _i, _j, _len, _len1,
+  var active, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, eyk, has_korean, history, loadSong, mwave, next, notAvailable, not_kor_eng, onDeck, player_one, player_three, player_two, processSong, queryLimit, randomQuery, song, top_queries, whitelist, _i, _j, _len, _len1,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -22,9 +22,17 @@
 
   notAvailable = [];
 
-  upcoming = null;
+  player_one = document.getElementById("player_one");
 
-  error = false;
+  player_two = document.getElementById("player_two");
+
+  player_three = document.getElementById("player_three");
+
+  active = null;
+
+  next = null;
+
+  onDeck = null;
 
   eyk = (function() {
     var json;
@@ -178,7 +186,6 @@
   loadSong = function(query) {
     var dfd;
     dfd = $.Deferred();
-    console.log("waiting for get...");
     SC.get('/tracks', {
       q: query,
       limit: queryLimit
@@ -261,7 +268,6 @@
     if (len > max) {
       history.splice(max + 1, len - max);
     }
-    console.log("done adding to history");
   };
 
   randomQuery = function() {
@@ -272,7 +278,6 @@
     availableSongs = availableSongs.filter(function(y) {
       return notAvailable.indexOf(y) < 0;
     });
-    console.log("done random query");
     return availableSongs[Math.floor(Math.random() * availableSongs.length)];
   };
 
@@ -280,49 +285,163 @@
     var dfd;
     dfd = $.Deferred();
     loadSong(query).done(function(song) {
-      console.log("loaded: " + song.title);
       if (song !== false) {
         addToHistory(song);
-        upcoming = randomQuery();
-        console.log(upcoming);
+        console.log("Loaded song: " + song.title);
         dfd.resolve(song);
       } else {
-        console.log("error: " + query);
         notAvailable.push(query);
-        error = true;
-        upcoming = randomQuery();
+        console.log("Error loading song: " + song.query);
         dfd.resolve(false);
       }
     });
     return dfd.promise();
   };
 
-  $('#test').on("click", function() {
-    var query;
-    if (upcoming != null) {
-      query = upcoming;
+  choosePlayer = function() {
+    var c, len, players, sequence;
+    players = [player_one, player_two, player_three];
+    c = players.indexOf(document.getElementsByClassName("active")[0]);
+    len = players.length;
+    if (c == null) {
+      console.log("no current active");
+      sequence = {
+        active: players[0],
+        next: players[1],
+        onDeck: players[2],
+        last: players[c]
+      };
+      return sequence;
     } else {
-      query = randomQuery();
+      if (c === 0) {
+        sequence = {
+          active: players[1],
+          next: players[2],
+          onDeck: players[0],
+          last: players[c]
+        };
+        sequence.active.classList.add("active");
+        sequence.next.classList.remove("active");
+        sequence.onDeck.classList.remove("active");
+        return sequence;
+      } else if (c === 1) {
+        sequence = {
+          active: players[2],
+          next: players[0],
+          onDeck: players[1],
+          last: players[c]
+        };
+        sequence.active.classList.add("active");
+        sequence.next.classList.remove("active");
+        sequence.onDeck.classList.remove("active");
+        return sequence;
+      } else if (c === 2) {
+        sequence = {
+          active: players[0],
+          next: players[1],
+          onDeck: players[2],
+          last: players[c]
+        };
+        sequence.active.classList.add("active");
+        sequence.next.classList.remove("active");
+        sequence.onDeck.classList.remove("active");
+        return sequence;
+      }
     }
-    console.log(notAvailable);
+  };
+
+  $('#test').on("click", function() {
+    var players, query;
+    players = choosePlayer();
+    query = randomQuery();
     return processSong(query).done(function(result_one) {
-      var player;
-      console.log("result 1: " + result_one);
-      $('#player_one').attr("src", result_one.url);
-      player = document.getElementById("player_one");
-      player.play();
-      if (result_one === false) {
+      if (result_one !== false) {
+        players.last.pause();
+        players.active.play();
+        return players.last.setAttribute("src", result_one.url);
+      } else {
+        notAvailable.push(query);
         query = randomQuery();
         return processSong(query).done(function(result_two) {
-          console.log("result 2: " + result_two);
-          if (result_two === false) {
+          if (result_two !== false) {
+            players.active.setAttribute("src", result_two.url);
+            players.last.pause();
+            return players.active.play();
+          } else {
+            notAvailable.push(query);
             query = randomQuery();
             return processSong(query).done(function(result_three) {
-              return console.log("result 3: " + result_three);
+              players.active.setAttribute("src", result_three.url);
+              players.last.pause();
+              return players.active.play();
             });
           }
         });
       }
+    });
+  });
+
+  $(document).ready(function() {
+    var query;
+    query = randomQuery();
+    processSong(query).done(function(result_one) {
+      if (result_one !== false) {
+        player_one.setAttribute("src", result_one.url);
+      } else {
+        notAvailable.push(query);
+        query = randomQuery();
+        processSong(query).done(function(result_two) {
+          if (result_two !== false) {
+            return player_one.setAttribute("src", result_two.url);
+          } else {
+            notAvailable.push(query);
+            query = randomQuery();
+            return processSong(query).done(function(result_three) {
+              return player_one.setAttribute("src", result_three.url);
+            });
+          }
+        });
+      }
+      query = randomQuery();
+      return processSong(query).done(function(result_one) {
+        if (result_one !== false) {
+          player_two.setAttribute("src", result_one.url);
+        } else {
+          notAvailable.push(query);
+          query = randomQuery();
+          processSong(query).done(function(result_two) {
+            if (result_two !== false) {
+              return player_two.setAttribute("src", result_two.url);
+            } else {
+              notAvailable.push(query);
+              query = randomQuery();
+              return processSong(query).done(function(result_three) {
+                return player_two.setAttribute("src", result_three.url);
+              });
+            }
+          });
+        }
+        query = randomQuery();
+        return processSong(query).done(function(result_one) {
+          if (result_one !== false) {
+            return player_three.setAttribute("src", result_one.url);
+          } else {
+            notAvailable.push(query);
+            query = randomQuery();
+            return processSong(query).done(function(result_two) {
+              if (result_two !== false) {
+                return player_three.setAttribute("src", result_two.url);
+              } else {
+                notAvailable.push(query);
+                query = randomQuery();
+                return processSong(query).done(function(result_three) {
+                  return player_three.setAttribute("src", result_three.url);
+                });
+              }
+            });
+          }
+        });
+      });
     });
   });
 
