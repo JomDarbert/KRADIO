@@ -1,41 +1,23 @@
-###
-Auto-scraping
-http://stackoverflow.com/questions/4138251/preload-html5-audio-while-it-is-playing
-http://stackoverflow.com/questions/7779697/javascript-asynchronous-return-value-assignment-with-jquery
-
-to do - is it currently playing
-###
-
 client_id       =   "2721807f620a4047d473472d46865f14"
-priority_tags   = [ "kpop", "k pop", "k-pop", "korean", "korea"]
-exclude_tags    = [ "cover", "acoustic", "instrumental", "remix", "mix", "re mix", 
-                    "re-mix", "version", "ver.", "cvr"]
+SC.initialize client_id: client_id
+queryLimit = 100
+whitelist = ["kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"]
+blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"]
+not_kor_eng = /[^A-Za-z0-9\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF \♡\.\「\」\”\“\’\∞\♥\|\【\】\–\{\}\[\]\!\@\#\$\%\^\&\*\(\)\-\_\=\+\;\:\'\"\,\.\<\>\/\\\?\`\~]/g
+has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
 
-hangul_chars    =   "[\u1100-\u11FF|\u3130-\u318F|\uA960-\uA97F|\uAC00-\uD7AF|"+
-                    "\uD7B0-\uD7FF]"
+history = []
+notAvailable = []
+player_one = document.getElementById "player_one"
+player_two = document.getElementById "player_two"
+player_three = document.getElementById "player_three"
 
-hangul          = new RegExp hangul_chars
-
-eyk = (->
+import_songs = (->
   json = null
   $.ajax
     async: false
     global: false
-    url: "../scrape/EYK/tutorial/eyk.json"
-    dataType: "json"
-    success: (data) ->
-      json = data
-      return
-
-  json
-)()
-
-mwave = (->
-  json = null
-  $.ajax
-    async: false
-    global: false
-    url: "../scrape/MWAVE/tutorial/mwave.json"
+    url: "../scrape/songs.json"
     dataType: "json"
     success: (data) ->
       json = data
@@ -45,275 +27,233 @@ mwave = (->
 )()
 
 top_queries = []
+for song in import_songs
+  top_queries.push song.query
+top_queries = arrayUnique(top_queries)
 
-for song in eyk
-    top_queries.push song.title
+# --------------------------------------------------------------
+checkBlacklist = (song,query) ->
+  # Don't want songs where critical values are missing
+  if not song.title?    then return false
+  if not song.url?      then return false
+  if not song.created?  then return false
 
-for song in mwave
-    top_queries.push song.artist + " " + song.title
+  # Don't want songs that were created more than one year ago
+  ok_months    = 12
+  created_date = moment(song.created, "YYYY-MM-DD HH:MM:SS")
+  date_limit   = moment().subtract(ok_months, "months")
+
+  if date_limit.diff(created_date, "months") > 0 then return false
+
+  # Don't want songs with blacklist words in title
+  for term in blacklist
+    if song.title.indexOf(term) isnt -1 then return false
+
+  # Don't want songs with blacklist words in genre
+  for term in blacklist
+    if song.genre? and song.genre.indexOf(term) isnt -1 then return false
+
+  # Don't want songs with blacklist words in tags
+  for term in blacklist
+    if term in song.tags then return false
+
+  # Don't want songs with characters that aren't English or Korean
+  kor_eng_test = not_kor_eng.test(song.title)
+  if kor_eng_test is true then return false
+
+  # Don't want songs where none of the song's title words are in query
+  cleaned_song = song.title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+  cleaned_query = query.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+  song_array = cleaned_song.split " "
+  query_array = cleaned_query.split " "
+  arrays = [song_array,query_array]
+  result = arrays.shift().reduce((res, v) ->
+    res.push v  if res.indexOf(v) is -1 and arrays.every((a) ->
+      a.indexOf(v) isnt -1
+    )
+    res
+  , [])
+  if result.length is 0 then return false
+
+  # Song passed all checks
+  return true
+
+
+checkWhitelist = (song,query) ->
+  score = 0
+  tags_count = 0
+  query_count = 0
+  cleaned_song = song.title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+  cleaned_query = query.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+
+  # Give a point if the song's genre is in whitelist
+  if song.genre in whitelist then score += 1
+
+  # Give a point if the song has a tag in whitelist
+  for term in whitelist
+    if term in song.tags then tags_count += 1
+
+  if tags_count > 0 then score += 1
+
+  # Give a point if the song title has korean in it
+  test = has_korean.test(song.title)
+  if test is true then score += 1
+
+  # Give 2 score if all of the query's words are in song title
+  song_array = cleaned_song.split " "
+  query_array = cleaned_query.split " "
+  arrays = [song_array,query_array]
+
+  # Creates an array containing all words that are in both song and query arrays
+  result = arrays.shift().reduce((res, v) ->
+    res.push v  if res.indexOf(v) is -1 and arrays.every((a) ->
+      a.indexOf(v) isnt -1
+    )
+    res
+  , [])
+  if result.length is query_array.length then score += 1
+
+  # Give a point if levenstein distance is < 10
+  if levenstein(cleaned_query,cleaned_song) <= 10 then score += 1
+
+  return score
 
 
 
-player_one          = document.getElementById("player_one")
-player_two          = document.getElementById("player_two")
-player_three        = document.getElementById("player_three")
-player_four         = document.getElementById("player_four")
-player_five         = document.getElementById("player_five")
-song_title          = document.getElementById("title")
-container           = document.getElementById("container")
-playButton          = document.getElementById("playButton")
-nextButton          = document.getElementById("nextButton")
-seek                = document.getElementById("seek")
-currentTime         = document.getElementById("currentTime")
-endTime             = document.getElementById("endTime")
+loadSong = (query) ->
+  dfd = $.Deferred()
+  console.log "Starting get at: #{new Date()}"
+  SC.get '/tracks', {q: query, limit: queryLimit}, (tracks) ->
+    console.log "Got tracks at: #{new Date()}"
+    # No tracks found for that query or Soundcloud had a problem (e.g. a 503 error)
+    if not tracks? or tracks.length is 0
+      dfd.reject()
+      return
 
-pad = (d) -> (if (d < 10) then "0" + d.toString() else d.toString())
+    else
+      acceptable = []
 
-getTimeFromSecs = (secs) ->
-    minutes = secs/60
-    seconds = (minutes % 1)*60
-    minString = Math.floor(minutes)
-    secString = Math.floor(seconds)
-    return "#{minString}:#{pad(secString)}"
+      # Create song object for each track and run tests to see if it is acceptable
+      tracks.forEach (t) ->
+        if t.title?           then title    = t.title.toLowerCase()
+        if t.genre?           then genre    = t.genre.toLowerCase()
+        if t.tag_list?        then tags     = t.tag_list.toLowerCase().split(" ")
+        if t.created_at?      then created  = t.created_at
+        if t.stream_url?      then url      = t.stream_url+"?client_id="+client_id
+        if t.artwork_url?     then artwork  = t.artwork_url.replace("-large","-t500x500")
+        if t.playback_count?  then views    = t.playback_count
+        if t.duration?        then duration = t.duration/1000
 
-logEvent = (event) ->
-    time = new Date().toTimeString().split(' ')[0]
-    console.log "#{time} || #{event.target.id} - #{event.type}"
+        song = 
+          title: title
+          genre: genre
+          tags: tags
+          created: created
+          url: url
+          artwork: artwork
+          duration: duration
+          views: views
+          score: 0
+          query: query
 
-playNext = ->
-    current = getActivePlayer()
-    current.pause()
-    preparePlayer(current)
+        blacklist_pass = checkBlacklist(song,query)
+        song.score = checkWhitelist(song,query)
 
-    next = getReadyPlayer()
-    setActivePlayer(next)
-    next.play()
+        if blacklist_pass is true and song.score >= 2 then acceptable.push song
 
-setActivePlayer = (player) ->
-    players = document.getElementsByTagName "audio"
-    for p in players
-        isActive = p.classList.contains "active"
-        if p is player and isActive isnt true
-            p.classList.add "active"
-            p.classList.remove "ready"
-        else p.classList.remove "active"
+      # Sort acceptable by score and then number of views
+      acceptable.sort (x, y) ->
+        n = y.score - x.score
+        return n unless n is 0
+        y.views - x.views
 
-    song_title.innerHTML = player.getAttribute "title"
-    endTime.innerHTML = getTimeFromSecs(player.getAttribute("duration")/ 1000)
-    seek.setAttribute "max", player.getAttribute("duration")/1000
-    container.style.background = "url("+player.getAttribute("artwork")+") no-repeat center center fixed"
-    container.style["background-size"] = "cover"
+      # If there are any acceptable songs, return the best one, otherwise fail
+      if acceptable.length > 0 then dfd.resolve(acceptable[0])
+      else dfd.reject()
+    return
+  return dfd.promise()
 
-    player.addEventListener "timeupdate", ->
-        seek.value = @currentTime
-        currentTime.innerHTML = getTimeFromSecs(@currentTime)
 
-    player.addEventListener "playing", ->
-        playButton.innerHTML = "&#xf04c;"
+addToHistory = (song) ->
+  len = history.length
+  max = 9 # 10 songs
+  if song.query? then history.unshift song.query
+  if len > max then history.splice max+1, len-max
+  return
 
-    player.addEventListener "pause", ->
-        playButton.innerHTML = "&#xf04b;"
 
-    player.addEventListener "ended", ->
-        playNext()
+# Gets a random query that isn't in the recently played list or not available list
+randomQuery = () ->
+  availableSongs = top_queries.filter((x) -> history.indexOf(x) < 0)
+  availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y) < 0)
+  return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
-    player.play()
 
-getActivePlayer = -> document.getElementsByClassName("active")[0]
+# Tries to load a song, and if loading fails, tries to load a new song until success
+processSong = (query) ->
+  request = (query) ->
+    loadSong(query).done((song) ->
+      addToHistory(song)
+      dfd.resolve(song)
+    ).fail( ->
+      notAvailable.push query
+      newQ = randomQuery()
+      request(newQ)
+    )
 
-getReadyPlayer = ->
-    players = document.getElementsByClassName "ready"
-    selected = players[Math.floor(Math.random() * players.length)]
+  dfd = $.Deferred()
+  request(query)
+  return dfd.promise()
 
-preparePlayer = (player) ->
-    player.classList.remove "ready"
-    player.removeEventListener "progress"
-    player.removeEventListener "timeupdate"
-    player.removeEventListener "playing"
-    player.removeEventListener "pause"
-    player.removeEventListener "ended"
 
-    dfd = $.Deferred()
-    getRandomSong().done (song) ->
-        player.src = song.stream_url
-        player.setAttribute "title", song.title
-        player.setAttribute "artwork", song.artwork
-        player.setAttribute "query", song.query
-        player.setAttribute "duration", song.duration
-        player.classList.add "ready"
-        dfd.resolve(player)
-        return
 
-    return dfd.promise()
+choosePlayer = () ->
+  players = [player_one,player_two,player_three]
+  c = players.indexOf(document.getElementsByClassName("active")[0])
+  len = players.length - 1
 
-getRandomSong = () ->
-    ###
-    1. Get all tracks on SoundCloud for the query
-    2. Break the tracks into two arrays - one with a K-POP indicator (genre, tags, or korean characters), one without any indicators
-    3. Get top track for whichever array is used (use priority_songs if any in it)
-    5. Get artwork, song title, and stream url to create player
-    ###
-    selected_song = top_queries[Math.floor(Math.random() * top_queries.length)]
+  if not c? or c is len then a = 0
+  else a = c + 1
+  if a is len then n = 0
+  else n = a + 1
+  if n is len then o = 0
+  else o = n + 1
 
-    dfd = $.Deferred()
-    SC.get '/tracks', {q: selected_song, limit: 200}, (tracks) ->
+  seq = active: players[a], next: players[n], onDeck: players[o], last: players[c]
 
-        # If query returns nothing, return false
-        if tracks? and tracks.length is 0
-            ret_song = false
-            dfd.resolve(ret_song)
-            return
+  seq.active.classList.add "active"
+  seq.next.classList.remove "active"
+  seq.onDeck.classList.remove "active"
+  return seq
 
-        priority_songs = []
-        untagged_songs = []
-        approved_songs = []
 
-        ###
-        BLACKLIST CHECK
-        Check all songs to see if the title or tags contain a blaclisted word. All songs that pass the check are added to the approved_songs array.
-        ###
-        for song in tracks
-            blacklisted = 0
+# ----------------------------------------------------------
+$('#nextButton').on "click", ->
+  players = choosePlayer()
+  query = randomQuery()
+  players.last.pause()
+  players.active.play()
 
-            # convert genre, title, and tags to lowercase. Split the song's tag_list into an array instead of a string.
-            if not song.genre? then genre = ""
-            else genre = song.genre.toLowerCase()
+  processSong(query).done (result) ->
+    console.log "Got #{result.title} at: #{new Date()}"
+    players.last.setAttribute "src", result.url
 
-            if not song.title? then title = ""
-            else title = song.title.toLowerCase()
+$('#playButton').on "click", ->
+  p = document.getElementsByClassName("active")[0]
+  if p.paused then p.play()
+  else p.pause()
 
-            if not song.stream_url? then sURL = ""
-            else sURL = song.stream_url
-
-            if not song.tag_list? then tags = []
-            else tag_list = song.tag_list.toLowerCase().split(" ")
-
-            # Check title for blacklisted words
-            for term in exclude_tags
-                if title.indexOf(term) isnt -1
-                    blacklisted += 1
-
-            # Check tags for blacklisted words
-            for term in exclude_tags
-                for tag in tag_list 
-                    if tag.indexOf(term) isnt -1
-                        blacklisted += 1
-
-            # Check for missing stream_url
-            if sURL is "" then blacklisted += 1
-
-            if blacklisted is 0 then approved_songs.push song
-
-        ###
-        PRIORITY CHECK
-        Check all songs to see if they have indicators that they would be good quality or accurate. If so, put them into the priority array.
-        ###
-        for song in approved_songs
-            # convert genre, title, and tags to lowercase. Split the song's tag_list into an array instead of a string.
-            if not song.genre? then genre = ""
-            else genre = song.genre.toLowerCase()
-
-            if not song.title? then title = ""
-            else title = song.title.toLowerCase()
-
-            if not song.tag_list? then tags = []
-            else tag_list = song.tag_list.toLowerCase().split(" ")
-
-            add_criteria = 0
-
-            # Check genre against priority_tags, push to priority array
-            if genre in priority_tags
-                add_criteria += 1
-
-            # Check tags against priority_tags, push to priority array
-            if tag_list.length > 0
-                for tag in tag_list
-                    if tag in priority_tags and tag not in exclude_tags
-                        add_criteria += 1
-
-            # Check song title for korean characters, push to priority array
-            if hangul.test(title) is true
-                add_criteria += 1
-
-            # If song was priority for some reason, add to priority array. Otherwise, add to untagged array.
-            if add_criteria > 0 then priority_songs.push song
-            else untagged_songs.push song
-
-        ###
-        SORT SONGS
-        Sort priority array if there are songs in it, otherwise sort untagged array
-        ###
-
-        #Check priority songs array
-        if priority_songs.length > 0
-            priority_songs.sort (a, b) ->
-                keyA = a.playback_count
-                keyB = b.playback_count
-                return -1 if keyA > keyB
-                return 1 if keyA < keyB
-                return 0
-
-            track = priority_songs[0]
-            artwork = track.artwork_url.replace("-large","-t500x500")
-            title = track.title
-            duration = track.duration
-            stream_url = track.stream_url
-
-        #Check untagged songs array
-        else if untagged_songs.length > 0
-            untagged_songs.sort (a, b) ->
-                keyA = a.playback_count
-                keyB = b.playback_count
-                return -1 if keyA > keyB
-                return 1 if keyA < keyB
-                return 0
-
-            track = untagged_songs[0]
-            artwork = track.artwork_url.replace("-large","-t500x500")
-            title = track.title
-            stream_url = track.stream_url
-            duration = track.duration
-
-        # return object containing the song information
-        if stream_url?
-            ret_song = 
-                artwork: artwork
-                title: title
-                duration: duration
-                stream_url: stream_url+"?client_id="+client_id
-                query: selected_song
-        else ret_song = false
-
-        dfd.resolve(ret_song)
-        return
-
-    return dfd.promise()
-
+# On document ready, load the first song for all three players.
 $(document).ready ->
-    SC.initialize client_id: client_id
+  q_one = randomQuery()
+  q_two = randomQuery()
+  q_three = randomQuery()
 
-    seek.addEventListener "change", ->
-        current = getActivePlayer()
-        current.play()
-        current.currentTime = seek.value    
+  processSong(q_one).done (res_one) ->
+    player_one.setAttribute "src", res_one.url
 
-    seek.addEventListener "input", ->
-        current = getActivePlayer()
-        current.pause()
-        current.currentTime = seek.value
+  processSong(q_two).done (res_two) ->
+    player_two.setAttribute "src", res_two.url
 
-    nextButton.addEventListener "click", ->
-        playNext()
-
-    playButton.addEventListener "click", ->
-        active = getActivePlayer()
-        if active.paused then active.play()
-        else active.pause()   
-
-    preparePlayer(player_one).done (player) ->
-        setActivePlayer(player)
-
-        preparePlayer(player_two).done ->
-            preparePlayer(player_three).done ->
-                preparePlayer(player_four).done ->
-                    preparePlayer(player_five).done
+  processSong(q_three).done (res_three) ->
+    player_three.setAttribute "src", res_three.url
