@@ -67,11 +67,10 @@ input, select, button, textarea, a {
     height: 15rem;
     max-height: 15rem;
     overflow: hidden;
-    font-size: 4rem;
-    line-height: 4rem;
-    letter-spacing: -6px;
+    font-size: 4.5rem;
+    line-height: 4.5rem;
     text-align: center;
-    font-family: $sans-rounded;
+    font-family: $sans-narrow;
     font-weight: $bold;
     padding: 1rem;
     color: $yellow;
@@ -141,6 +140,7 @@ button {
     margin: auto 20px 20px auto;
     flex: 0 1 0px;
     padding: 0;
+    font-size: 6.5rem;
 
     @include bp(small) {
         margin: auto 5px 5px auto;
@@ -177,8 +177,8 @@ input[type="range"]::-webkit-slider-thumb {
      -webkit-appearance: none;
     background-color: white;
     border: 3px solid black;
-    width: 20px;
-    height: 4vh;
+    width: 30px;
+    height: 6vh;
     border-radius: 10px;
 }
 

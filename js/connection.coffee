@@ -11,6 +11,7 @@ notAvailable = []
 player_one = document.getElementById "player_one"
 player_two = document.getElementById "player_two"
 player_three = document.getElementById "player_three"
+players = [player_one, player_two, player_three]
 
 import_songs = (->
   json = null
@@ -122,11 +123,9 @@ checkWhitelist = (song,query) ->
 
 loadSong = (query) ->
   dfd = $.Deferred()
-  console.log "Starting get at: #{new Date()}"
-  SC.get '/tracks', {q: query, limit: queryLimit}, (tracks) ->
-    console.log "Got tracks at: #{new Date()}"
+  SC.get '/tracks', {q: query, limit: queryLimit}, (tracks, err) ->
     # No tracks found for that query or Soundcloud had a problem (e.g. a 503 error)
-    if not tracks? or tracks.length is 0
+    if not tracks? or tracks.length is 0 or err isnt null
       dfd.reject()
       return
 
@@ -207,7 +206,7 @@ processSong = (query) ->
 
 
 
-choosePlayer = () ->
+choosePlayer = ->
   players = [player_one,player_two,player_three]
   c = players.indexOf(document.getElementsByClassName("active")[0])
   len = players.length - 1
@@ -226,22 +225,61 @@ choosePlayer = () ->
   seq.onDeck.classList.remove "active"
   return seq
 
+Number.prototype.toHHMMSS = ->
+  h = Math.floor(@ / 3600)
+  m = Math.floor(@ % 3600 / 60)
+  s = Math.floor(@ % 3600 % 60)
+  ((if h > 0 then h + ":" else "")) + ((if m > 0 then ((if h > 0 and m < 10 then "0" else "")) + m + ":" else "0:")) + ((if s < 10 then "0" else "")) + s
 
-# ----------------------------------------------------------
-$('#nextButton').on "click", ->
+nextSong = ->
   players = choosePlayer()
   query = randomQuery()
+  endTime = players.active.duration.toHHMMSS()
+  art = players.active.getAttribute "artwork"
+  title = players.active.getAttribute "songtitle"
+  max = players.active.getAttribute "songlength"
+
   players.last.pause()
   players.active.play()
+  $('#endTime').val endTime
+  $('#seek').attr "max", max
+  $('#title').text title
+  $('#container').css "background", "url(#{art}) no-repeat center center fixed"
+  $('#container').css "background-size", "cover"
 
   processSong(query).done (result) ->
-    console.log "Got #{result.title} at: #{new Date()}"
     players.last.setAttribute "src", result.url
+    players.last.setAttribute "artwork", result.artwork
+    players.last.setAttribute "songtitle", result.title
+    players.last.setAttribute "songlength", result.duration
+
+# ----------------------------------------------------------
+$('#nextButton').on "click", -> nextSong()
 
 $('#playButton').on "click", ->
   p = document.getElementsByClassName("active")[0]
-  if p.paused then p.play()
-  else p.pause()
+  if p.paused
+    $('#playButton').html "&#xf04c;"
+    p.play()
+  else 
+    $('#playButton').html "&#xf04b;"
+    p.pause()
+
+for player in players
+    $(player).on "playing", -> $('#playButton').html "&#xf04c;"
+    $(player).on "ended", -> nextSong()
+    $(player).on "timeupdate", ->
+        $('#currentTime').val @currentTime.toHHMMSS()
+        $('#seek').val @currentTime
+
+$('#seek').on "input", ->
+  c = document.getElementsByClassName("active")[0]
+  c.pause()
+  c.currentTime = @value
+
+$('#seek').on "change", ->
+  c = document.getElementsByClassName("active")[0]
+  c.play()
 
 # On document ready, load the first song for all three players.
 $(document).ready ->
@@ -251,9 +289,23 @@ $(document).ready ->
 
   processSong(q_one).done (res_one) ->
     player_one.setAttribute "src", res_one.url
+    player_one.setAttribute "artwork", res_one.artwork
+    player_one.setAttribute "songtitle", res_one.title
+    player_one.setAttribute "songlength", res_one.duration
+    $('#endTime').val res_one.duration.toHHMMSS()
+    $('#seek').attr "max", res_one.duration
+    $('#container').css "background", "url(#{res_one.artwork}) no-repeat center center fixed"
+    $('#container').css "background-size", "cover"
+    $('#title').text res_one.title
 
   processSong(q_two).done (res_two) ->
     player_two.setAttribute "src", res_two.url
+    player_two.setAttribute "artwork", res_two.artwork
+    player_two.setAttribute "songtitle", res_two.title
+    player_two.setAttribute "songlength", res_two.duration
 
   processSong(q_three).done (res_three) ->
     player_three.setAttribute "src", res_three.url
+    player_three.setAttribute "artwork", res_three.artwork
+    player_three.setAttribute "songtitle", res_three.title
+    player_three.setAttribute "songlength", res_three.duration
