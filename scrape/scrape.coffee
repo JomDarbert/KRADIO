@@ -61,12 +61,15 @@ get_data = (urls, callback) ->
         callback(merged)
 
 
-new CronJob("* * * * *", ->
+new CronJob("0 0,12 * * *", ->
+  songs = []
   get_data pages, (data) ->
-    fs.unlink out_file, (err) ->
-      throw err if err
-      console.log "Successfully deleted #{out_file}"
-      return
+    exists = fs.existsSync out_file
+    if exists is true
+      fs.unlink out_file, (err) ->
+        throw err if err
+        console.log "Successfully deleted #{out_file}"
+        return
 
     fs.writeFile out_file, JSON.stringify(data), (err) ->
       throw err if err
