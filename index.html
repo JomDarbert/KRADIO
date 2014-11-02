@@ -5,29 +5,32 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="format-detection" content="telephone=no">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable = no" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>K-Pop Radio</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div id="container">
-        <h1 id="title"></h1>
         <audio id="player_one" type="audio/mpeg" class="active"></audio>
         <audio id="player_two" type="audio/mpeg"></audio>
         <audio id="player_three" type="audio/mpeg"></audio>
+    </div>
         <section id="bottomPanel">
-            <button id="playButton" class="">&#xf04b;</button>
             <div id="playerTime">
                 <input type="range" id="seek" value="0" max=""/>
-                <output id="currentTime">0:00</output> / <output id="endTime">0:00</output>
+                <output id="currentTime">0:00</output>
+                <output id="endTime">0:00</output>
             </div>
-            <button id="nextButton" class="">&#xf061;</button>
+            <h1 id="title"></h1>
+            <button id="hateIt">&#xf165;</button>
+            <button id="playButton" class="">&#xf04b;</button>
+            <button id="nextButton" class="">&#xf04e;</button>
         </section>
-    </div>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="http://connect.soundcloud.com/sdk.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
     <script src="js/min/helpers.min.js"></script>
     <script src="js/min/connection.min.js"></script>
 </body>

@@ -254,6 +254,9 @@ nextSong = ->
     players.last.setAttribute "songlength", result.duration
 
 # ----------------------------------------------------------
+document.addEventListener "touchmove", (event) -> event.preventDefault()
+
+
 $('#nextButton').on "click", -> nextSong()
 
 $('#playButton').on "click", ->
@@ -281,6 +284,15 @@ $('#seek').on "change", ->
   c = document.getElementsByClassName("active")[0]
   c.play()
 
+
+###
+seek = document.getElementById "seek"
+hammertime = new Hammer(seek)
+hammertime.on "tap", ->
+  c = document.getElementsByClassName("active")[0]
+  c.currentTime = $('#seek').value
+  alert @value
+###
 # On document ready, load the first song for all three players.
 $(document).ready ->
   q_one = randomQuery()

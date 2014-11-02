@@ -29,6 +29,7 @@ $red:         #D7431B;
 $orange:      #B24626;
 $yellow:      #D7A627;
 $grey:        #585A5B;
+$pink:        #E6679A;
 
 /* BASE */
 * {box-sizing: border-box;}
@@ -52,152 +53,117 @@ html, body {
 input, select, button, textarea, a {
     transition: 0.2s all;
     -webkit-appearance: none;
+    border-radius: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: stretch;
+    align-items: stretch;
 }
 
 #container {
-    height: 100%;
+    flex: 0 1 100%;
     width: 100%;
-    position: relative;
     background: $dark-grey;
 }
 
 
 /* PROJECT */
 #title {
-    height: 15rem;
-    max-height: 15rem;
     overflow: hidden;
-    font-size: 4.5rem;
-    line-height: 4.5rem;
+    font-size: 1.8rem;
+    line-height: 2rem;
     text-align: center;
-    font-family: $sans-narrow;
-    font-weight: $bold;
-    padding: 1rem;
-    color: $yellow;
-    -webkit-text-stroke: 2px black;
-    text-shadow: 3px 3px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+    font-family: $sans-condensed;
+    font-weight: $light;
+    color: $dark-grey;
     width: 100%;
-    display: block;
+    position: absolute;
+    top: 50px;
 
     @include bp(medium) {
-        font-size: 3rem;
-        line-height: 3rem;
-        letter-spacing: -3px;
     }
 
     @include bp(small) {
-        font-size: 2.5rem;
-        line-height: 2.5rem;
-        letter-spacing: -2px;
     }
 }
 
 button {
-    width: 200px;
-    height: 200px;
-    min-width: 200px;
-    min-height: 200px;
+    cursor: pointer;
     outline: none;
-    border: 5px solid black;
-    border-radius: 50%;
-    -webkit-text-stroke: 4px black;
-    color: white;
+    border: none;
+    color: $dark-grey;
+    background: transparent;
     font-family: 'FontAwesome';
-    font-size: 5rem;
-    padding: 0;
-
-    @include bp(medium) {
-        width: 185px;
-        height: 185px;
-        min-width: 185px;
-        min-height: 185px;
-    }
-   @include bp(small) {
-        width: 155px;
-        height: 155px;
-        min-width: 155px;
-        min-height: 155px;
-    }
+    font-size: 4rem;
+    padding: 20px;
+    flex: 1 0 33%;
+    @include bp(medium) {font-size: 3rem; }
+    @include bp(small) {font-size: 2rem; }
 }
 
 #bottomPanel {
-    position: absolute;
-    bottom: 0px;
+    position: relative;
+    flex: 1 0 250px;
+    max-height: 250px;
     width: 100%;
-    height: 300px;
     overflow: hidden;
-
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content: space-between;
-    align-content: center;
-    align-items: center;
-}
-
-#nextButton {
-    background: $red;
-    margin: auto 20px 20px auto;
-    flex: 0 1 0px;
-    padding: 0;
-    font-size: 6.5rem;
-
-    @include bp(small) {
-        margin: auto 5px 5px auto;
-    }
-}
-
-#playButton {
-    background: $seafoam;
-    margin: auto auto 20px 20px;
-    flex: 0 1 0px;
-    @include bp(small) {
-        margin: auto auto 5px 5px;
-    }
+    justify-content: stretch;
+    align-content: stretch;
+    align-items: flex-end;
+    background: white;
 }
 
 #seek {
     outline: none;
     -webkit-appearance: none;
-    background: $teal;
-    border: 4px solid black;
+    background: rgba($dark-grey,.3);
     padding: 3px;
-    border-radius: 10px;
     width: 100%;
-    max-width: 400px;
     margin: 0 auto;
-    margin-top: 100px;
     display: block;
-    @include bp(medium) {
-        margin-top: 50px;
-    }
+    cursor: pointer;
 }
 
 input[type="range"]::-webkit-slider-thumb {
      -webkit-appearance: none;
-    background-color: white;
-    border: 3px solid black;
-    width: 30px;
-    height: 6vh;
-    border-radius: 10px;
+    background-color: $dark-grey;
+    width: 3px;
+    height: 10px;
 }
 
 #playerTime {
-    flex: 1 0 0px;
-    margin: 0 20px;
     text-align: center;
     font-family: $sans;
-    font-size: 2rem;
+    font-size: 1rem;
     font-weight: $bold;
-    color: white;
-    -webkit-text-stroke: 2px black;
+    color: $dark-grey;
+    position: absolute;
+    top: 5px;
+    left: 15%;
+    width: 70%;
+}
 
-    @include bp(medium) {
-        flex: none;
-        position: absolute;
-        top: -50px;
-        left: 12.5%;
-        width: 75%;
-        margin: 0;
-    }
+#currentTime {
+    position: absolute;
+    top: -4px;
+    left: -50px;
+    font-family: $sans;
+    font-weight: $medium;
+}
+
+#endTime {
+    position: absolute;
+    top: -4px;
+    right: -50px;
+    font-family: $sans;
+    font-weight: $medium;
 }
