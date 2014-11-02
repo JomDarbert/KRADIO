@@ -231,6 +231,17 @@ Number.prototype.toHHMMSS = ->
   s = Math.floor(@ % 3600 % 60)
   ((if h > 0 then h + ":" else "")) + ((if m > 0 then ((if h > 0 and m < 10 then "0" else "")) + m + ":" else "0:")) + ((if s < 10 then "0" else "")) + s
 
+UrlExists = (url, cb) ->
+  jQuery.ajax
+    url: url
+    dataType: "text"
+    type: "GET"
+    complete: (xhr) ->
+      cb.apply this, [xhr.status]  if typeof cb is "function"
+      return
+
+  return
+
 nextSong = ->
   players = choosePlayer()
   query = randomQuery()
@@ -239,13 +250,19 @@ nextSong = ->
   title = players.active.getAttribute "songtitle"
   max = players.active.getAttribute "songlength"
 
+  UrlExists art, (status) ->
+    if status is 404
+        nextSong()
+        return
+
   players.last.pause()
   players.active.play()
-  $('#endTime').val endTime
-  $('#seek').attr "max", max
-  $('#title').text title
-  $('#container').css "background", "url(#{art}) no-repeat center center fixed"
-  $('#container').css "background-size", "cover"
+  if endTime? and endTime isnt undefined then $('#endTime').val endTime
+  if max? and max isnt undefined then $('#seek').attr "max", max
+  if title? and title isnt undefined then $('#title').text title
+  if art? and art isnt undefined
+      $('#container').css "background", "url(#{art}) no-repeat center center fixed"
+      $('#container').css "background-size", "cover"
 
   processSong(query).done (result) ->
     players.last.setAttribute "src", result.url
@@ -292,6 +309,7 @@ hammertime.on "tap", ->
   c = document.getElementsByClassName("active")[0]
   c.currentTime = $('#seek').value
   alert @value
+
 ###
 # On document ready, load the first song for all three players.
 $(document).ready ->
@@ -304,11 +322,17 @@ $(document).ready ->
     player_one.setAttribute "artwork", res_one.artwork
     player_one.setAttribute "songtitle", res_one.title
     player_one.setAttribute "songlength", res_one.duration
-    $('#endTime').val res_one.duration.toHHMMSS()
-    $('#seek').attr "max", res_one.duration
-    $('#container').css "background", "url(#{res_one.artwork}) no-repeat center center fixed"
-    $('#container').css "background-size", "cover"
-    $('#title').text res_one.title
+
+    if res_one.duration?
+        $('#endTime').val res_one.duration.toHHMMSS()
+        $('#seek').attr "max", res_one.duration
+
+    if res_one.artwork?
+        $('#container').css "background", "url(#{res_one.artwork}) no-repeat center center fixed"
+        $('#container').css "background-size", "cover"
+
+    if res_one.title?
+        $('#title').text res_one.title
 
   processSong(q_two).done (res_two) ->
     player_two.setAttribute "src", res_two.url
