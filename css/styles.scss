@@ -100,7 +100,7 @@ button {
     color: $dark-grey;
     background: transparent;
     font-family: 'FontAwesome';
-    font-size: 4rem;
+    font-size: 3.5rem;
     padding: 20px;
     flex: 1 0 33%;
     @include bp(medium) {font-size: 3rem; }
@@ -109,8 +109,8 @@ button {
 
 #bottomPanel {
     position: relative;
-    flex: 1 0 250px;
-    max-height: 250px;
+    flex: 1 0 200px;
+    max-height: 200px;
     width: 100%;
     overflow: hidden;
     display: flex;
