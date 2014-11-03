@@ -1,1 +1,3 @@
-Show last 10 songs history
+Track duration and progress
+Background cover art
+Change play button on pause
