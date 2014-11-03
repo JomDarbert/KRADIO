@@ -54,6 +54,27 @@
 
   top_queries = arrayUnique(top_queries);
 
+  Number.prototype.toHHMMSS = function() {
+    var h, m, s;
+    h = Math.floor(this / 3600);
+    m = Math.floor(this % 3600 / 60);
+    s = Math.floor(this % 3600 % 60);
+    return (h > 0 ? h + ":" : "") + (m > 0 ? (h > 0 && m < 10 ? "0" : "") + m + ":" : "0:") + (s < 10 ? "0" : "") + s;
+  };
+
+  UrlExists = function(url, cb) {
+    jQuery.ajax({
+      url: url,
+      dataType: "text",
+      type: "GET",
+      complete: function(xhr) {
+        if (typeof cb === "function") {
+          cb.apply(this, [xhr.status]);
+        }
+      }
+    });
+  };
+
   checkBlacklist = function(song, query) {
     var arrays, cleaned_query, cleaned_song, created_date, date_limit, kor_eng_test, ok_months, query_array, result, song_array, term, _j, _k, _l, _len1, _len2, _len3;
     if (song.title == null) {
@@ -303,37 +324,22 @@
     return seq;
   };
 
-  Number.prototype.toHHMMSS = function() {
-    var h, m, s;
-    h = Math.floor(this / 3600);
-    m = Math.floor(this % 3600 / 60);
-    s = Math.floor(this % 3600 % 60);
-    return (h > 0 ? h + ":" : "") + (m > 0 ? (h > 0 && m < 10 ? "0" : "") + m + ":" : "0:") + (s < 10 ? "0" : "") + s;
-  };
-
-  UrlExists = function(url, cb) {
-    jQuery.ajax({
-      url: url,
-      dataType: "text",
-      type: "GET",
-      complete: function(xhr) {
-        if (typeof cb === "function") {
-          cb.apply(this, [xhr.status]);
-        }
-      }
-    });
-  };
-
   nextSong = function() {
-    var art, endTime, max, query, title;
+    var art, endTime, max, query, title, url;
     players = choosePlayer();
     query = randomQuery();
     endTime = Number(players.active.getAttribute("songlength")).toHHMMSS();
     art = players.active.getAttribute("artwork");
     title = players.active.getAttribute("songtitle");
     max = players.active.getAttribute("songlength");
+    url = players.active.getAttribute("src");
+    UrlExists(url, function(status) {
+      if (status === 404 || status === 503) {
+        nextSong();
+      }
+    });
     UrlExists(art, function(status) {
-      if (status === 404) {
+      if (status === 404 || status === 503) {
         nextSong();
       }
     });
@@ -352,7 +358,7 @@
       $('#container').css("background", "url(" + art + ") no-repeat center center fixed");
       $('#container').css("background-size", "cover");
     }
-    return processSong(query).done(function(result) {
+    processSong(query).done(function(result) {
       players.last.setAttribute("src", result.url);
       players.last.setAttribute("artwork", result.artwork);
       players.last.setAttribute("songtitle", result.title);
@@ -435,9 +441,7 @@
         $('#container').css("background", "url(" + res_one.artwork + ") no-repeat center center fixed");
         $('#container').css("background-size", "cover");
       }
-      if (res_one.title != null) {
-        return $('#title').text(res_one.title);
-      }
+      return $('#title').text(res_one.title);
     });
     processSong(q_two).done(function(res_two) {
       player_two.setAttribute("src", res_two.url);
@@ -454,4 +458,3 @@
   });
 
 }).call(this);
-//# sourceMappingURL=connection.js.map
