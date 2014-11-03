@@ -33,22 +33,6 @@ for song in import_songs
 top_queries = arrayUnique(top_queries)
 
 # --------------------------------------------------------------
-Number.prototype.toHHMMSS = ->
-  h = Math.floor(@ / 3600)
-  m = Math.floor(@ % 3600 / 60)
-  s = Math.floor(@ % 3600 % 60)
-  ((if h > 0 then h + ":" else "")) + ((if m > 0 then ((if h > 0 and m < 10 then "0" else "")) + m + ":" else "0:")) + ((if s < 10 then "0" else "")) + s
-
-UrlExists = (url, cb) ->
-  jQuery.ajax
-    url: url
-    dataType: "text"
-    type: "GET"
-    complete: (xhr) ->
-      cb.apply this, [xhr.status]  if typeof cb is "function"
-      return
-  return
-
 checkBlacklist = (song,query) ->
   # Don't want songs where critical values are missing
   if not song.title?    then return false
@@ -220,6 +204,8 @@ processSong = (query) ->
   request(query)
   return dfd.promise()
 
+
+
 choosePlayer = ->
   players = [player_one,player_two,player_three]
   c = players.indexOf(document.getElementsByClassName("active")[0])
@@ -239,6 +225,22 @@ choosePlayer = ->
   seq.onDeck.classList.remove "active"
   return seq
 
+Number.prototype.toHHMMSS = ->
+  h = Math.floor(@ / 3600)
+  m = Math.floor(@ % 3600 / 60)
+  s = Math.floor(@ % 3600 % 60)
+  ((if h > 0 then h + ":" else "")) + ((if m > 0 then ((if h > 0 and m < 10 then "0" else "")) + m + ":" else "0:")) + ((if s < 10 then "0" else "")) + s
+
+UrlExists = (url, cb) ->
+  jQuery.ajax
+    url: url
+    dataType: "text"
+    type: "GET"
+    complete: (xhr) ->
+      cb.apply this, [xhr.status]  if typeof cb is "function"
+      return
+
+  return
 
 nextSong = ->
   players = choosePlayer()
@@ -247,17 +249,11 @@ nextSong = ->
   art = players.active.getAttribute "artwork"
   title = players.active.getAttribute "songtitle"
   max = players.active.getAttribute "songlength"
-  url = players.active.getAttribute "src"
-
-  UrlExists url, (status) ->
-    if status is 404 or status is 503
-      nextSong()
-      return
 
   UrlExists art, (status) ->
-    if status is 404 or status is 503
-      nextSong()
-      return
+    if status is 404
+        nextSong()
+        return
 
   players.last.pause()
   players.active.play()
@@ -274,10 +270,9 @@ nextSong = ->
     players.last.setAttribute "songtitle", result.title
     players.last.setAttribute "songlength", result.duration
 
-  return
-
 # ----------------------------------------------------------
 document.addEventListener "touchmove", (event) -> event.preventDefault()
+
 
 $('#nextButton').on "click", -> nextSong()
 
@@ -291,11 +286,11 @@ $('#playButton').on "click", ->
     p.pause()
 
 for player in players
-  $(player).on "playing", -> $('#playButton').html "&#xf04c;"
-  $(player).on "ended", -> nextSong()
-  $(player).on "timeupdate", ->
-    $('#currentTime').val @currentTime.toHHMMSS()
-    $('#seek').val @currentTime
+    $(player).on "playing", -> $('#playButton').html "&#xf04c;"
+    $(player).on "ended", -> nextSong()
+    $(player).on "timeupdate", ->
+        $('#currentTime').val @currentTime.toHHMMSS()
+        $('#seek').val @currentTime
 
 $('#seek').on "input", ->
   c = document.getElementsByClassName("active")[0]
@@ -329,14 +324,15 @@ $(document).ready ->
     player_one.setAttribute "songlength", res_one.duration
 
     if res_one.duration?
-      $('#endTime').val res_one.duration.toHHMMSS()
-      $('#seek').attr "max", res_one.duration
+        $('#endTime').val res_one.duration.toHHMMSS()
+        $('#seek').attr "max", res_one.duration
 
     if res_one.artwork?
-      $('#container').css "background", "url(#{res_one.artwork}) no-repeat center center fixed"
-      $('#container').css "background-size", "cover"
+        $('#container').css "background", "url(#{res_one.artwork}) no-repeat center center fixed"
+        $('#container').css "background-size", "cover"
 
-    $('#title').text res_one.title
+    if res_one.title?
+        $('#title').text res_one.title
 
   processSong(q_two).done (res_two) ->
     player_two.setAttribute "src", res_two.url
