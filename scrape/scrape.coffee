@@ -2,9 +2,14 @@ request     = require "request"
 cheerio     = require "cheerio"
 fs          = require "fs"
 CronJob = require('cron').CronJob
-
+###
+d = new Date()
+date = d.getDate()
+month = d.getMonth()
+year = d.getFullYear()
+###
 songs       = []
-out_file    = 'songs.json'
+out_file    = "songs.json"
 pages       = [ "http://www.eatyourkimchi.com/kpopcharts/",
                 "http://www.eatyourkimchi.com/kpopcharts/page/2/",
                 "http://www.eatyourkimchi.com/kpopcharts/page/3/",
@@ -19,8 +24,6 @@ pages       = [ "http://www.eatyourkimchi.com/kpopcharts/",
               ]
 
 
-
-
 get_data = (urls, callback) ->
   for page in urls
     count = 0
@@ -30,12 +33,13 @@ get_data = (urls, callback) ->
         $ = cheerio.load(html)
 
         parsedResults = []
-        $("h2.bkp-toggle-vid").each (i, element) ->
-          content = $(this).text().replace("(","").replace(")","").replace("'","").split " – "
+        $("div.bkp-listing").each (i, element) ->
+          content = $(this).find("h2.bkp-toggle-vid").text().replace("(","").replace(")","").replace("'","").split " – "
           artist = content[0]
           title = content[1]
           query = artist + " " + title
-          eyk = artist: artist, title: title, query: query.toLowerCase()
+          rank = $(this).find("span.bkp-vid-rank").text()
+          eyk = artist: artist, title: title, query: query.toLowerCase(), rank: rank
           
           # Push meta-data into parsedResults array
           parsedResults.push eyk
@@ -44,8 +48,9 @@ get_data = (urls, callback) ->
         $("div.song_artist").each (i, element) ->
           artist = $(this).find(".tit_artist a:first-child").text().replace("(","").replace(")","").replace("'","")
           title = $(this).find(".tit_song a").text().replace("(","").replace(")","").replace("'","")
+          rank = $(this).find("td.nb em").text()
           query = artist + " " + title
-          mwave = artist: artist, title: title, query: query.toLowerCase()
+          mwave = artist: artist, title: title, query: query.toLowerCase(), rank: rank
 
           # Push meta-data into parsedResults array
           parsedResults.push mwave
@@ -61,6 +66,19 @@ get_data = (urls, callback) ->
         callback(merged)
 
 
+get_old_lists = ->
+  exists = fs.existsSync out_file
+  if exists is false then fs.writeFileSync out_file, ""
+  return data = fs.readFileSync out_file, "utf-8"
+
+list = JSON.parse get_old_lists()
+len = list.length
+
+console.log len
+
+# NEED TO WRITE EACH DAY'S PULL TO A NEW ITEM IN THE LIST. ONLY KEEP THE PAST xxxx DAYS.
+
+###
 new CronJob("0 0,12 * * *", ->
   songs = []
   get_data pages, (data) ->
@@ -77,3 +95,4 @@ new CronJob("0 0,12 * * *", ->
       return
   return
 , null, true)
+###
