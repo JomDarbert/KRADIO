@@ -1,11 +1,17 @@
 client_id       =   "2721807f620a4047d473472d46865f14"
+###
+lastfm = new LastFM(
+  apiKey: "c04e77b276f955f8ed3a94006abb8c42"
+  apiSecret: "69b6345d1e154c9b60f0b32b85268dad"
+)
+###
 SC.initialize client_id: client_id
 queryLimit = 100
 whitelist = ["kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"]
 blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"]
 not_kor_eng = /[^A-Za-z0-9\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF \♡\.\「\」\”\“\’\∞\♥\|\【\】\–\{\}\[\]\!\@\#\$\%\^\&\*\(\)\-\_\=\+\;\:\'\"\,\.\<\>\/\\\?\`\~]/g
 has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
-
+only_korean = /[^\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
 history = []
 notAvailable = []
 player_one = document.getElementById "player_one"
@@ -27,10 +33,7 @@ import_songs = (->
   json
 )()
 
-top_queries = []
-for song in import_songs
-  top_queries.push song.query
-top_queries = arrayUnique(top_queries)
+top_queries = arrayUnique(import_songs)
 
 # --------------------------------------------------------------
 Number.prototype.toHHMMSS = ->
@@ -137,9 +140,19 @@ checkWhitelist = (song,query) ->
 
 
 
-loadSong = (query) ->
+loadSong = (q) ->
+  ###
+  get purchase links from lastfm
+  lastfm.track.getBuylinks({artist: q.artist, track: q.title, country: 'US'}
+  , success: (data) ->
+    buyLinks = data.affiliations.downloads.affiliation
+  , error: (code, message) ->
+    console.log code,message
+  )
+  ###
+
   dfd = $.Deferred()
-  SC.get '/tracks', {q: query, limit: queryLimit}, (tracks, err) ->
+  SC.get '/tracks', {q: q.query, limit: queryLimit}, (tracks, err) ->
     # No tracks found for that query or Soundcloud had a problem (e.g. a 503 error)
     if not tracks? or tracks.length is 0 or err isnt null
       dfd.reject()
@@ -150,7 +163,10 @@ loadSong = (query) ->
 
       # Create song object for each track and run tests to see if it is acceptable
       tracks.forEach (t) ->
-        if t.title?           then title    = t.title.toLowerCase()
+        test = has_korean.test(t.title)
+        if t.title? and test is true
+          korean = "(#{t.title.toLowerCase().replace(only_korean,"")})"
+        else korean = ""
         if t.genre?           then genre    = t.genre.toLowerCase()
         if t.tag_list?        then tags     = t.tag_list.toLowerCase().split(" ")
         if t.created_at?      then created  = t.created_at
@@ -160,7 +176,10 @@ loadSong = (query) ->
         if t.duration?        then duration = t.duration/1000
 
         song = 
-          title: title
+          title: "#{q.artist}  —  #{q.title} #{korean}"
+          song: q.title
+          artist: q.artist
+          korean: korean
           genre: genre
           tags: tags
           created: created
@@ -169,10 +188,10 @@ loadSong = (query) ->
           duration: duration
           views: views
           score: 0
-          query: query
+          query: q.query
 
-        blacklist_pass = checkBlacklist(song,query)
-        song.score = checkWhitelist(song,query)
+        blacklist_pass = checkBlacklist(song,q.query)
+        song.score = checkWhitelist(song,q.query)
 
         if blacklist_pass is true and song.score >= 2 then acceptable.push song
 

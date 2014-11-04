@@ -1,1 +1,5 @@
-Show last 10 songs history
+Download link
+days/weeks on top (server-side)
+change from last week
+image search for higher resolution albums
+clean up code

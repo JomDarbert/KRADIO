@@ -1,8 +1,16 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, has_korean, history, import_songs, loadSong, nextSong, notAvailable, not_kor_eng, player, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, song, top_queries, whitelist, _i, _j, _len, _len1,
+  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, has_korean, history, import_songs, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, top_queries, whitelist, _i, _len,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
+
+
+  /*
+  lastfm = new LastFM(
+    apiKey: "c04e77b276f955f8ed3a94006abb8c42"
+    apiSecret: "69b6345d1e154c9b60f0b32b85268dad"
+  )
+   */
 
   SC.initialize({
     client_id: client_id
@@ -17,6 +25,8 @@
   not_kor_eng = /[^A-Za-z0-9\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF \♡\.\「\」\”\“\’\∞\♥\|\【\】\–\{\}\[\]\!\@\#\$\%\^\&\*\(\)\-\_\=\+\;\:\'\"\,\.\<\>\/\\\?\`\~]/g;
 
   has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g;
+
+  only_korean = /[^\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g;
 
   history = [];
 
@@ -45,14 +55,7 @@
     return json;
   })();
 
-  top_queries = [];
-
-  for (_i = 0, _len = import_songs.length; _i < _len; _i++) {
-    song = import_songs[_i];
-    top_queries.push(song.query);
-  }
-
-  top_queries = arrayUnique(top_queries);
+  top_queries = arrayUnique(import_songs);
 
   Number.prototype.toHHMMSS = function() {
     var h, m, s;
@@ -76,7 +79,7 @@
   };
 
   checkBlacklist = function(song, query) {
-    var arrays, cleaned_query, cleaned_song, created_date, date_limit, kor_eng_test, ok_months, query_array, result, song_array, term, _j, _k, _l, _len1, _len2, _len3;
+    var arrays, cleaned_query, cleaned_song, created_date, date_limit, kor_eng_test, ok_months, query_array, result, song_array, term, _i, _j, _k, _len, _len1, _len2;
     if (song.title == null) {
       return false;
     }
@@ -92,20 +95,20 @@
     if (date_limit.diff(created_date, "months") > 0) {
       return false;
     }
+    for (_i = 0, _len = blacklist.length; _i < _len; _i++) {
+      term = blacklist[_i];
+      if (song.title.indexOf(term) !== -1) {
+        return false;
+      }
+    }
     for (_j = 0, _len1 = blacklist.length; _j < _len1; _j++) {
       term = blacklist[_j];
-      if (song.title.indexOf(term) !== -1) {
+      if ((song.genre != null) && song.genre.indexOf(term) !== -1) {
         return false;
       }
     }
     for (_k = 0, _len2 = blacklist.length; _k < _len2; _k++) {
       term = blacklist[_k];
-      if ((song.genre != null) && song.genre.indexOf(term) !== -1) {
-        return false;
-      }
-    }
-    for (_l = 0, _len3 = blacklist.length; _l < _len3; _l++) {
-      term = blacklist[_l];
       if (__indexOf.call(song.tags, term) >= 0) {
         return false;
       }
@@ -134,7 +137,7 @@
   };
 
   checkWhitelist = function(song, query) {
-    var arrays, cleaned_query, cleaned_song, query_array, query_count, result, score, song_array, tags_count, term, test, _j, _len1, _ref;
+    var arrays, cleaned_query, cleaned_song, query_array, query_count, result, score, song_array, tags_count, term, test, _i, _len, _ref;
     score = 0;
     tags_count = 0;
     query_count = 0;
@@ -143,8 +146,8 @@
     if (_ref = song.genre, __indexOf.call(whitelist, _ref) >= 0) {
       score += 1;
     }
-    for (_j = 0, _len1 = whitelist.length; _j < _len1; _j++) {
-      term = whitelist[_j];
+    for (_i = 0, _len = whitelist.length; _i < _len; _i++) {
+      term = whitelist[_i];
       if (__indexOf.call(song.tags, term) >= 0) {
         tags_count += 1;
       }
@@ -176,11 +179,21 @@
     return score;
   };
 
-  loadSong = function(query) {
+  loadSong = function(q) {
+
+    /*
+    get purchase links from lastfm
+    lastfm.track.getBuylinks({artist: q.artist, track: q.title, country: 'US'}
+    , success: (data) ->
+      buyLinks = data.affiliations.downloads.affiliation
+    , error: (code, message) ->
+      console.log code,message
+    )
+     */
     var dfd;
     dfd = $.Deferred();
     SC.get('/tracks', {
-      q: query,
+      q: q.query,
       limit: queryLimit
     }, function(tracks, err) {
       var acceptable;
@@ -190,9 +203,12 @@
       } else {
         acceptable = [];
         tracks.forEach(function(t) {
-          var artwork, blacklist_pass, created, duration, genre, tags, title, url, views;
-          if (t.title != null) {
-            title = t.title.toLowerCase();
+          var artwork, blacklist_pass, created, duration, genre, korean, song, tags, test, url, views;
+          test = has_korean.test(t.title);
+          if ((t.title != null) && test === true) {
+            korean = "(" + (t.title.toLowerCase().replace(only_korean, "")) + ")";
+          } else {
+            korean = "";
           }
           if (t.genre != null) {
             genre = t.genre.toLowerCase();
@@ -216,7 +232,10 @@
             duration = t.duration / 1000;
           }
           song = {
-            title: title,
+            title: "" + q.artist + "  —  " + q.title + " " + korean,
+            song: q.title,
+            artist: q.artist,
+            korean: korean,
             genre: genre,
             tags: tags,
             created: created,
@@ -225,10 +244,10 @@
             duration: duration,
             views: views,
             score: 0,
-            query: query
+            query: q.query
           };
-          blacklist_pass = checkBlacklist(song, query);
-          song.score = checkWhitelist(song, query);
+          blacklist_pass = checkBlacklist(song, q.query);
+          song.score = checkWhitelist(song, q.query);
           if (blacklist_pass === true && song.score >= 2) {
             return acceptable.push(song);
           }
@@ -386,8 +405,8 @@
     }
   });
 
-  for (_j = 0, _len1 = players.length; _j < _len1; _j++) {
-    player = players[_j];
+  for (_i = 0, _len = players.length; _i < _len; _i++) {
+    player = players[_i];
     $(player).on("playing", function() {
       return $('#playButton').html("&#xf04c;");
     });
