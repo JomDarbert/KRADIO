@@ -75,6 +75,7 @@ update_data = ->
       list.unshift entry
       if list.length > 100 then list.splice(list.length,1)
 
+      # Sort today's songs by ranking
       compare = (a, b) ->
         ar = Number(a.rank)
         br = Number(b.rank)
@@ -82,8 +83,18 @@ update_data = ->
         return 1  if ar > br
         0
       list[0].data.sort compare
+
+      # Count the number of days song has been in the rankings
       for song,key in list[0].data
         song.rank = key+1
+        song.num_days = 0
+        song.change = 0
+        for entry in list
+          for s in entry.data
+            if song.query is s.query then song.num_days++
+
+        for old in list[1].data
+          if song.query is s.query then song.change = old.rank - song.rank
 
 
       fs.writeFile out_file, JSON.stringify(list), (err) ->
@@ -91,10 +102,8 @@ update_data = ->
         console.log "JSON saved to #{out_file}"
         return
 
-update_data()
 
-###
-new CronJob("0 0,12 * * *", ->
 
+new CronJob("0 0 * * *", ->
+  update_data()
 , null, true)
-###
