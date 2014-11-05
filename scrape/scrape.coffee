@@ -45,13 +45,12 @@ get_data = (urls, callback) ->
           parsedResults.push eyk
           return
 
-        $("div.song_artist").each (i, element) ->
+        $("div.list_song tr").each (i, element) ->
           artist = $(this).find(".tit_artist a:first-child").text().replace("(","").replace(")","").replace("'","")
           title = $(this).find(".tit_song a").text().replace("(","").replace(")","").replace("'","")
-          rank = $(this).find("td.nb em").text()
+          rank = $(this).find(".nb em").text()
           query = artist + " " + title
           mwave = artist: artist, title: title, query: query.toLowerCase(), rank: rank
-
           # Push meta-data into parsedResults array
           parsedResults.push mwave
           return
@@ -66,33 +65,36 @@ get_data = (urls, callback) ->
         callback(merged)
 
 
-get_old_lists = ->
-  exists = fs.existsSync out_file
-  if exists is false then fs.writeFileSync out_file, ""
-  return data = fs.readFileSync out_file, "utf-8"
+update_data = ->
+  get_data pages, (data) ->
+    fs.readFile out_file, "utf8", "w", (err, in_file) ->
+      if err then list = []
+      else list = JSON.parse in_file
 
-list = JSON.parse get_old_lists()
-len = list.length
+      entry = date: new Date(), data: data
+      list.unshift entry
+      if list.length > 100 then list.splice(list.length,1)
 
-console.log len
+      compare = (a, b) ->
+        ar = Number(a.rank)
+        br = Number(b.rank)
+        return -1  if ar < br
+        return 1  if ar > br
+        0
+      list[0].data.sort compare
+      for song,key in list[0].data
+        song.rank = key+1
 
-# NEED TO WRITE EACH DAY'S PULL TO A NEW ITEM IN THE LIST. ONLY KEEP THE PAST xxxx DAYS.
+
+      fs.writeFile out_file, JSON.stringify(list), (err) ->
+        throw err if err
+        console.log "JSON saved to #{out_file}"
+        return
+
+update_data()
 
 ###
 new CronJob("0 0,12 * * *", ->
-  songs = []
-  get_data pages, (data) ->
-    exists = fs.existsSync out_file
-    if exists is true
-      fs.unlink out_file, (err) ->
-        throw err if err
-        console.log "Successfully deleted #{out_file}"
-        return
 
-    fs.writeFile out_file, JSON.stringify(data), (err) ->
-      throw err if err
-      console.log "JSON saved to #{out_file}"
-      return
-  return
 , null, true)
 ###
