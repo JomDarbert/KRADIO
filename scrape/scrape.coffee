@@ -1,13 +1,7 @@
 request     = require "request"
 cheerio     = require "cheerio"
 fs          = require "fs"
-CronJob = require('cron').CronJob
-###
-d = new Date()
-date = d.getDate()
-month = d.getMonth()
-year = d.getFullYear()
-###
+CronJob     = require('cron').CronJob
 songs       = []
 out_file    = "songs.json"
 pages       = [ "http://www.eatyourkimchi.com/kpopcharts/",
@@ -23,6 +17,53 @@ pages       = [ "http://www.eatyourkimchi.com/kpopcharts/",
                 "http://mwave.interest.me/kpop/chart.m"
               ]
 
+levenstein = (->
+  row2 = []
+  (s1, s2) ->
+    if s1 is s2
+      0
+    else
+      s1_len = s1.length
+      s2_len = s2.length
+      if s1_len and s2_len
+        i1 = 0
+        i2 = 0
+        a = undefined
+        b = undefined
+        c = undefined
+        c2 = undefined
+        row = row2
+        row[i1] = ++i1  while i1 < s1_len
+        while i2 < s2_len
+          c2 = s2.charCodeAt(i2)
+          a = i2
+          ++i2
+          b = i2
+          i1 = 0
+          while i1 < s1_len
+            c = a + ((if s1.charCodeAt(i1) isnt c2 then 1 else 0))
+            a = row[i1]
+            b = (if b < a then ((if b < c then b + 1 else c)) else ((if a < c then a + 1 else c)))
+            row[i1] = b
+            ++i1
+        b
+      else
+        s1_len + s2_len
+)()
+
+sortQuery = (a, b) ->
+  aq = a.query
+  bq = b.query
+  return -1  if aq < bq
+  return 1  if aq > bq
+  0
+
+sortRank = (a, b) ->
+  ar = Number(a.rank)
+  br = Number(b.rank)
+  return -1  if ar < br
+  return 1  if ar > br
+  0
 
 get_data = (urls, callback) ->
   for page in urls
@@ -62,48 +103,80 @@ get_data = (urls, callback) ->
       if count is pages.length
         merged = []
         merged = merged.concat.apply(merged, songs)
+
+        # Remove any empty
+        i = 0
+        len = merged.length
+        while i < len
+          merged[i] and merged.push(merged[i])
+          i++
+        merged.splice(0,len)
+
+
         callback(merged)
+
+
 
 
 update_data = ->
   get_data pages, (data) ->
+    # Remove duplicates by using levenstein score
+    data.sort sortQuery
+
+    a = []
+    prev = ""
+    i = 0
+
+    while i < data.length
+      lev = levenstein(data[i].query,prev.query || "")
+      if lev > 6
+        a.push data[i]
+      prev = data[i]
+      i++
+
+    to_file = a
+
+    # Sort today's songs by ranking
+    to_file.sort sortRank
+    for song,key in to_file
+      song.rank = key+1
+      song.change = 0
+      song.num_days = 0
+
+    # Put temp variable back into list object
     fs.readFile out_file, "utf8", "w", (err, in_file) ->
       if err then list = []
       else list = JSON.parse in_file
 
-      entry = date: new Date(), data: data
+      # Set new entry and make sure list of entries doesn't exceed 100 days
+      entry = date: new Date, data: to_file
       list.unshift entry
-      if list.length > 100 then list.splice(list.length,1)
+      if list.length > 100 then list.pop
 
-      # Sort today's songs by ranking
-      compare = (a, b) ->
-        ar = Number(a.rank)
-        br = Number(b.rank)
-        return -1  if ar < br
-        return 1  if ar > br
-        0
-      list[0].data.sort compare
+      if list.length > 1
+        for song in list[0].data
+          count = 0
 
-      # Count the number of days song has been in the rankings
-      for song,key in list[0].data
-        song.rank = key+1
-        song.num_days = 0
-        song.change = 0
-        for entry in list
-          for s in entry.data
-            if song.query is s.query then song.num_days++
+          # Get change in rank from last week
+          if list.length >= 7
+            for old in list[6].data
+              if old.query is song.query then song.change = old.rank - song.rank
 
-        for old in list[1].data
-          if song.query is s.query then song.change = old.rank - song.rank
+          # Get count of days on chart
+          for entry in list
+            for item in entry.data
+              if item.query is song.query then count++
 
+          song.num_days = count
 
       fs.writeFile out_file, JSON.stringify(list), (err) ->
         throw err if err
         console.log "JSON saved to #{out_file}"
         return
 
+update_data()
 
-
+# Once per day at midnight
 new CronJob("0 0 * * *", ->
   update_data()
 , null, true)
