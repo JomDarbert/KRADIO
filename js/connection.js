@@ -55,7 +55,7 @@
     return json;
   })();
 
-  top_queries = arrayUnique(import_songs);
+  top_queries = arrayUnique(import_songs[0].data);
 
   Number.prototype.toHHMMSS = function() {
     var h, m, s;
@@ -235,6 +235,9 @@
             title: "" + q.artist + "  —  " + q.title + " " + korean,
             song: q.title,
             artist: q.artist,
+            rank: q.rank,
+            num_days: q.num_days,
+            change: q.change,
             korean: korean,
             genre: genre,
             tags: tags,
@@ -460,7 +463,10 @@
         $('#container').css("background", "url(" + res_one.artwork + ") no-repeat center center fixed");
         $('#container').css("background-size", "cover");
       }
-      return $('#title').text(res_one.title);
+      $('#title').text(res_one.title);
+      $('#rank').text(res_one.rank);
+      $('#change').text(res_one.change);
+      return $('#daysOnChart').text("Days on chart: " + res_one.num_days);
     });
     processSong(q_two).done(function(res_two) {
       player_two.setAttribute("src", res_two.url);

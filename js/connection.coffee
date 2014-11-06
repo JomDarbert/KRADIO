@@ -33,7 +33,7 @@ import_songs = (->
   json
 )()
 
-top_queries = arrayUnique(import_songs)
+top_queries = arrayUnique(import_songs[0].data)
 
 # --------------------------------------------------------------
 Number.prototype.toHHMMSS = ->
@@ -179,6 +179,9 @@ loadSong = (q) ->
           title: "#{q.artist}  —  #{q.title} #{korean}"
           song: q.title
           artist: q.artist
+          rank: q.rank
+          num_days: q.num_days
+          change: q.change
           korean: korean
           genre: genre
           tags: tags
@@ -356,6 +359,9 @@ $(document).ready ->
       $('#container').css "background-size", "cover"
 
     $('#title').text res_one.title
+    $('#rank').text res_one.rank
+    $('#change').text res_one.change
+    $('#daysOnChart').text "Days on chart: #{res_one.num_days}"
 
   processSong(q_two).done (res_two) ->
     player_two.setAttribute "src", res_two.url
