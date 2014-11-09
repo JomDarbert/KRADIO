@@ -1,5 +1,5 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, cookie_dontPlay, dontPlay, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song_data, top_queries, whitelist, _i, _len,
+  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song_data, top_queries, whitelist, _i, _len,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -32,9 +32,20 @@
 
   notAvailable = [];
 
-  cookie_dontPlay = document.cookie;
+  getCookie = function(name) {
+    var re, value;
+    re = new RegExp(name + "=([^;]+)");
+    value = re.exec(document.cookie);
+    if ((value != null)) {
+      return unescape(value[1]);
+    } else {
+      return null;
+    }
+  };
 
-  if (cookie_dontPlay !== "") {
+  cookie_dontPlay = getCookie("dontPlay");
+
+  if (cookie_dontPlay !== null) {
     dontPlay = JSON.parse(cookie_dontPlay);
   } else {
     dontPlay = [];
@@ -488,7 +499,7 @@
     c = document.getElementsByClassName("active")[0];
     query = c.getAttribute("query");
     dontPlay.push(query);
-    document.cookie = JSON.stringify(dontPlay);
+    document.cookie = "dontPlay=" + JSON.stringify(dontPlay);
     return nextSong();
   });
 

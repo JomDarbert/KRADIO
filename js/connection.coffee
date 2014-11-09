@@ -15,8 +15,13 @@ only_korean = /[^\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7
 history = []
 notAvailable = []
 
-cookie_dontPlay = document.cookie
-if cookie_dontPlay isnt "" then dontPlay = JSON.parse cookie_dontPlay
+getCookie = (name) ->
+  re = new RegExp(name + "=([^;]+)")
+  value = re.exec(document.cookie)
+  (if (value?) then unescape(value[1]) else null)
+
+cookie_dontPlay = getCookie("dontPlay")
+if cookie_dontPlay isnt null then dontPlay = JSON.parse cookie_dontPlay
 else dontPlay = []
 
 player_one = document.getElementById "player_one"
@@ -371,7 +376,7 @@ $('#dontPlay').on "click", ->
   c = document.getElementsByClassName("active")[0]
   query = c.getAttribute "query"
   dontPlay.push query
-  document.cookie = JSON.stringify dontPlay
+  document.cookie = "dontPlay="+JSON.stringify dontPlay
   nextSong()
 
 ###
