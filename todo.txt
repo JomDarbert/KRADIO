@@ -1,5 +1,6 @@
 Download link
-days/weeks on top (server-side)
-change from last week
-image search for higher resolution albums
 clean up code
+if none are ready force a wait
+text overlap on small screens
+fast forward on iphone
+thumbs down cookies

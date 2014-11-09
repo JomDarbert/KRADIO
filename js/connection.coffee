@@ -14,6 +14,7 @@ has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF
 only_korean = /[^\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
 history = []
 notAvailable = []
+dontPlay = []
 player_one = document.getElementById "player_one"
 player_two = document.getElementById "player_two"
 player_three = document.getElementById "player_three"
@@ -220,6 +221,7 @@ addToHistory = (song) ->
 randomQuery = () ->
   availableSongs = top_queries.filter((x) -> history.indexOf(x) < 0)
   availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y) < 0)
+  availableSongs = availableSongs.filter((z) -> dontPlay.indexOf(z) < 0)
   return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
 
@@ -311,6 +313,7 @@ nextSong = ->
     players.last.setAttribute "rank", result.rank
     players.last.setAttribute "change", result.change
     players.last.setAttribute "num_days", result.num_days
+    players.last.setAttribute "query", result.query
 
   return
 
@@ -344,6 +347,12 @@ $('#seek').on "change", ->
   c = document.getElementsByClassName("active")[0]
   c.play()
 
+$('#dontPlay').on "click", ->
+  c = document.getElementsByClassName("active")[0]
+  query = c.getAttribute "query"
+  dontPlay.push query
+  nextSong()
+  console.log dontPlay
 
 ###
 seek = document.getElementById "seek"
@@ -368,6 +377,7 @@ $(document).ready ->
     player_one.setAttribute "rank", res_one.rank
     player_one.setAttribute "change", res_one.change
     player_one.setAttribute "num_days", res_one.num_days
+    player_one.setAttribute "query", res_one.query
 
     if res_one.duration?
       $('#endTime').val res_one.duration.toHHMMSS()
@@ -398,6 +408,7 @@ $(document).ready ->
     player_two.setAttribute "rank", res_two.rank
     player_two.setAttribute "change", res_two.change
     player_two.setAttribute "num_days", res_two.num_days
+    player_two.setAttribute "query", res_two.query
 
   processSong(q_three).done (res_three) ->
     player_three.setAttribute "src", res_three.url
@@ -407,3 +418,4 @@ $(document).ready ->
     player_three.setAttribute "rank", res_three.rank
     player_three.setAttribute "change", res_three.change
     player_three.setAttribute "num_days", res_three.num_days
+    player_three.setAttribute "query", res_three.query

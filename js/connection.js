@@ -1,5 +1,5 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, song_data, top_queries, whitelist, _i, _len,
+  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, dontPlay, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, song_data, top_queries, whitelist, _i, _len,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -31,6 +31,8 @@
   history = [];
 
   notAvailable = [];
+
+  dontPlay = [];
 
   player_one = document.getElementById("player_one");
 
@@ -287,6 +289,9 @@
     availableSongs = availableSongs.filter(function(y) {
       return notAvailable.indexOf(y) < 0;
     });
+    availableSongs = availableSongs.filter(function(z) {
+      return dontPlay.indexOf(z) < 0;
+    });
     return availableSongs[Math.floor(Math.random() * availableSongs.length)];
   };
 
@@ -398,7 +403,8 @@
       players.last.setAttribute("songlength", result.duration);
       players.last.setAttribute("rank", result.rank);
       players.last.setAttribute("change", result.change);
-      return players.last.setAttribute("num_days", result.num_days);
+      players.last.setAttribute("num_days", result.num_days);
+      return players.last.setAttribute("query", result.query);
     });
   };
 
@@ -449,6 +455,15 @@
     return c.play();
   });
 
+  $('#dontPlay').on("click", function() {
+    var c, query;
+    c = document.getElementsByClassName("active")[0];
+    query = c.getAttribute("query");
+    dontPlay.push(query);
+    nextSong();
+    return console.log(dontPlay);
+  });
+
 
   /*
   seek = document.getElementById "seek"
@@ -472,6 +487,7 @@
       player_one.setAttribute("rank", res_one.rank);
       player_one.setAttribute("change", res_one.change);
       player_one.setAttribute("num_days", res_one.num_days);
+      player_one.setAttribute("query", res_one.query);
       if (res_one.duration != null) {
         $('#endTime').val(res_one.duration.toHHMMSS());
         $('#seek').attr("max", res_one.duration);
@@ -502,7 +518,8 @@
       player_two.setAttribute("songlength", res_two.duration);
       player_two.setAttribute("rank", res_two.rank);
       player_two.setAttribute("change", res_two.change);
-      return player_two.setAttribute("num_days", res_two.num_days);
+      player_two.setAttribute("num_days", res_two.num_days);
+      return player_two.setAttribute("query", res_two.query);
     });
     return processSong(q_three).done(function(res_three) {
       player_three.setAttribute("src", res_three.url);
@@ -511,7 +528,8 @@
       player_three.setAttribute("songlength", res_three.duration);
       player_three.setAttribute("rank", res_three.rank);
       player_three.setAttribute("change", res_three.change);
-      return player_three.setAttribute("num_days", res_three.num_days);
+      player_three.setAttribute("num_days", res_three.num_days);
+      return player_three.setAttribute("query", res_three.query);
     });
   });
 
