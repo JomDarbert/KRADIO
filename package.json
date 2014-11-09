@@ -4,6 +4,7 @@
   "description": "K-Pop Radio",
   "main": "index.js",
   "dependencies": {
+    "body-parser": "^1.9.2",
     "cheerio": "^0.17.0",
     "cron": "^1.0.5",
     "express": "^4.10.1",

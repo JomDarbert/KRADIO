@@ -19,23 +19,20 @@ player_two = document.getElementById "player_two"
 player_three = document.getElementById "player_three"
 players = [player_one, player_two, player_three]
 
-import_songs = (->
-  json = null
-  $.ajax
-    async: false
-    global: false
-    url: "../scrape/songs.json"
-    dataType: "json"
-    success: (data) ->
-      json = data
-      return
+getSongJSON = ->
+  xmlHttp = null
+  xmlHttp = new XMLHttpRequest()
+  xmlHttp.open "GET", "http://localhost:3000/today", false
+  xmlHttp.send null
+  xmlHttp.responseText
 
-  json
-)()
-
-top_queries = arrayUnique(import_songs[0].data)
+song_data = JSON.parse getSongJSON()
+top_queries = arrayUnique(song_data)
+console.log top_queries
 
 # --------------------------------------------------------------
+
+
 Number.prototype.toHHMMSS = ->
   h = Math.floor(@ / 3600)
   m = Math.floor(@ % 3600 / 60)
@@ -64,6 +61,9 @@ checkBlacklist = (song,query) ->
   date_limit   = moment().subtract(ok_months, "months")
 
   if date_limit.diff(created_date, "months") > 0 then return false
+
+  # Don't want songs that are longer than 6 minutes
+  if song.duration > 360 then return false
 
   # Don't want songs with blacklist words in title
   for term in blacklist

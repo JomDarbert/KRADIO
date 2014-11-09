@@ -1,4 +1,6 @@
-var CronJob, cheerio, fs, get_data, levenstein, out_file, pages, request, songs, sortQuery, sortRank, update_data;
+var CronJob, cheerio, fs, get_data, http, levenstein, out_file, pages, request, songs, sortQuery, sortRank, update_data;
+
+http = require("http");
 
 request = require("request");
 
@@ -210,18 +212,23 @@ update_data = function() {
           song.num_days = count;
         }
       }
-      return fs.writeFile(out_file, JSON.stringify(list), function(err) {
+      fs.writeFile(out_file, JSON.stringify(list), function(err) {
         if (err) {
           throw err;
         }
         console.log("JSON saved to " + out_file);
+      });
+      return request.post({
+        url: "http://localhost:3000/update",
+        body: JSON.stringify(list),
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      }, function(error, response, body) {
+        console.log(response.statusCode);
       });
     });
   });
 };
 
 update_data();
-
-new CronJob("0 0 * * *", function() {
-  return update_data();
-}, null, true);

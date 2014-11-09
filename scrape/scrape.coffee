@@ -1,3 +1,4 @@
+http        = require "http"
 request     = require "request"
 cheerio     = require "cheerio"
 fs          = require "fs"
@@ -169,14 +170,24 @@ update_data = ->
 
           song.num_days = count
 
+      # JSON Backup
       fs.writeFile out_file, JSON.stringify(list), (err) ->
         throw err if err
         console.log "JSON saved to #{out_file}"
         return
 
+      request.post
+        url: "http://localhost:3000/update"
+        body: JSON.stringify list
+        headers: {"Content-Type": "application/json;charset=UTF-8"}
+      , (error, response, body) ->
+        console.log response.statusCode
+        return
+
+
 update_data()
 
 # Once per day at midnight
-new CronJob("0 0 * * *", ->
-  update_data()
-, null, true)
+#new CronJob("0 0 * * *", ->
+#  update_data()
+#, null, true)

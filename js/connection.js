@@ -1,5 +1,5 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, has_korean, history, import_songs, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, top_queries, whitelist, _i, _len,
+  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, song_data, top_queries, whitelist, _i, _len,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -40,22 +40,20 @@
 
   players = [player_one, player_two, player_three];
 
-  import_songs = (function() {
-    var json;
-    json = null;
-    $.ajax({
-      async: false,
-      global: false,
-      url: "../scrape/songs.json",
-      dataType: "json",
-      success: function(data) {
-        json = data;
-      }
-    });
-    return json;
-  })();
+  getSongJSON = function() {
+    var xmlHttp;
+    xmlHttp = null;
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", "http://localhost:3000/today", false);
+    xmlHttp.send(null);
+    return xmlHttp.responseText;
+  };
 
-  top_queries = arrayUnique(import_songs[0].data);
+  song_data = JSON.parse(getSongJSON());
+
+  top_queries = arrayUnique(song_data);
+
+  console.log(top_queries);
 
   Number.prototype.toHHMMSS = function() {
     var h, m, s;
@@ -93,6 +91,9 @@
     created_date = moment(song.created, "YYYY-MM-DD HH:MM:SS");
     date_limit = moment().subtract(ok_months, "months");
     if (date_limit.diff(created_date, "months") > 0) {
+      return false;
+    }
+    if (song.duration > 360) {
       return false;
     }
     for (_i = 0, _len = blacklist.length; _i < _len; _i++) {
