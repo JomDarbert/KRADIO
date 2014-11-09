@@ -1,23 +1,19 @@
-@import "reset", "font-face", "mixins";
+@import "reset", "mixins";
 
 $base-size:         18px;
 $base-lineheight:   1.5;
 $base-style:        normal;
 $container-width:   800px;
 
-$serif:            'MercuryG1';
-$sans:             'Gotham';
-$sans-narrow:      'GothamNarrow';
-$sans-xnarrow:     'GothamXNarrow';
-$sans-condensed:   'GothamCondensed';
-$sans-rounded:     'GothamRounded';
-$logo:             'Knockout';
+$sans:             'Open Sans';
+$sans-narrow:      'Open Sans Condensed';
+$sans-condensed:   'Open Sans Condensed';
 
-$light:     300;
+$light:     400;
 $book:      400;
-$medium:    500;
+$medium:    600;
 $semi-bold: 600;
-$bold:      700;
+$bold:      600;
 
 $off-white:   #f7f7f7;
 $dark-grey:   #2d3033;
@@ -64,6 +60,7 @@ body {
     justify-content: flex-start;
     align-content: stretch;
     align-items: stretch;
+    background: $dark-grey;
 }
 
 #container {
@@ -76,15 +73,15 @@ body {
 /* PROJECT */
 #title {
     overflow: hidden;
-    font-size: 1.8rem;
-    line-height: 2rem;
+    font-size: 1.7rem;
+    line-height: 2.5rem;
     text-align: center;
     font-family: $sans-condensed;
-    font-weight: $light;
+    font-weight: $bold;
     color: $dark-grey;
     width: 100%;
     position: absolute;
-    top: 50px;
+    top: 35px;
 
     @include bp(medium) {
     }
@@ -92,6 +89,41 @@ body {
     @include bp(small) {
     }
 }
+
+#stats {
+    position: absolute;
+    top: 80px;
+    overflow: hidden;
+    font-size: 1.2rem;
+    font-family: $sans-narrow;
+    font-weight: $book;
+    width: 100%;
+    #daysOnChart {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+#rankChange {
+    text-align: center;
+}
+
+#rank,#change {
+    font-size: 1.2rem;
+    font-family: $sans-narrow;
+    display: inline-block;
+}
+
+#rank {
+    font-weight: $bold;
+}
+
+#change {
+    font-size: 0.9rem;
+    font-weight: $bold;
+}
+
+
 
 button {
     cursor: pointer;
@@ -109,8 +141,8 @@ button {
 
 #bottomPanel {
     position: relative;
-    flex: 1 0 200px;
-    max-height: 200px;
+    flex: 1 0 250px;
+    max-height: 250px;
     width: 100%;
     overflow: hidden;
     display: flex;

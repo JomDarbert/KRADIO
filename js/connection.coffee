@@ -193,12 +193,12 @@ loadSong = (q) ->
         blacklist_pass = checkBlacklist(song,q.query)
         song.score = checkWhitelist(song,q.query)
 
-        if blacklist_pass is true and song.score >= 2 then acceptable.push song
+        if blacklist_pass is true and song.score >= 3 then acceptable.push song
 
       # Sort acceptable by score and then number of views
       acceptable.sort (x, y) ->
-        n = y.score - x.score
-        return n unless n is 0
+        #n = y.score - x.score
+        #return n unless n is 0
         y.views - x.views
 
       # If there are any acceptable songs, return the best one, otherwise fail
@@ -267,8 +267,9 @@ nextSong = ->
   title = players.active.getAttribute "songtitle"
   max = players.active.getAttribute "songlength"
   url = players.active.getAttribute "src"
-
-  console.log history
+  rank = players.active.getAttribute "rank"
+  change = players.active.getAttribute "change"
+  num_days = players.active.getAttribute "num_days"
 
   UrlExists url, (status) ->
     if status is 404 or status is 503
@@ -286,14 +287,30 @@ nextSong = ->
   if max? and max isnt undefined then $('#seek').attr "max", max
   if title? and title isnt undefined then $('#title').text title
   if art? and art isnt undefined
-      $('#container').css "background", "url(#{art}) no-repeat center center fixed"
-      $('#container').css "background-size", "cover"
+      $('#container').css "background", "url(#{art}) no-repeat center center"
+
+  $('#title').text title
+  $('#rank').text "Rank #{rank}"
+  if change < 0 
+    $('#change').css "color", "#D7431B"
+    $('#change').text "( #{change} )"
+  if change > 0 
+    $('#change').css "color", "#288668"
+    $('#change').text "( +#{change} )"
+  if change is 0 
+    $('#change').css "color", "#2d3033"
+    $('#change').text "( — )"
+
+  $('#daysOnChart').text "#{num_days} days on chart"
 
   processSong(query).done (result) ->
     players.last.setAttribute "src", result.url
     players.last.setAttribute "artwork", result.artwork
     players.last.setAttribute "songtitle", result.title
     players.last.setAttribute "songlength", result.duration
+    players.last.setAttribute "rank", result.rank
+    players.last.setAttribute "change", result.change
+    players.last.setAttribute "num_days", result.num_days
 
   return
 
@@ -348,28 +365,45 @@ $(document).ready ->
     player_one.setAttribute "artwork", res_one.artwork
     player_one.setAttribute "songtitle", res_one.title
     player_one.setAttribute "songlength", res_one.duration
+    player_one.setAttribute "rank", res_one.rank
+    player_one.setAttribute "change", res_one.change
+    player_one.setAttribute "num_days", res_one.num_days
 
     if res_one.duration?
       $('#endTime').val res_one.duration.toHHMMSS()
       $('#seek').attr "max", res_one.duration
 
     if res_one.artwork?
-      $('#container').css "background", "url(#{res_one.artwork}) no-repeat center center fixed"
-      $('#container').css "background-size", "cover"
+      $('#container').css "background", "url(#{res_one.artwork}) no-repeat center center"
 
     $('#title').text res_one.title
-    $('#rank').text res_one.rank
-    $('#change').text res_one.change
-    $('#daysOnChart').text "Days on chart: #{res_one.num_days}"
+    $('#rank').text "Rank #{res_one.rank}"
+    if res_one.change < 0 
+      $('#change').css "color", "#D7431B"
+      $('#change').text "( #{res_one.change} )"
+    if res_one.change > 0 
+      $('#change').css "color", "#288668"
+      $('#change').text "( +#{res_one.change} )"
+    if res_one.change is 0 
+      $('#change').css "color", "#2d3033"
+      $('#change').text "( — )"
+
+    $('#daysOnChart').text "#{res_one.num_days} days on chart"
 
   processSong(q_two).done (res_two) ->
     player_two.setAttribute "src", res_two.url
     player_two.setAttribute "artwork", res_two.artwork
     player_two.setAttribute "songtitle", res_two.title
     player_two.setAttribute "songlength", res_two.duration
+    player_two.setAttribute "rank", res_two.rank
+    player_two.setAttribute "change", res_two.change
+    player_two.setAttribute "num_days", res_two.num_days
 
   processSong(q_three).done (res_three) ->
     player_three.setAttribute "src", res_three.url
     player_three.setAttribute "artwork", res_three.artwork
     player_three.setAttribute "songtitle", res_three.title
     player_three.setAttribute "songlength", res_three.duration
+    player_three.setAttribute "rank", res_three.rank
+    player_three.setAttribute "change", res_three.change
+    player_three.setAttribute "num_days", res_three.num_days

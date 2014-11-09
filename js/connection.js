@@ -250,16 +250,11 @@
           };
           blacklist_pass = checkBlacklist(song, q.query);
           song.score = checkWhitelist(song, q.query);
-          if (blacklist_pass === true && song.score >= 2) {
+          if (blacklist_pass === true && song.score >= 3) {
             return acceptable.push(song);
           }
         });
         acceptable.sort(function(x, y) {
-          var n;
-          n = y.score - x.score;
-          if (n !== 0) {
-            return n;
-          }
           return y.views - x.views;
         });
         if (acceptable.length > 0) {
@@ -346,7 +341,7 @@
   };
 
   nextSong = function() {
-    var art, endTime, max, query, title, url;
+    var art, change, endTime, max, num_days, query, rank, title, url;
     players = choosePlayer();
     query = randomQuery();
     endTime = Number(players.active.getAttribute("songlength")).toHHMMSS();
@@ -354,7 +349,9 @@
     title = players.active.getAttribute("songtitle");
     max = players.active.getAttribute("songlength");
     url = players.active.getAttribute("src");
-    console.log(history);
+    rank = players.active.getAttribute("rank");
+    change = players.active.getAttribute("change");
+    num_days = players.active.getAttribute("num_days");
     UrlExists(url, function(status) {
       if (status === 404 || status === 503) {
         nextSong();
@@ -377,14 +374,31 @@
       $('#title').text(title);
     }
     if ((art != null) && art !== void 0) {
-      $('#container').css("background", "url(" + art + ") no-repeat center center fixed");
-      $('#container').css("background-size", "cover");
+      $('#container').css("background", "url(" + art + ") no-repeat center center");
     }
+    $('#title').text(title);
+    $('#rank').text("Rank " + rank);
+    if (change < 0) {
+      $('#change').css("color", "#D7431B");
+      $('#change').text("( " + change + " )");
+    }
+    if (change > 0) {
+      $('#change').css("color", "#288668");
+      $('#change').text("( +" + change + " )");
+    }
+    if (change === 0) {
+      $('#change').css("color", "#2d3033");
+      $('#change').text("( — )");
+    }
+    $('#daysOnChart').text("" + num_days + " days on chart");
     processSong(query).done(function(result) {
       players.last.setAttribute("src", result.url);
       players.last.setAttribute("artwork", result.artwork);
       players.last.setAttribute("songtitle", result.title);
-      return players.last.setAttribute("songlength", result.duration);
+      players.last.setAttribute("songlength", result.duration);
+      players.last.setAttribute("rank", result.rank);
+      players.last.setAttribute("change", result.change);
+      return players.last.setAttribute("num_days", result.num_days);
     });
   };
 
@@ -455,30 +469,49 @@
       player_one.setAttribute("artwork", res_one.artwork);
       player_one.setAttribute("songtitle", res_one.title);
       player_one.setAttribute("songlength", res_one.duration);
+      player_one.setAttribute("rank", res_one.rank);
+      player_one.setAttribute("change", res_one.change);
+      player_one.setAttribute("num_days", res_one.num_days);
       if (res_one.duration != null) {
         $('#endTime').val(res_one.duration.toHHMMSS());
         $('#seek').attr("max", res_one.duration);
       }
       if (res_one.artwork != null) {
-        $('#container').css("background", "url(" + res_one.artwork + ") no-repeat center center fixed");
-        $('#container').css("background-size", "cover");
+        $('#container').css("background", "url(" + res_one.artwork + ") no-repeat center center");
       }
       $('#title').text(res_one.title);
-      $('#rank').text(res_one.rank);
-      $('#change').text(res_one.change);
-      return $('#daysOnChart').text("Days on chart: " + res_one.num_days);
+      $('#rank').text("Rank " + res_one.rank);
+      if (res_one.change < 0) {
+        $('#change').css("color", "#D7431B");
+        $('#change').text("( " + res_one.change + " )");
+      }
+      if (res_one.change > 0) {
+        $('#change').css("color", "#288668");
+        $('#change').text("( +" + res_one.change + " )");
+      }
+      if (res_one.change === 0) {
+        $('#change').css("color", "#2d3033");
+        $('#change').text("( — )");
+      }
+      return $('#daysOnChart').text("" + res_one.num_days + " days on chart");
     });
     processSong(q_two).done(function(res_two) {
       player_two.setAttribute("src", res_two.url);
       player_two.setAttribute("artwork", res_two.artwork);
       player_two.setAttribute("songtitle", res_two.title);
-      return player_two.setAttribute("songlength", res_two.duration);
+      player_two.setAttribute("songlength", res_two.duration);
+      player_two.setAttribute("rank", res_two.rank);
+      player_two.setAttribute("change", res_two.change);
+      return player_two.setAttribute("num_days", res_two.num_days);
     });
     return processSong(q_three).done(function(res_three) {
       player_three.setAttribute("src", res_three.url);
       player_three.setAttribute("artwork", res_three.artwork);
       player_three.setAttribute("songtitle", res_three.title);
-      return player_three.setAttribute("songlength", res_three.duration);
+      player_three.setAttribute("songlength", res_three.duration);
+      player_three.setAttribute("rank", res_three.rank);
+      player_three.setAttribute("change", res_three.change);
+      return player_three.setAttribute("num_days", res_three.num_days);
     });
   });
 
