@@ -137,8 +137,8 @@ button {
     font-size: 3.5rem;
     padding: 20px;
     flex: 1 0 33%;
-    @include bp(medium) {font-size: 3rem; }
-    @include bp(small) {font-size: 2rem; }
+    @include bp(medium) {font-size: 3.25rem; }
+    @include bp(small) {font-size: 3rem; }
 }
 
 #bottomPanel {
