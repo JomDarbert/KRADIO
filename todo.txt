@@ -1,3 +1,5 @@
 Download link
 clean up code
 fast forward on iphone
+volume control
+WOT verification
