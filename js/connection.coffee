@@ -8,17 +8,23 @@ lastfm = new LastFM(
 SC.initialize client_id: client_id
 queryLimit = 100
 whitelist = ["kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"]
-blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"]
+blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat", "short", "club"]
 not_kor_eng = /[^A-Za-z0-9\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF \♡\.\「\」\”\“\’\∞\♥\|\【\】\–\{\}\[\]\!\@\#\$\%\^\&\*\(\)\-\_\=\+\;\:\'\"\,\.\<\>\/\\\?\`\~]/g
 has_korean = /[\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
 only_korean = /[^\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF]/g
 history = []
 notAvailable = []
-dontPlay = []
+
+cookie_dontPlay = document.cookie
+if cookie_dontPlay isnt "" then dontPlay = JSON.parse cookie_dontPlay
+else dontPlay = []
+
 player_one = document.getElementById "player_one"
 player_two = document.getElementById "player_two"
 player_three = document.getElementById "player_three"
-players = [player_one, player_two, player_three]
+player_four = document.getElementById "player_four"
+player_five = document.getElementById "player_five"
+players = [player_one, player_two, player_three, player_four, player_five]
 
 getSongJSON = ->
   xmlHttp = null
@@ -29,7 +35,6 @@ getSongJSON = ->
 
 song_data = JSON.parse getSongJSON()
 top_queries = arrayUnique(song_data)
-
 # --------------------------------------------------------------
 Number.prototype.toHHMMSS = ->
   h = Math.floor(@ / 3600)
@@ -242,9 +247,10 @@ processSong = (query) ->
   return dfd.promise()
 
 choosePlayer = ->
-  players = [player_one,player_two,player_three]
+  players = [player_one,player_two,player_three,player_four,player_five]
   c = players.indexOf(document.getElementsByClassName("active")[0])
   len = players.length - 1
+
 
   if not c? or c is len then a = 0
   else a = c + 1
@@ -252,14 +258,30 @@ choosePlayer = ->
   else n = a + 1
   if n is len then o = 0
   else o = n + 1
+  if o is len then otwo = 0
+  else otwo = o + 1
+  if otwo is len then othr = 0
+  else othr = otwo + 1
 
-  seq = active: players[a], next: players[n], onDeck: players[o], last: players[c]
+  seq = active: players[a], next: players[n], onDeck: players[o], onDeckTwo: players[otwo], onDeckThree: players[othr], last: players[c]
 
   seq.active.classList.add "active"
   seq.next.classList.remove "active"
   seq.onDeck.classList.remove "active"
+  seq.onDeckTwo.classList.remove "active"
+  seq.onDeckThree.classList.remove "active"
   return seq
 
+
+setPlayerAttributes = (player,song) ->
+  player.setAttribute "src", song.url
+  player.setAttribute "artwork", song.artwork
+  player.setAttribute "songtitle", song.title
+  player.setAttribute "songlength", song.duration
+  player.setAttribute "rank", song.rank
+  player.setAttribute "change", song.change
+  player.setAttribute "num_days", song.num_days
+  player.setAttribute "query", song.query
 
 nextSong = ->
   players = choosePlayer()
@@ -285,6 +307,7 @@ nextSong = ->
 
   players.last.pause()
   players.active.play()
+
   if endTime? and endTime isnt undefined then $('#endTime').val endTime
   if max? and max isnt undefined then $('#seek').attr "max", max
   if title? and title isnt undefined then $('#title').text title
@@ -306,16 +329,10 @@ nextSong = ->
   $('#daysOnChart').text "#{num_days} days on chart"
 
   processSong(query).done (result) ->
-    players.last.setAttribute "src", result.url
-    players.last.setAttribute "artwork", result.artwork
-    players.last.setAttribute "songtitle", result.title
-    players.last.setAttribute "songlength", result.duration
-    players.last.setAttribute "rank", result.rank
-    players.last.setAttribute "change", result.change
-    players.last.setAttribute "num_days", result.num_days
-    players.last.setAttribute "query", result.query
+    setPlayerAttributes(players.last,result)
 
   return
+
 
 # ----------------------------------------------------------
 document.addEventListener "touchmove", (event) -> event.preventDefault()
@@ -331,10 +348,13 @@ $('#playButton').on "click", ->
     $('#playButton').html "&#xf04b;"
     p.pause()
 
+
 for player in players
-  $(player).on "playing", -> $('#playButton').html "&#xf04c;"
-  $(player).on "ended", -> nextSong()
-  $(player).on "timeupdate", ->
+  player.onplaying = -> 
+    $('#playButton').html "&#xf04c;"
+
+  player.onended = -> nextSong()
+  player.ontimeupdate = ->
     $('#currentTime').val @currentTime.toHHMMSS()
     $('#seek').val @currentTime
 
@@ -351,8 +371,8 @@ $('#dontPlay').on "click", ->
   c = document.getElementsByClassName("active")[0]
   query = c.getAttribute "query"
   dontPlay.push query
+  document.cookie = JSON.stringify dontPlay
   nextSong()
-  console.log dontPlay
 
 ###
 seek = document.getElementById "seek"
@@ -368,16 +388,11 @@ $(document).ready ->
   q_one = randomQuery()
   q_two = randomQuery()
   q_three = randomQuery()
+  q_four = randomQuery()
+  q_five = randomQuery()
 
   processSong(q_one).done (res_one) ->
-    player_one.setAttribute "src", res_one.url
-    player_one.setAttribute "artwork", res_one.artwork
-    player_one.setAttribute "songtitle", res_one.title
-    player_one.setAttribute "songlength", res_one.duration
-    player_one.setAttribute "rank", res_one.rank
-    player_one.setAttribute "change", res_one.change
-    player_one.setAttribute "num_days", res_one.num_days
-    player_one.setAttribute "query", res_one.query
+    setPlayerAttributes(player_one,res_one)
 
     if res_one.duration?
       $('#endTime').val res_one.duration.toHHMMSS()
@@ -401,21 +416,13 @@ $(document).ready ->
     $('#daysOnChart').text "#{res_one.num_days} days on chart"
 
   processSong(q_two).done (res_two) ->
-    player_two.setAttribute "src", res_two.url
-    player_two.setAttribute "artwork", res_two.artwork
-    player_two.setAttribute "songtitle", res_two.title
-    player_two.setAttribute "songlength", res_two.duration
-    player_two.setAttribute "rank", res_two.rank
-    player_two.setAttribute "change", res_two.change
-    player_two.setAttribute "num_days", res_two.num_days
-    player_two.setAttribute "query", res_two.query
+    setPlayerAttributes(player_two,res_two)
 
   processSong(q_three).done (res_three) ->
-    player_three.setAttribute "src", res_three.url
-    player_three.setAttribute "artwork", res_three.artwork
-    player_three.setAttribute "songtitle", res_three.title
-    player_three.setAttribute "songlength", res_three.duration
-    player_three.setAttribute "rank", res_three.rank
-    player_three.setAttribute "change", res_three.change
-    player_three.setAttribute "num_days", res_three.num_days
-    player_three.setAttribute "query", res_three.query
+    setPlayerAttributes(player_three,res_three)
+
+  processSong(q_four).done (res_four) ->
+    setPlayerAttributes(player_four,res_four)
+
+  processSong(q_five).done (res_five) ->
+    setPlayerAttributes(player_five,res_five)

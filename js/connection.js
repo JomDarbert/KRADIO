@@ -1,5 +1,5 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, dontPlay, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, song_data, top_queries, whitelist, _i, _len,
+  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, cookie_dontPlay, dontPlay, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song_data, top_queries, whitelist, _i, _len,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -20,7 +20,7 @@
 
   whitelist = ["kpop", "k pop", "k-pop", "korean", "korea", "kor", "kor pop", "korean pop", "korean-pop", "kor-pop", "korean version", "kr", "kr ver", "original"];
 
-  blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat"];
+  blacklist = ["cover", "acoustic", "instrumental", "remix", "mix", "re mix", "re-mix", "version", "ver.", "live", "live cover", "accapella", "cvr", "united states", "america", "india", "indian", "japan", "china", "chinese", "japanese", "viet", "vietnam", "vietnamese", "thai", "taiwan", "taiwanese", "russian", "ambient", "meditat", "short", "club"];
 
   not_kor_eng = /[^A-Za-z0-9\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7AF\uD7B0-\uD7FF \♡\.\「\」\”\“\’\∞\♥\|\【\】\–\{\}\[\]\!\@\#\$\%\^\&\*\(\)\-\_\=\+\;\:\'\"\,\.\<\>\/\\\?\`\~]/g;
 
@@ -32,7 +32,13 @@
 
   notAvailable = [];
 
-  dontPlay = [];
+  cookie_dontPlay = document.cookie;
+
+  if (cookie_dontPlay !== "") {
+    dontPlay = JSON.parse(cookie_dontPlay);
+  } else {
+    dontPlay = [];
+  }
 
   player_one = document.getElementById("player_one");
 
@@ -40,7 +46,11 @@
 
   player_three = document.getElementById("player_three");
 
-  players = [player_one, player_two, player_three];
+  player_four = document.getElementById("player_four");
+
+  player_five = document.getElementById("player_five");
+
+  players = [player_one, player_two, player_three, player_four, player_five];
 
   getSongJSON = function() {
     var xmlHttp;
@@ -314,8 +324,8 @@
   };
 
   choosePlayer = function() {
-    var a, c, len, n, o, seq;
-    players = [player_one, player_two, player_three];
+    var a, c, len, n, o, othr, otwo, seq;
+    players = [player_one, player_two, player_three, player_four, player_five];
     c = players.indexOf(document.getElementsByClassName("active")[0]);
     len = players.length - 1;
     if ((c == null) || c === len) {
@@ -333,16 +343,41 @@
     } else {
       o = n + 1;
     }
+    if (o === len) {
+      otwo = 0;
+    } else {
+      otwo = o + 1;
+    }
+    if (otwo === len) {
+      othr = 0;
+    } else {
+      othr = otwo + 1;
+    }
     seq = {
       active: players[a],
       next: players[n],
       onDeck: players[o],
+      onDeckTwo: players[otwo],
+      onDeckThree: players[othr],
       last: players[c]
     };
     seq.active.classList.add("active");
     seq.next.classList.remove("active");
     seq.onDeck.classList.remove("active");
+    seq.onDeckTwo.classList.remove("active");
+    seq.onDeckThree.classList.remove("active");
     return seq;
+  };
+
+  setPlayerAttributes = function(player, song) {
+    player.setAttribute("src", song.url);
+    player.setAttribute("artwork", song.artwork);
+    player.setAttribute("songtitle", song.title);
+    player.setAttribute("songlength", song.duration);
+    player.setAttribute("rank", song.rank);
+    player.setAttribute("change", song.change);
+    player.setAttribute("num_days", song.num_days);
+    return player.setAttribute("query", song.query);
   };
 
   nextSong = function() {
@@ -397,14 +432,7 @@
     }
     $('#daysOnChart').text("" + num_days + " days on chart");
     processSong(query).done(function(result) {
-      players.last.setAttribute("src", result.url);
-      players.last.setAttribute("artwork", result.artwork);
-      players.last.setAttribute("songtitle", result.title);
-      players.last.setAttribute("songlength", result.duration);
-      players.last.setAttribute("rank", result.rank);
-      players.last.setAttribute("change", result.change);
-      players.last.setAttribute("num_days", result.num_days);
-      return players.last.setAttribute("query", result.query);
+      return setPlayerAttributes(players.last, result);
     });
   };
 
@@ -430,16 +458,16 @@
 
   for (_i = 0, _len = players.length; _i < _len; _i++) {
     player = players[_i];
-    $(player).on("playing", function() {
+    player.onplaying = function() {
       return $('#playButton').html("&#xf04c;");
-    });
-    $(player).on("ended", function() {
+    };
+    player.onended = function() {
       return nextSong();
-    });
-    $(player).on("timeupdate", function() {
+    };
+    player.ontimeupdate = function() {
       $('#currentTime').val(this.currentTime.toHHMMSS());
       return $('#seek').val(this.currentTime);
-    });
+    };
   }
 
   $('#seek').on("input", function() {
@@ -460,8 +488,8 @@
     c = document.getElementsByClassName("active")[0];
     query = c.getAttribute("query");
     dontPlay.push(query);
-    nextSong();
-    return console.log(dontPlay);
+    document.cookie = JSON.stringify(dontPlay);
+    return nextSong();
   });
 
 
@@ -475,19 +503,14 @@
    */
 
   $(document).ready(function() {
-    var q_one, q_three, q_two;
+    var q_five, q_four, q_one, q_three, q_two;
     q_one = randomQuery();
     q_two = randomQuery();
     q_three = randomQuery();
+    q_four = randomQuery();
+    q_five = randomQuery();
     processSong(q_one).done(function(res_one) {
-      player_one.setAttribute("src", res_one.url);
-      player_one.setAttribute("artwork", res_one.artwork);
-      player_one.setAttribute("songtitle", res_one.title);
-      player_one.setAttribute("songlength", res_one.duration);
-      player_one.setAttribute("rank", res_one.rank);
-      player_one.setAttribute("change", res_one.change);
-      player_one.setAttribute("num_days", res_one.num_days);
-      player_one.setAttribute("query", res_one.query);
+      setPlayerAttributes(player_one, res_one);
       if (res_one.duration != null) {
         $('#endTime').val(res_one.duration.toHHMMSS());
         $('#seek').attr("max", res_one.duration);
@@ -512,24 +535,16 @@
       return $('#daysOnChart').text("" + res_one.num_days + " days on chart");
     });
     processSong(q_two).done(function(res_two) {
-      player_two.setAttribute("src", res_two.url);
-      player_two.setAttribute("artwork", res_two.artwork);
-      player_two.setAttribute("songtitle", res_two.title);
-      player_two.setAttribute("songlength", res_two.duration);
-      player_two.setAttribute("rank", res_two.rank);
-      player_two.setAttribute("change", res_two.change);
-      player_two.setAttribute("num_days", res_two.num_days);
-      return player_two.setAttribute("query", res_two.query);
+      return setPlayerAttributes(player_two, res_two);
     });
-    return processSong(q_three).done(function(res_three) {
-      player_three.setAttribute("src", res_three.url);
-      player_three.setAttribute("artwork", res_three.artwork);
-      player_three.setAttribute("songtitle", res_three.title);
-      player_three.setAttribute("songlength", res_three.duration);
-      player_three.setAttribute("rank", res_three.rank);
-      player_three.setAttribute("change", res_three.change);
-      player_three.setAttribute("num_days", res_three.num_days);
-      return player_three.setAttribute("query", res_three.query);
+    processSong(q_three).done(function(res_three) {
+      return setPlayerAttributes(player_three, res_three);
+    });
+    processSong(q_four).done(function(res_four) {
+      return setPlayerAttributes(player_four, res_four);
+    });
+    return processSong(q_five).done(function(res_five) {
+      return setPlayerAttributes(player_five, res_five);
     });
   });
 

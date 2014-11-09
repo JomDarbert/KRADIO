@@ -1,6 +1,3 @@
 Download link
 clean up code
-if none are ready force a wait
-text overlap on small screens
 fast forward on iphone
-thumbs down cookies
