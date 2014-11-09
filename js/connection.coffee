@@ -22,17 +22,14 @@ players = [player_one, player_two, player_three]
 getSongJSON = ->
   xmlHttp = null
   xmlHttp = new XMLHttpRequest()
-  xmlHttp.open "GET", "http://localhost:3000/today", false
+  xmlHttp.open "GET", "http://jombly.com:3000/today", false
   xmlHttp.send null
   xmlHttp.responseText
 
 song_data = JSON.parse getSongJSON()
 top_queries = arrayUnique(song_data)
-console.log top_queries
 
 # --------------------------------------------------------------
-
-
 Number.prototype.toHHMMSS = ->
   h = Math.floor(@ / 3600)
   m = Math.floor(@ % 3600 / 60)
@@ -270,6 +267,8 @@ nextSong = ->
   title = players.active.getAttribute "songtitle"
   max = players.active.getAttribute "songlength"
   url = players.active.getAttribute "src"
+
+  console.log history
 
   UrlExists url, (status) ->
     if status is 404 or status is 503

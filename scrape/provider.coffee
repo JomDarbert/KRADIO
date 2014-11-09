@@ -11,8 +11,7 @@ app.all "/*", (req, res, next) ->
   res.header "Access-Control-Allow-Methods", "GET,PUT"
   next()
   return
-
-app.use bodyParser.json()
+app.use bodyParser.json({limit: '50mb'})
 
 app.post "/update", (req,res) ->
     songs = req.body
@@ -20,18 +19,18 @@ app.post "/update", (req,res) ->
 
 app.get "/today", (req,res) ->
   if songs.length <= 0
-    console.log "sending old"
+    console.log "sending from JSON: #{out_file}"
     fs.readFile out_file, "utf8", "w", (err, in_file) ->
       throw err if err
       if not err
         songs = JSON.parse in_file
         res.send songs[0].data
   else
-    console.log "sending existing"
+    console.log "sending existing from memory"
     res.send songs[0].data
 
 server = app.listen 3000, ->
     host = server.address().address
     port = server.address().port
 
-    console.log "Example app listening at http://#{host}:#{port}"
+    console.log "App listening at http://#{host}:#{port}"

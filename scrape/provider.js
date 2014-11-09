@@ -20,7 +20,9 @@
     next();
   });
 
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({
+    limit: '50mb'
+  }));
 
   app.post("/update", function(req, res) {
     songs = req.body;
@@ -29,7 +31,7 @@
 
   app.get("/today", function(req, res) {
     if (songs.length <= 0) {
-      console.log("sending old");
+      console.log("sending from JSON: " + out_file);
       return fs.readFile(out_file, "utf8", "w", function(err, in_file) {
         if (err) {
           throw err;
@@ -40,7 +42,7 @@
         }
       });
     } else {
-      console.log("sending existing");
+      console.log("sending existing from memory");
       return res.send(songs[0].data);
     }
   });
@@ -49,7 +51,7 @@
     var host, port;
     host = server.address().address;
     port = server.address().port;
-    return console.log("Example app listening at http://" + host + ":" + port);
+    return console.log("App listening at http://" + host + ":" + port);
   });
 
 }).call(this);

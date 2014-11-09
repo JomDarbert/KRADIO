@@ -149,45 +149,40 @@ update_data = ->
       if err then list = []
       else list = JSON.parse in_file
 
-      # Set new entry and make sure list of entries doesn't exceed 100 days
+      # Set new entry and make sure list of entries doesn't exceed 50 days
       entry = date: new Date, data: to_file
       list.unshift entry
-      if list.length > 100 then list.pop
+      if list.length > 2 then list.pop()
 
       if list.length > 1
         for song in list[0].data
-          count = 0
 
           # Get change in rank from last week
-          if list.length >= 7
-            for old in list[6].data
-              if old.query is song.query then song.change = old.rank - song.rank
+          for i in list[1].data
+            if i.query is song.query
+              song.change = i.rank - song.rank
 
           # Get count of days on chart
-          for entry in list
-            for item in entry.data
-              if item.query is song.query then count++
-
-          song.num_days = count
+          for j in list[1].data
+            if j.query is song.query
+              song.num_days = j.num_days+1
 
       # JSON Backup
       fs.writeFile out_file, JSON.stringify(list), (err) ->
         throw err if err
         console.log "JSON saved to #{out_file}"
         return
-
+      ###
       request.post
-        url: "http://localhost:3000/update"
+        url: "http://www.jombly.com:3000/update"
         body: JSON.stringify list
         headers: {"Content-Type": "application/json;charset=UTF-8"}
       , (error, response, body) ->
         console.log response.statusCode
         return
-
-
-update_data()
+      ###
 
 # Once per day at midnight
-#new CronJob("0 0 * * *", ->
-#  update_data()
-#, null, true)
+new CronJob("0 0 * * *", ->
+  update_data()
+, null, true)

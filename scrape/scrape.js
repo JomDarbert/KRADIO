@@ -171,7 +171,7 @@ update_data = function() {
       song.num_days = 0;
     }
     return fs.readFile(out_file, "utf8", "w", function(err, in_file) {
-      var count, entry, item, list, old, _j, _k, _l, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2;
+      var entry, j, list, _j, _k, _l, _len1, _len2, _len3, _ref, _ref1, _ref2;
       if (err) {
         list = [];
       } else {
@@ -182,53 +182,49 @@ update_data = function() {
         data: to_file
       };
       list.unshift(entry);
-      if (list.length > 100) {
-        list.pop;
+      if (list.length > 2) {
+        list.pop();
       }
       if (list.length > 1) {
         _ref = list[0].data;
         for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
           song = _ref[_j];
-          count = 0;
-          if (list.length >= 7) {
-            _ref1 = list[6].data;
-            for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-              old = _ref1[_k];
-              if (old.query === song.query) {
-                song.change = old.rank - song.rank;
-              }
+          _ref1 = list[1].data;
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+            i = _ref1[_k];
+            if (i.query === song.query) {
+              song.change = i.rank - song.rank;
             }
           }
-          for (_l = 0, _len3 = list.length; _l < _len3; _l++) {
-            entry = list[_l];
-            _ref2 = entry.data;
-            for (_m = 0, _len4 = _ref2.length; _m < _len4; _m++) {
-              item = _ref2[_m];
-              if (item.query === song.query) {
-                count++;
-              }
+          _ref2 = list[1].data;
+          for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+            j = _ref2[_l];
+            if (j.query === song.query) {
+              song.num_days = j.num_days + 1;
             }
           }
-          song.num_days = count;
         }
       }
-      fs.writeFile(out_file, JSON.stringify(list), function(err) {
+      return fs.writeFile(out_file, JSON.stringify(list), function(err) {
         if (err) {
           throw err;
         }
         console.log("JSON saved to " + out_file);
       });
-      return request.post({
-        url: "http://localhost:3000/update",
-        body: JSON.stringify(list),
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8"
-        }
-      }, function(error, response, body) {
-        console.log(response.statusCode);
-      });
+
+      /*
+      request.post
+        url: "http://www.jombly.com:3000/update"
+        body: JSON.stringify list
+        headers: {"Content-Type": "application/json;charset=UTF-8"}
+      , (error, response, body) ->
+        console.log response.statusCode
+        return
+       */
     });
   });
 };
 
-update_data();
+new CronJob("0 0 * * *", function() {
+  return update_data();
+}, null, true);
