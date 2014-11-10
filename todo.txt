@@ -10,3 +10,4 @@ song title not matching song
 link to song on soundcloud
 log in to save thumbs/favorites
 back button in addition to skip (not sure i want this?)
+ERR still happening
