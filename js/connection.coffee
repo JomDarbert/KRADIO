@@ -282,7 +282,8 @@ choosePlayer = ->
 
 
 setPlayerAttributes = (player,song) ->
-  player.setAttribute "src", song.url
+  source = player.getElementsByTagName("SOURCE")[0]
+  source.setAttribute "src", song.url
   player.setAttribute "artwork", song.artwork
   player.setAttribute "songtitle", song.title
   player.setAttribute "songlength", song.duration
@@ -290,15 +291,17 @@ setPlayerAttributes = (player,song) ->
   player.setAttribute "change", song.change
   player.setAttribute "num_days", song.num_days
   player.setAttribute "query", song.query
+  player.load()
 
 nextSong = ->
   players = choosePlayer()
+  source = players.active.getElementsByTagName("SOURCE")[0]
   query = randomQuery()
   endTime = Number(players.active.getAttribute("songlength")).toHHMMSS()
   art = players.active.getAttribute "artwork"
   title = players.active.getAttribute "songtitle"
   max = players.active.getAttribute "songlength"
-  url = players.active.getAttribute "src"
+  url = source.getAttribute "src"
   rank = players.active.getAttribute "rank"
   change = players.active.getAttribute "change"
   num_days = players.active.getAttribute "num_days"
@@ -373,8 +376,22 @@ $('#playButton').on "click", ->
     $('#playButton').html "&#xf04b;"
     p.pause()
 
-
 for player in players
+  player.oncanplay = ->
+    p = @
+    reloadAt = (@duration+30)*1000
+    setTimeout (->
+      if p.paused
+        query = randomQuery()
+        console.log "Song timed out! Replacing!"
+        processSong(query).done (result) ->
+          setPlayerAttributes(p,result)
+      return
+    ), reloadAt
+
+
+  player.onerror = -> nextSong()
+
   player.onplaying = -> 
     $('#playButton').html "&#xf04c;"
 

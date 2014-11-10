@@ -40,15 +40,25 @@
         </div>
     </section>
     <div id="container">
-        <audio id="player_one" type="audio/mpeg" class="active"></audio>
-        <audio id="player_two" type="audio/mpeg"></audio>
-        <audio id="player_three" type="audio/mpeg"></audio>
-        <audio id="player_four" type="audio/mpeg"></audio>
-        <audio id="player_five" type="audio/mpeg"></audio>
+        <audio id="player_one" preload="auto" crossorigin="anonymous" class="active">
+            <source type="audio/mpeg">
+        </audio>
+        <audio id="player_two" preload="auto" crossorigin="anonymous">
+            <source type="audio/mpeg">
+        </audio>
+        <audio id="player_three" preload="auto" crossorigin="anonymous">
+            <source type="audio/mpeg">
+        </audio>
+        <audio id="player_four" preload="auto" crossorigin="anonymous">
+            <source type="audio/mpeg">
+        </audio>
+        <audio id="player_five" preload="auto" crossorigin="anonymous">
+            <source type="audio/mpeg">
+        </audio>
     </div>
     <section id="bottomPanel">
         <div id="playerTime">
-            <input type="range" id="seek" value="0" max=""/>
+            <input type="range" id="seek" value="0" max="0"/>
             <output id="currentTime">0:00</output>
             <output id="endTime">0:00</output>
             <span id="volumeDown"></span>
@@ -76,7 +86,7 @@
     <script src="js/min/helpers.min.js"></script>
     <!--<script src="js/lastfm.js"></script>
     <script src="js/lastfm-md5.js"></script>-->
-    <script src="js/min/connection.min.js"></script>
+    <script src="js/connection.js"></script>
 
 </body>
 </html>

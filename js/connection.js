@@ -394,25 +394,29 @@
   };
 
   setPlayerAttributes = function(player, song) {
-    player.setAttribute("src", song.url);
+    var source;
+    source = player.getElementsByTagName("SOURCE")[0];
+    source.setAttribute("src", song.url);
     player.setAttribute("artwork", song.artwork);
     player.setAttribute("songtitle", song.title);
     player.setAttribute("songlength", song.duration);
     player.setAttribute("rank", song.rank);
     player.setAttribute("change", song.change);
     player.setAttribute("num_days", song.num_days);
-    return player.setAttribute("query", song.query);
+    player.setAttribute("query", song.query);
+    return player.load();
   };
 
   nextSong = function() {
-    var art, change, endTime, max, num_days, query, rank, title, url;
+    var art, change, endTime, max, num_days, query, rank, source, title, url;
     players = choosePlayer();
+    source = players.active.getElementsByTagName("SOURCE")[0];
     query = randomQuery();
     endTime = Number(players.active.getAttribute("songlength")).toHHMMSS();
     art = players.active.getAttribute("artwork");
     title = players.active.getAttribute("songtitle");
     max = players.active.getAttribute("songlength");
-    url = players.active.getAttribute("src");
+    url = source.getAttribute("src");
     rank = players.active.getAttribute("rank");
     change = players.active.getAttribute("change");
     num_days = players.active.getAttribute("num_days");
@@ -503,6 +507,24 @@
 
   for (_i = 0, _len = players.length; _i < _len; _i++) {
     player = players[_i];
+    player.oncanplay = function() {
+      var p, reloadAt;
+      p = this;
+      reloadAt = (this.duration + 30) * 1000;
+      return setTimeout((function() {
+        var query;
+        if (p.paused) {
+          query = randomQuery();
+          console.log("Song timed out! Replacing!");
+          processSong(query).done(function(result) {
+            return setPlayerAttributes(p, result);
+          });
+        }
+      }), reloadAt);
+    };
+    player.onerror = function() {
+      return nextSong();
+    };
     player.onplaying = function() {
       return $('#playButton').html("&#xf04c;");
     };
