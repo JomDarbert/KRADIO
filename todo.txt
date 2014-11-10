@@ -15,9 +15,8 @@ x song title not matching song
   ERR still happening
   tagging filterting
 x recently played list
-  thumbs up to keep song even if it falls off list
 x Expose top list
-  view current thumbs
+x view current thumbs
   last FM scrobbling
-  thumbs up/down on overlay
   fix scrolling in overlay
+  first song url is 404

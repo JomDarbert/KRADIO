@@ -414,7 +414,6 @@ $('#showOverlay').on "click", ->
   $('#container').toggleClass "hidden"
 
 for song in dontPlay
-  console.log song
   $('#thumbsDownSongs').prepend "<li>#{song}</li>"
 
 for song in top_queries

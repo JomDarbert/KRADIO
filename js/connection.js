@@ -554,7 +554,6 @@
 
   for (_j = 0, _len1 = dontPlay.length; _j < _len1; _j++) {
     song = dontPlay[_j];
-    console.log(song);
     $('#thumbsDownSongs').prepend("<li>" + song + "</li>");
   }
 

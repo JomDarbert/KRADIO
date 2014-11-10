@@ -212,7 +212,7 @@ update_data = function() {
         console.log("JSON saved to " + out_file);
       });
       return request.post({
-        url: "http://localhost:3000/update",
+        url: "http://jombly.com:3000/update",
         body: JSON.stringify(list),
         headers: {
           "Content-Type": "application/json;charset=UTF-8"
