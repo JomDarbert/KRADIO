@@ -12,3 +12,7 @@ log in to save thumbs/favorites
 back button in addition to skip (not sure i want this?)
 ERR still happening
 tagging filterting
+recently played list
+thumbs up to keep song even if it falls off list
+Expose top list
+view current thumbs

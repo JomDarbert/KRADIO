@@ -76,6 +76,10 @@
 
   top_queries = arrayUnique(song_data);
 
+  top_queries = top_queries.filter(function(z) {
+    return dontPlay.indexOf(z.query) < 0;
+  });
+
   Number.prototype.toHHMMSS = function() {
     var h, m, s;
     h = Math.floor(this / 3600);
@@ -99,7 +103,7 @@
 
   checkBlacklist = function(song, query) {
     var arrays, cleaned_query, cleaned_song, created_date, date_limit, kor_eng_test, ok_months, query_array, result, song_array, term, _i, _j, _k, _len, _len1, _len2;
-    if (song.title == null) {
+    if (song.orig_title == null) {
       return false;
     }
     if (song.url == null) {
@@ -119,7 +123,7 @@
     }
     for (_i = 0, _len = blacklist.length; _i < _len; _i++) {
       term = blacklist[_i];
-      if (song.title.indexOf(term) !== -1) {
+      if (song.orig_title.indexOf(term) !== -1) {
         return false;
       }
     }
@@ -135,11 +139,11 @@
         return false;
       }
     }
-    kor_eng_test = not_kor_eng.test(song.title);
+    kor_eng_test = not_kor_eng.test(song.orig_title);
     if (kor_eng_test === true) {
       return false;
     }
-    cleaned_song = song.title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim();
+    cleaned_song = song.orig_title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim();
     cleaned_query = query.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim();
     song_array = cleaned_song.split(" ");
     query_array = cleaned_query.split(" ");
@@ -155,6 +159,9 @@
     if (result.length === 0) {
       return false;
     }
+    if (levenstein(cleaned_query, cleaned_song) >= 8) {
+      return false;
+    }
     return true;
   };
 
@@ -163,7 +170,7 @@
     score = 0;
     tags_count = 0;
     query_count = 0;
-    cleaned_song = song.title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim();
+    cleaned_song = song.orig_title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim();
     cleaned_query = query.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim();
     if (_ref = song.genre, __indexOf.call(whitelist, _ref) >= 0) {
       score += 1;
@@ -177,7 +184,7 @@
     if (tags_count > 0) {
       score += 1;
     }
-    test = has_korean.test(song.title);
+    test = has_korean.test(song.orig_title);
     if (test === true) {
       score += 1;
     }
@@ -255,6 +262,7 @@
           }
           song = {
             title: "" + q.artist + "  —  " + q.title + " " + korean,
+            orig_title: t.title,
             song: q.title,
             artist: q.artist,
             rank: q.rank,
@@ -273,11 +281,16 @@
           };
           blacklist_pass = checkBlacklist(song, q.query);
           song.score = checkWhitelist(song, q.query);
-          if (blacklist_pass === true && song.score >= 3) {
+          if (blacklist_pass === true && song.score >= 2) {
             return acceptable.push(song);
           }
         });
         acceptable.sort(function(x, y) {
+          var n;
+          n = y.score - x.score;
+          if (n !== 0) {
+            return n;
+          }
           return y.views - x.views;
         });
         if (acceptable.length > 0) {
@@ -305,15 +318,14 @@
   randomQuery = function() {
     var availableSongs;
     availableSongs = top_queries.filter(function(x) {
-      return history.indexOf(x) < 0;
+      return history.indexOf(x.query) < 0;
     });
     availableSongs = availableSongs.filter(function(y) {
-      return notAvailable.indexOf(y) < 0;
+      return notAvailable.indexOf(y.query) < 0;
     });
     availableSongs = availableSongs.filter(function(z) {
-      return dontPlay.indexOf(z) < 0;
+      return dontPlay.indexOf(z.query) < 0;
     });
-    console.log(availableSongs.length);
     return availableSongs[Math.floor(Math.random() * availableSongs.length)];
   };
 

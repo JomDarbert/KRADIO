@@ -137,14 +137,15 @@ button {
     font-size: 3.5rem;
     padding: 20px;
     flex: 1 0 33%;
+    margin-bottom: 30px;
     @include bp(medium) {font-size: 3.25rem; }
     @include bp(small) {font-size: 3rem; }
 }
 
 #bottomPanel {
     position: relative;
-    flex: 1 0 270px;
-    max-height: 270px;
+    flex: 1 0 285px;
+    max-height: 285px;
     width: 100%;
     overflow: hidden;
     display: flex;
@@ -159,12 +160,27 @@ button {
 #seek {
     outline: none;
     -webkit-appearance: none;
-    background: rgba($dark-grey,.15);
+    background: rgba($dark-grey,.2);
     padding: 3px;
     width: 100%;
     margin: 0 auto;
     display: block;
     cursor: pointer;
+}
+
+#volume {
+    @extend #seek;
+    padding: 2px;
+    position: absolute;
+    bottom: -240px;
+    height: 2px;
+
+    &::-webkit-slider-thumb { 
+        background-color: $dark-grey;
+        height: 15px;
+        width: 15px;
+        border-radius: 30%;
+    }
 }
 
 input[type="range"]::-webkit-slider-thumb {

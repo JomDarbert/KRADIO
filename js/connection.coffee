@@ -40,6 +40,7 @@ getSongJSON = ->
 
 song_data = JSON.parse getSongJSON()
 top_queries = arrayUnique(song_data)
+top_queries = top_queries.filter((z) -> dontPlay.indexOf(z.query) < 0)
 # --------------------------------------------------------------
 Number.prototype.toHHMMSS = ->
   h = Math.floor(@ / 3600)
@@ -59,9 +60,9 @@ UrlExists = (url, cb) ->
 
 checkBlacklist = (song,query) ->
   # Don't want songs where critical values are missing
-  if not song.title?    then return false
-  if not song.url?      then return false
-  if not song.created?  then return false
+  if not song.orig_title? then return false
+  if not song.url?        then return false
+  if not song.created?    then return false
 
   # Don't want songs that were created more than one year ago
   ok_months    = 12
@@ -75,7 +76,7 @@ checkBlacklist = (song,query) ->
 
   # Don't want songs with blacklist words in title
   for term in blacklist
-    if song.title.indexOf(term) isnt -1 then return false
+    if song.orig_title.indexOf(term) isnt -1 then return false
 
   # Don't want songs with blacklist words in genre
   for term in blacklist
@@ -86,11 +87,11 @@ checkBlacklist = (song,query) ->
     if term in song.tags then return false
 
   # Don't want songs with characters that aren't English or Korean
-  kor_eng_test = not_kor_eng.test(song.title)
+  kor_eng_test = not_kor_eng.test(song.orig_title)
   if kor_eng_test is true then return false
 
   # Don't want songs where none of the song's title words are in query
-  cleaned_song = song.title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+  cleaned_song = song.orig_title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
   cleaned_query = query.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
   song_array = cleaned_song.split " "
   query_array = cleaned_query.split " "
@@ -103,6 +104,9 @@ checkBlacklist = (song,query) ->
   , [])
   if result.length is 0 then return false
 
+  # Don't want songs with a levenstein distance > 8
+  if levenstein(cleaned_query,cleaned_song) >= 8 then return false
+
   # Song passed all checks
   return true
 
@@ -111,7 +115,7 @@ checkWhitelist = (song,query) ->
   score = 0
   tags_count = 0
   query_count = 0
-  cleaned_song = song.title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+  cleaned_song = song.orig_title.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
   cleaned_query = query.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
 
   # Give a point if the song's genre is in whitelist
@@ -124,10 +128,10 @@ checkWhitelist = (song,query) ->
   if tags_count > 0 then score += 1
 
   # Give a point if the song title has korean in it
-  test = has_korean.test(song.title)
+  test = has_korean.test(song.orig_title)
   if test is true then score += 1
 
-  # Give 2 score if all of the query's words are in song title
+  # Give a point if all of the query's words are in song title
   song_array = cleaned_song.split " "
   query_array = cleaned_query.split " "
   arrays = [song_array,query_array]
@@ -185,6 +189,7 @@ loadSong = (q) ->
 
         song = 
           title: "#{q.artist}  —  #{q.title} #{korean}"
+          orig_title: t.title
           song: q.title
           artist: q.artist
           rank: q.rank
@@ -204,12 +209,12 @@ loadSong = (q) ->
         blacklist_pass = checkBlacklist(song,q.query)
         song.score = checkWhitelist(song,q.query)
 
-        if blacklist_pass is true and song.score >= 3 then acceptable.push song
+        if blacklist_pass is true and song.score >= 2 then acceptable.push song
 
       # Sort acceptable by score and then number of views
       acceptable.sort (x, y) ->
-        #n = y.score - x.score
-        #return n unless n is 0
+        n = y.score - x.score
+        return n unless n is 0
         y.views - x.views
 
       # If there are any acceptable songs, return the best one, otherwise fail
@@ -218,7 +223,6 @@ loadSong = (q) ->
     return
   return dfd.promise()
 
-
 addToHistory = (song) ->
   len = history.length
   max = 9 # 10 songs
@@ -226,13 +230,11 @@ addToHistory = (song) ->
   if len > max then history.splice max+1, len-max
   return
 
-
 # Gets a random query that isn't in the recently played list or not available list
 randomQuery = () ->
-  availableSongs = top_queries.filter((x) -> history.indexOf(x) < 0)
-  availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y) < 0)
-  availableSongs = availableSongs.filter((z) -> dontPlay.indexOf(z) < 0)
-  console.log availableSongs.length
+  availableSongs = top_queries.filter((x) -> history.indexOf(x.query) < 0)
+  availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y.query) < 0)
+  availableSongs = availableSongs.filter((z) -> dontPlay.indexOf(z.query) < 0)
   return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
 
