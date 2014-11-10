@@ -20,3 +20,5 @@ x view current thumbs
   last FM scrobbling
   fix scrolling in overlay
   first song url is 404
+  set volume on launch - currently starts at 100%
+  remove thumbs downs
