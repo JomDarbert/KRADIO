@@ -142,7 +142,7 @@ checkWhitelist = (song,query) ->
   if result.length is query_array.length then score += 1
 
   # Give a point if levenstein distance is < 10
-  if levenstein(cleaned_query,cleaned_song) <= 10 then score += 1
+  if levenstein(cleaned_query,cleaned_song) <= 5 then score += 1
 
   return score
 
@@ -232,6 +232,7 @@ randomQuery = () ->
   availableSongs = top_queries.filter((x) -> history.indexOf(x) < 0)
   availableSongs = availableSongs.filter((y) -> notAvailable.indexOf(y) < 0)
   availableSongs = availableSongs.filter((z) -> dontPlay.indexOf(z) < 0)
+  console.log availableSongs.length
   return availableSongs[Math.floor(Math.random()*availableSongs.length)]
 
 

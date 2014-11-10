@@ -3,3 +3,10 @@ clean up code
 fast forward on iphone
 volume control
 WOT verification
+report problem
+favorites button - keep in list even if falls off
+history doesn't seem to be working
+song title not matching song
+link to song on soundcloud
+log in to save thumbs/favorites
+back button in addition to skip (not sure i want this?)

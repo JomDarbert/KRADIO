@@ -195,7 +195,7 @@
     if (result.length === query_array.length) {
       score += 1;
     }
-    if (levenstein(cleaned_query, cleaned_song) <= 10) {
+    if (levenstein(cleaned_query, cleaned_song) <= 5) {
       score += 1;
     }
     return score;
@@ -313,6 +313,7 @@
     availableSongs = availableSongs.filter(function(z) {
       return dontPlay.indexOf(z) < 0;
     });
+    console.log(availableSongs.length);
     return availableSongs[Math.floor(Math.random() * availableSongs.length)];
   };
 
