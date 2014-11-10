@@ -172,15 +172,14 @@ update_data = ->
         throw err if err
         console.log "JSON saved to #{out_file}"
         return
-      ###
+      
       request.post
-        url: "http://www.jombly.com:3000/update"
+        url: "http://localhost:3000/update"
         body: JSON.stringify list
         headers: {"Content-Type": "application/json;charset=UTF-8"}
       , (error, response, body) ->
         console.log response.statusCode
         return
-      ###
 
 # Once per day at midnight
 new CronJob("0 0 * * *", ->

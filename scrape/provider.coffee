@@ -16,6 +16,7 @@ app.use bodyParser.json({limit: '50mb'})
 app.post "/update", (req,res) ->
     songs = req.body
     res.sendStatus 200
+    console.log "Updated songs!"
 
 app.get "/today", (req,res) ->
   if songs.length <= 0

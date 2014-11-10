@@ -205,22 +205,21 @@ update_data = function() {
           }
         }
       }
-      return fs.writeFile(out_file, JSON.stringify(list), function(err) {
+      fs.writeFile(out_file, JSON.stringify(list), function(err) {
         if (err) {
           throw err;
         }
         console.log("JSON saved to " + out_file);
       });
-
-      /*
-      request.post
-        url: "http://www.jombly.com:3000/update"
-        body: JSON.stringify list
-        headers: {"Content-Type": "application/json;charset=UTF-8"}
-      , (error, response, body) ->
-        console.log response.statusCode
-        return
-       */
+      return request.post({
+        url: "http://localhost:3000/update",
+        body: JSON.stringify(list),
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8"
+        }
+      }, function(error, response, body) {
+        console.log(response.statusCode);
+      });
     });
   });
 };

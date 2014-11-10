@@ -26,7 +26,8 @@
 
   app.post("/update", function(req, res) {
     songs = req.body;
-    return res.sendStatus(200);
+    res.sendStatus(200);
+    return console.log("Updated songs!");
   });
 
   app.get("/today", function(req, res) {
