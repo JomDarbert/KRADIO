@@ -1,5 +1,5 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song_data, top_queries, whitelist, _i, _len,
+  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -455,13 +455,34 @@
       $('#change').text("( — )");
     }
     $('#daysOnChart').text("" + num_days + " days on chart");
+    $('#recentSongs').prepend("<li>" + (players.last.getAttribute("songtitle")) + "</li>");
     processSong(query).done(function(result) {
       return setPlayerAttributes(players.last, result);
     });
   };
 
   document.addEventListener("touchmove", function(event) {
-    return event.preventDefault();
+    if (event.target.tagName !== "INPUT") {
+      return event.preventDefault();
+    }
+  });
+
+  xStart = void 0;
+
+  yStart = 0;
+
+  document.addEventListener("touchstart", function(e) {
+    xStart = e.touches[0].screenX;
+    yStart = e.touches[0].screenY;
+  });
+
+  document.addEventListener("touchmove", function(e) {
+    var xMovement, yMovement;
+    xMovement = Math.abs(e.touches[0].screenX - xStart);
+    yMovement = Math.abs(e.touches[0].screenY - yStart);
+    if ((yMovement * 3) > xMovement) {
+      e.preventDefault();
+    }
   });
 
   $('#nextButton').on("click", function() {
@@ -507,24 +528,41 @@
     return c.play();
   });
 
+  $('#volume').on("input change", function() {
+    player_one.volume = this.value;
+    player_two.volume = this.value;
+    player_three.volume = this.value;
+    player_four.volume = this.value;
+    return player_five.volume = this.value;
+  });
+
   $('#dontPlay').on("click", function() {
-    var c, query;
+    var c, query, title;
     c = document.getElementsByClassName("active")[0];
     query = c.getAttribute("query");
+    title = c.getAttribute("songtitle");
     dontPlay.push(query);
     document.cookie = "dontPlay=" + JSON.stringify(dontPlay);
+    $('#thumbsDownSongs').prepend("<li>" + title + "</li>");
     return nextSong();
   });
 
+  $('#showOverlay').on("click", function() {
+    $('#overlay').toggleClass("hidden");
+    return $('#container').toggleClass("hidden");
+  });
 
-  /*
-  seek = document.getElementById "seek"
-  hammertime = new Hammer(seek)
-  hammertime.on "tap", ->
-    c = document.getElementsByClassName("active")[0]
-    c.currentTime = $('#seek').value
-    alert @value
-   */
+  for (_j = 0, _len1 = dontPlay.length; _j < _len1; _j++) {
+    song = dontPlay[_j];
+    console.log(song);
+    $('#thumbsDownSongs').prepend("<li>" + song + "</li>");
+  }
+
+  for (_k = 0, _len2 = top_queries.length; _k < _len2; _k++) {
+    song = top_queries[_k];
+    comb = "" + song.artist + " - " + song.title;
+    $('#topList').append("<li>" + comb + "</li>");
+  }
 
   $(document).ready(function() {
     var q_five, q_four, q_one, q_three, q_two;

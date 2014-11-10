@@ -136,7 +136,7 @@ button {
     font-family: 'FontAwesome';
     font-size: 3.5rem;
     padding: 20px;
-    flex: 1 0 33%;
+    flex: 1 0 25%;
     margin-bottom: 30px;
     @include bp(medium) {font-size: 3.25rem; }
     @include bp(small) {font-size: 3rem; }
@@ -168,27 +168,57 @@ button {
     cursor: pointer;
 }
 
-#volume {
-    @extend #seek;
-    padding: 2px;
-    position: absolute;
-    bottom: -240px;
-    height: 2px;
-
-    &::-webkit-slider-thumb { 
-        background-color: $dark-grey;
-        height: 15px;
-        width: 15px;
-        border-radius: 30%;
-    }
-}
 
 input[type="range"]::-webkit-slider-thumb {
      -webkit-appearance: none;
     background-color: $dark-grey;
     width: 3px;
     height: 10px;
+    cursor: ew-resize;
 }
+
+#volume {
+    @extend #seek;
+    padding: 1px;
+    position: absolute;
+    bottom: -250px;
+    height: 2px;
+
+    &::-webkit-slider-thumb { 
+        background-color: $dark-grey;
+        height: 15px;
+        width: 15px;
+        border-radius: 50%;
+        margin-top: -1px;
+    }
+}
+
+#volumeDown {
+    position: absolute;
+    top: 252px;
+    left: -25px;
+    font-family: FontAwesome;
+    &:before {
+        content: "\f027";
+        color: $dark-grey;
+        font-size: 1rem;
+        font-weight: 300;
+    }
+}
+
+#volumeUp {
+    position: absolute;
+    top: 252px;
+    right: -25px;
+    font-family: FontAwesome;
+    &:before {
+        content: "\f028";
+        color: $dark-grey;
+        font-size: 1rem;
+        font-weight: 300;
+    }
+}
+
 
 #playerTime {
     text-align: center;
@@ -216,4 +246,70 @@ input[type="range"]::-webkit-slider-thumb {
     right: -50px;
     font-family: $sans;
     font-weight: $medium;
+}
+
+#overlay {
+    @extend #container;
+    background: $dark-grey;
+    color: $off-white;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: stretch;
+    align-items: stretch;
+
+    ol,ul { padding-left: 3rem; font-size: 0.8rem; }
+    ol { list-style-type: decimal; }
+    ul { list-style-type: square; }
+
+    h1 {
+        font-size: 1.5rem;
+        font-weight: $bold;
+        text-transform: uppercase;
+        width: 100%;
+        text-align: center;
+        @include bp(medium) {font-size: 1rem; }
+    }
+
+    #topSongs {
+        flex: 1 0 50%;
+        max-width: 50%;
+        overflow-y: scroll;
+    }
+
+    #playInfo {
+        flex: 1 0 50%;
+        max-width: 50%;
+        max-height: 20%;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-content: stretch;
+        align-items: stretch;
+    }
+
+    #recentlyPlayed,#thumbsDowned {
+        flex: 1 0 50%;
+        overflow-y: hidden;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.hidden {
+    flex: 0 1 0px;
+    max-height: 0px;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+ 
+::-webkit-scrollbar-track {
+    background: rgba($off-white,0.1);
+}
+ 
+::-webkit-scrollbar-thumb {
+    background: darken($dark-grey,20%);
 }

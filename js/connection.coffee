@@ -336,6 +336,8 @@ nextSong = ->
 
   $('#daysOnChart').text "#{num_days} days on chart"
 
+  $('#recentSongs').prepend "<li>#{players.last.getAttribute "songtitle"}</li>"
+
   processSong(query).done (result) ->
     setPlayerAttributes(players.last,result)
 
@@ -343,7 +345,22 @@ nextSong = ->
 
 
 # ----------------------------------------------------------
-document.addEventListener "touchmove", (event) -> event.preventDefault()
+document.addEventListener "touchmove", (event) -> 
+  if event.target.tagName isnt "INPUT" then event.preventDefault()
+
+xStart = undefined
+yStart = 0
+document.addEventListener "touchstart", (e) ->
+  xStart = e.touches[0].screenX
+  yStart = e.touches[0].screenY
+  return
+
+document.addEventListener "touchmove", (e) ->
+  xMovement = Math.abs(e.touches[0].screenX - xStart)
+  yMovement = Math.abs(e.touches[0].screenY - yStart)
+  e.preventDefault()  if (yMovement * 3) > xMovement
+  return
+
 
 $('#nextButton').on "click", -> nextSong()
 
@@ -375,22 +392,35 @@ $('#seek').on "change", ->
   c = document.getElementsByClassName("active")[0]
   c.play()
 
+$('#volume').on "input change", ->
+  player_one.volume = @value
+  player_two.volume = @value
+  player_three.volume = @value
+  player_four.volume = @value
+  player_five.volume = @value
+
+
 $('#dontPlay').on "click", ->
   c = document.getElementsByClassName("active")[0]
   query = c.getAttribute "query"
+  title = c.getAttribute "songtitle"
   dontPlay.push query
   document.cookie = "dontPlay="+JSON.stringify dontPlay
+  $('#thumbsDownSongs').prepend "<li>#{title}</li>"
   nextSong()
 
-###
-seek = document.getElementById "seek"
-hammertime = new Hammer(seek)
-hammertime.on "tap", ->
-  c = document.getElementsByClassName("active")[0]
-  c.currentTime = $('#seek').value
-  alert @value
+$('#showOverlay').on "click", ->
+  $('#overlay').toggleClass "hidden"
+  $('#container').toggleClass "hidden"
 
-###
+for song in dontPlay
+  console.log song
+  $('#thumbsDownSongs').prepend "<li>#{song}</li>"
+
+for song in top_queries
+  comb = "#{song.artist} - #{song.title}"
+  $('#topList').append "<li>#{comb}</li>"
+
 # On document ready, load the first song for all three players.
 $(document).ready ->
   q_one = randomQuery()

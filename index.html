@@ -23,6 +23,22 @@
     </script>
 </head>
 <body>
+    <section id="overlay" class="hidden">
+        <div id="topSongs">
+            <h1>Top Songs</h1>
+            <ol id="topList"></ol>
+        </div>
+        <div id="playInfo">
+            <div id="recentlyPlayed">
+                <h1>Recently Played</h1>
+                <ul id="recentSongs"></ul>
+            </div>
+            <div id="thumbsDowned">
+                <h1>Thumbs Downed</h1>
+                <ul id="thumbsDownSongs"></ul>
+            </div>
+        </div>
+    </section>
     <div id="container">
         <audio id="player_one" type="audio/mpeg" class="active"></audio>
         <audio id="player_two" type="audio/mpeg"></audio>
@@ -30,25 +46,28 @@
         <audio id="player_four" type="audio/mpeg"></audio>
         <audio id="player_five" type="audio/mpeg"></audio>
     </div>
-        <section id="bottomPanel">
-            <div id="playerTime">
-                <input type="range" id="seek" value="0" max=""/>
-                <output id="currentTime">0:00</output>
-                <output id="endTime">0:00</output>
-                <input type="range" id="volume" value="0.5" max="1.0" min="0.0" step="0.025">
+    <section id="bottomPanel">
+        <div id="playerTime">
+            <input type="range" id="seek" value="0" max=""/>
+            <output id="currentTime">0:00</output>
+            <output id="endTime">0:00</output>
+            <span id="volumeDown"></span>
+            <input type="range" id="volume" value="0.5" max="1.0" min="0.0" step="0.025">
+            <span id="volumeUp"></span>
+        </div>
+        <h1 id="title"></h1>
+        <div id="stats">
+            <div id="rankChange">
+                <h2 id="rank"></h2>
+                <h2 id="change"></h2>
             </div>
-            <h1 id="title"></h1>
-            <div id="stats">
-                <div id="rankChange">
-                    <h2 id="rank"></h2>
-                    <h2 id="change"></h2>
-                </div>
-                <p id="daysOnChart"></p>
-            </div>
-            <button id="dontPlay">&#xf165;</button>
-            <button id="playButton" class="">&#xf04b;</button>
-            <button id="nextButton" class="">&#xf04e;</button>
-        </section>
+            <p id="daysOnChart"></p>
+        </div>
+        <button id="showOverlay">&#xf0cb;</button>
+        <button id="dontPlay">&#xf165;</button>
+        <button id="playButton" class="">&#xf04b;</button>
+        <button id="nextButton" class="">&#xf04e;</button>
+    </section>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="http://connect.soundcloud.com/sdk.js"></script>
@@ -57,7 +76,7 @@
     <script src="js/min/helpers.min.js"></script>
     <!--<script src="js/lastfm.js"></script>
     <script src="js/lastfm-md5.js"></script>-->
-    <script src="js/connection.js"></script>
+    <script src="js/min/connection.min.js"></script>
 
 </body>
 </html>
