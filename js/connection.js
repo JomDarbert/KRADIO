@@ -507,6 +507,7 @@
 
   for (_i = 0, _len = players.length; _i < _len; _i++) {
     player = players[_i];
+    player.volume = 0.5;
     player.oncanplay = function() {
       var p, reloadAt;
       p = this;

@@ -377,6 +377,7 @@ $('#playButton').on "click", ->
     p.pause()
 
 for player in players
+  player.volume = 0.5
   player.oncanplay = ->
     p = @
     reloadAt = (@duration+30)*1000

@@ -11,7 +11,5 @@ log in to save thumbs/favorites
 tagging filterting
 last FM scrobbling
 fix scrolling in overlay
-first song url is 404
-set volume on launch - currently starts at 100%
 remove thumbs downs
 song tagging
