@@ -225,7 +225,7 @@ loadSong = (q) ->
 
 addToHistory = (song) ->
   len = history.length
-  max = 9 # 10 songs
+  max = 19 # 20 songs
   if song.query? then history.unshift song.query
   if len > max then history.splice max+1, len-max
   return

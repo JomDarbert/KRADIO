@@ -306,7 +306,7 @@
   addToHistory = function(song) {
     var len, max;
     len = history.length;
-    max = 9;
+    max = 19;
     if (song.query != null) {
       history.unshift(song.query);
     }
