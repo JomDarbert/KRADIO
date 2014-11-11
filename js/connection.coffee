@@ -383,7 +383,6 @@ for player in players
     setTimeout (->
       if p.paused
         query = randomQuery()
-        console.log "Song timed out! Replacing!"
         processSong(query).done (result) ->
           setPlayerAttributes(p,result)
       return

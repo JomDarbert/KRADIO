@@ -515,7 +515,6 @@
         var query;
         if (p.paused) {
           query = randomQuery();
-          console.log("Song timed out! Replacing!");
           processSong(query).done(function(result) {
             return setPlayerAttributes(p, result);
           });

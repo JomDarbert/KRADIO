@@ -12,7 +12,7 @@ x history doesn't seem to be working
 x song title not matching song
   log in to save thumbs/favorites
   back button in addition to skip (not sure i want this?)
-  ERR still happening
+x ERR still happening
   tagging filterting
 x recently played list
 x Expose top list
@@ -22,3 +22,4 @@ x view current thumbs
   first song url is 404
   set volume on launch - currently starts at 100%
   remove thumbs downs
+  expand history to 20 songs

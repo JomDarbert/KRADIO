@@ -19,6 +19,7 @@
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
       ga('create', 'UA-48020906-2', 'auto');
+      ga('require', 'displayfeatures');
       ga('send', 'pageview');
     </script>
 </head>
@@ -40,19 +41,19 @@
         </div>
     </section>
     <div id="container">
-        <audio id="player_one" preload="auto" crossorigin="anonymous" class="active">
+        <audio id="player_one" preload="metadata" crossorigin="anonymous" class="active">
             <source type="audio/mpeg">
         </audio>
-        <audio id="player_two" preload="auto" crossorigin="anonymous">
+        <audio id="player_two" preload="metadata" crossorigin="anonymous">
             <source type="audio/mpeg">
         </audio>
-        <audio id="player_three" preload="auto" crossorigin="anonymous">
+        <audio id="player_three" preload="metadata" crossorigin="anonymous">
             <source type="audio/mpeg">
         </audio>
-        <audio id="player_four" preload="auto" crossorigin="anonymous">
+        <audio id="player_four" preload="metadata" crossorigin="anonymous">
             <source type="audio/mpeg">
         </audio>
-        <audio id="player_five" preload="auto" crossorigin="anonymous">
+        <audio id="player_five" preload="metadata" crossorigin="anonymous">
             <source type="audio/mpeg">
         </audio>
     </div>
@@ -86,7 +87,7 @@
     <script src="js/min/helpers.min.js"></script>
     <!--<script src="js/lastfm.js"></script>
     <script src="js/lastfm-md5.js"></script>-->
-    <script src="js/connection.js"></script>
+    <script src="js/min/connection.min.js"></script>
 
 </body>
 </html>
