@@ -447,6 +447,16 @@ $(document).ready ->
   processSong(q_one).done (res_one) ->
     setPlayerAttributes(player_one,res_one)
 
+    UrlExists res_one.url, (status) ->
+      if status is 404 or status is 503
+        nextSong()
+        return
+
+    UrlExists res_one.artwork, (status) ->
+      if status is 404 or status is 503
+        nextSong()
+        return
+
     if res_one.duration?
       $('#endTime').val res_one.duration.toHHMMSS()
       $('#seek').attr "max", res_one.duration

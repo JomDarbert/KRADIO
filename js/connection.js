@@ -593,6 +593,16 @@
     q_five = randomQuery();
     processSong(q_one).done(function(res_one) {
       setPlayerAttributes(player_one, res_one);
+      UrlExists(res_one.url, function(status) {
+        if (status === 404 || status === 503) {
+          nextSong();
+        }
+      });
+      UrlExists(res_one.artwork, function(status) {
+        if (status === 404 || status === 503) {
+          nextSong();
+        }
+      });
       if (res_one.duration != null) {
         $('#endTime').val(res_one.duration.toHHMMSS());
         $('#seek').attr("max", res_one.duration);

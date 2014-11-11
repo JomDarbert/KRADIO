@@ -4,22 +4,14 @@ link to song on soundcloud
 clean up code
 fast forward on iphone
 
-x volume control (iOS doesn't allow volume change)
-  WOT verification
-  report problem
-  favorites button - keep in list even if falls off
-x history doesn't seem to be working
-x song title not matching song
-  log in to save thumbs/favorites
-  back button in addition to skip (not sure i want this?)
-x ERR still happening
-  tagging filterting
-x recently played list
-x Expose top list
-x view current thumbs
-  last FM scrobbling
-  fix scrolling in overlay
-  first song url is 404
-  set volume on launch - currently starts at 100%
-  remove thumbs downs
-  expand history to 20 songs
+
+report problem
+favorites button - keep in list even if falls off
+log in to save thumbs/favorites
+tagging filterting
+last FM scrobbling
+fix scrolling in overlay
+first song url is 404
+set volume on launch - currently starts at 100%
+remove thumbs downs
+song tagging
