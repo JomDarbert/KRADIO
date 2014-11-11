@@ -326,6 +326,7 @@ nextSong = ->
       $('#container').css "background", "url(#{art}) no-repeat center center"
 
   $('#title').text title
+  document.title = title
   $('#rank').text "Rank #{rank}"
   if change < 0 
     $('#change').css "color", "#D7431B"
@@ -339,7 +340,7 @@ nextSong = ->
 
   $('#daysOnChart').text "#{num_days} days on chart"
 
-  $('#recentSongs').prepend "<li>#{players.last.getAttribute "songtitle"}</li>"
+  $('#recentSongs').prepend "<li>#{players.last.getAttribute "songtitle"}</li><button class='removeThumb'>&#xf00d;</button>"
 
   processSong(query).done (result) ->
     setPlayerAttributes(players.last,result)
