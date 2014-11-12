@@ -38,6 +38,7 @@ getSongJSON = ->
   xmlHttp.send null
   xmlHttp.responseText
 
+voteSong = (genre) ->
 $.post "http://localhost:3000/vote",
   user: "test"
   password: "test2"
