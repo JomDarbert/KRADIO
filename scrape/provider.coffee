@@ -12,11 +12,20 @@ app.all "/*", (req, res, next) ->
   next()
   return
 app.use bodyParser.json({limit: '50mb'})
+app.use bodyParser.urlencoded(extended: false)
 
 app.post "/update", (req,res) ->
     songs = req.body
     res.sendStatus 200
     console.log "Updated songs!"
+
+app.post "/vote", (req, res) ->
+  user_name = req.body.user
+  password = req.body.password
+  console.log "User name = " + user_name + ", password is " + password
+  res.end "yes"
+  return
+
 
 app.get "/today", (req,res) ->
   if songs.length <= 0

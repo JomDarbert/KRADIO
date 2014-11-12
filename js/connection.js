@@ -72,6 +72,15 @@
     return xmlHttp.responseText;
   };
 
+  $.post("http://localhost:3000/vote", {
+    user: "test",
+    password: "test2"
+  }, function(data) {
+    if (data === "done") {
+      alert("login success");
+    }
+  });
+
   song_data = JSON.parse(getSongJSON());
 
   top_queries = arrayUnique(song_data);
@@ -488,6 +497,12 @@
     if ((yMovement * 3) > xMovement) {
       e.preventDefault();
     }
+  });
+
+  $('#test').on("click", function() {
+    var p, query;
+    p = document.getElementsByClassName("active")[0];
+    return query = p.getAttribute("query");
   });
 
   $('#nextButton').on("click", function() {

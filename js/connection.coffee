@@ -38,6 +38,14 @@ getSongJSON = ->
   xmlHttp.send null
   xmlHttp.responseText
 
+$.post "http://localhost:3000/vote",
+  user: "test"
+  password: "test2"
+, (data) ->
+  alert "login success"  if data is "done"
+  return
+
+
 song_data = JSON.parse getSongJSON()
 top_queries = arrayUnique(song_data)
 top_queries = top_queries.filter((z) -> dontPlay.indexOf(z.query) < 0)
@@ -365,6 +373,9 @@ document.addEventListener "touchmove", (e) ->
   e.preventDefault()  if (yMovement * 3) > xMovement
   return
 
+$('#test').on "click", ->
+  p = document.getElementsByClassName("active")[0]
+  query = p.getAttribute "query"
 
 $('#nextButton').on "click", -> nextSong()
 

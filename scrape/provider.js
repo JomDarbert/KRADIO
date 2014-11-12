@@ -24,10 +24,22 @@
     limit: '50mb'
   }));
 
+  app.use(bodyParser.urlencoded({
+    extended: false
+  }));
+
   app.post("/update", function(req, res) {
     songs = req.body;
     res.sendStatus(200);
     return console.log("Updated songs!");
+  });
+
+  app.post("/vote", function(req, res) {
+    var password, user_name;
+    user_name = req.body.user;
+    password = req.body.password;
+    console.log("User name = " + user_name + ", password is " + password);
+    res.end("yes");
   });
 
   app.get("/today", function(req, res) {
