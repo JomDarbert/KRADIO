@@ -38,14 +38,13 @@ getSongJSON = ->
   xmlHttp.send null
   xmlHttp.responseText
 
-voteSong = (genre) ->
-$.post "http://localhost:3000/vote",
-  user: "test"
-  password: "test2"
-, (data) ->
-  alert "login success"  if data is "done"
-  return
-
+vote = (query, tag) ->
+  $.post "http://localhost:3000/vote",
+    query: query
+    tag: tag
+  , (data) ->
+    console.log data[1]
+    return
 
 song_data = JSON.parse getSongJSON()
 top_queries = arrayUnique(song_data)
@@ -377,6 +376,7 @@ document.addEventListener "touchmove", (e) ->
 $('#test').on "click", ->
   p = document.getElementsByClassName("active")[0]
   query = p.getAttribute "query"
+  vote("epik high happen ending","test tag")
 
 $('#nextButton').on "click", -> nextSong()
 

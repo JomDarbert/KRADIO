@@ -35,11 +35,48 @@
   });
 
   app.post("/vote", function(req, res) {
-    var password, user_name;
-    user_name = req.body.user;
-    password = req.body.password;
-    console.log("User name = " + user_name + ", password is " + password);
-    res.end("yes");
+    var query, s, tag, _i, _len, _ref;
+    query = req.body.query;
+    tag = req.body.tag;
+    if (songs === void 0 || songs.length <= 0) {
+      fs.readFile(out_file, "utf8", "w", function(err, in_file) {
+        var s, _i, _len, _ref, _results;
+        if (err) {
+          throw err;
+        }
+        if (!err) {
+          songs = JSON.parse(in_file);
+        }
+        _ref = songs[0].data;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          s = _ref[_i];
+          if (s.query === query && s[tag] !== void 0) {
+            _results.push(s[tag]++);
+          } else {
+            _results.push(s[tag] = 1);
+          }
+        }
+        return _results;
+      });
+    } else {
+      _ref = songs[0].data;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        s = _ref[_i];
+        if (s.query === query && s[tag] !== void 0) {
+          s[tag]++;
+        } else {
+          s[tag] = 1;
+        }
+      }
+      fs.writeFile(out_file, JSON.stringify(songs), function(err) {
+        if (err) {
+          throw err;
+        }
+        console.log("JSON saved to " + out_file);
+      });
+      res.send(songs);
+    }
   });
 
   app.get("/today", function(req, res) {

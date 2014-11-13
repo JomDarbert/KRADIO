@@ -1,5 +1,5 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
+  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -72,14 +72,14 @@
     return xmlHttp.responseText;
   };
 
-  $.post("http://localhost:3000/vote", {
-    user: "test",
-    password: "test2"
-  }, function(data) {
-    if (data === "done") {
-      alert("login success");
-    }
-  });
+  vote = function(query, tag) {
+    return $.post("http://localhost:3000/vote", {
+      query: query,
+      tag: tag
+    }, function(data) {
+      console.log(data[1]);
+    });
+  };
 
   song_data = JSON.parse(getSongJSON());
 
@@ -502,7 +502,8 @@
   $('#test').on("click", function() {
     var p, query;
     p = document.getElementsByClassName("active")[0];
-    return query = p.getAttribute("query");
+    query = p.getAttribute("query");
+    return vote("epik high happen ending", "test tag");
   });
 
   $('#nextButton').on("click", function() {
