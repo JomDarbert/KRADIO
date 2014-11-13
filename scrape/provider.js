@@ -40,7 +40,7 @@
     tag = req.body.tag;
     if (songs === void 0 || songs.length <= 0) {
       fs.readFile(out_file, "utf8", "w", function(err, in_file) {
-        var s, _i, _len, _ref, _results;
+        var s, _i, _len, _ref;
         if (err) {
           throw err;
         }
@@ -48,16 +48,21 @@
           songs = JSON.parse(in_file);
         }
         _ref = songs[0].data;
-        _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           s = _ref[_i];
           if (s.query === query && s[tag] !== void 0) {
-            _results.push(s[tag]++);
+            s[tag]++;
           } else {
-            _results.push(s[tag] = 1);
+            s[tag] = 1;
           }
         }
-        return _results;
+        fs.writeFile(out_file, JSON.stringify(songs), function(err) {
+          if (err) {
+            throw err;
+          }
+          console.log("JSON saved to " + out_file);
+        });
+        return res.send(songs);
       });
     } else {
       _ref = songs[0].data;

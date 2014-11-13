@@ -43,7 +43,7 @@ vote = (query, tag) ->
     query: query
     tag: tag
   , (data) ->
-    console.log data[1]
+    console.log data
     return
 
 song_data = JSON.parse getSongJSON()

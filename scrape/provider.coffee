@@ -26,12 +26,20 @@ app.post "/vote", (req, res) ->
     fs.readFile out_file, "utf8", "w", (err, in_file) ->
       throw err if err
       if not err then songs = JSON.parse in_file
-
+      
       for s in songs[0].data
         if s.query is query and s[tag] isnt undefined
           s[tag]++
         else
           s[tag] = 1
+
+      fs.writeFile out_file, JSON.stringify(songs), (err) ->
+        throw err if err
+        console.log "JSON saved to #{out_file}"
+        return
+
+      # Return songs object
+      res.send songs
   else
     for s in songs[0].data
       if s.query is query and s[tag] isnt undefined

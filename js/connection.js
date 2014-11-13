@@ -77,7 +77,7 @@
       query: query,
       tag: tag
     }, function(data) {
-      console.log(data[1]);
+      console.log(data);
     });
   };
 
