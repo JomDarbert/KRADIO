@@ -40,6 +40,38 @@
             </div>
         </div>
     </section>
+    <section id="tags" class="hidden">
+        <div class="tag">
+            <button>Dance/Club</button><label id="Dance/ClubLabel"></label>
+        </div>
+        <div class="tag">
+            <button>R&B</button><label id="R&BLabel"></label>
+        </div>
+        <div class="tag">
+            <button>Hip-Hop/Rap</button><label id="Hip-Hop/RapLabel"></label>
+        </div>
+        <div class="tag">
+            <button>Ballad</button><label id="BalladLabel"></label>
+        </div>
+        <div class="tag">
+            <button>Pop</button><label id="Pop"></label>
+        </div>
+        <div class="tag">
+            <button>Rock</button><label id="Rock"></label>
+        </div>
+        <div class="tag">
+            <button>Instrumental</button><label id="Instrumental"></label>
+        </div>
+        <div class="tag">
+            <button>Male</button><label id="Male"></label>
+        </div>
+        <div class="tag">
+            <button>Female</button><label id="Female"></label>
+        </div>
+    </section>
+    <section id="filters" class="hidden">
+
+    </section>
     <div id="container">
         <audio id="player_one" preload="metadata" crossorigin="anonymous" class="active">
             <source type="audio/mpeg">
@@ -56,9 +88,6 @@
         <audio id="player_five" preload="metadata" crossorigin="anonymous">
             <source type="audio/mpeg">
         </audio>
-        <div id="vote">
-            <button id="test">Test</button>
-        </div>
     </div>
     <section id="bottomPanel">
         <div id="playerTime">
@@ -77,10 +106,18 @@
             </div>
             <p id="daysOnChart"></p>
         </div>
-        <button id="showOverlay">&#xf0cb;</button>
-        <button id="dontPlay">&#xf165;</button>
-        <button id="playButton" class="">&#xf04b;</button>
-        <button id="nextButton" class="">&#xf04e;</button>
+        <div id="optionsContainer" class="hideBottom">
+            <button class="options">&#xf013;</button>
+            <button id="showOverlay">&#xf0cb;</button>
+            <button id="showTags">&#xf02c;</button>
+            <button id="showFilters">&#xf0b0;</button>
+        </div>
+        <div id="playerControls">
+            <button class="options">&#xf013;</button>
+            <button id="dontPlay">&#xf165;</button>
+            <button id="playButton">&#xf04b;</button>
+            <button id="nextButton">&#xf04e;</button>
+        </div>
     </section>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>

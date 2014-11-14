@@ -35,12 +35,13 @@
   });
 
   app.post("/vote", function(req, res) {
-    var query, s, tag, _i, _len, _ref;
+    var key, loc, query, s, tag, _i, _len, _ref;
     query = req.body.query;
     tag = req.body.tag;
+    loc = null;
     if (songs === void 0 || songs.length <= 0) {
       fs.readFile(out_file, "utf8", "w", function(err, in_file) {
-        var s, _i, _len, _ref;
+        var key, s, _i, _len, _ref;
         if (err) {
           throw err;
         }
@@ -48,12 +49,13 @@
           songs = JSON.parse(in_file);
         }
         _ref = songs[0].data;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i];
+        for (key = _i = 0, _len = _ref.length; _i < _len; key = ++_i) {
+          s = _ref[key];
+          console.log(s, key);
           if (s.query === query && s[tag] !== void 0) {
-            s[tag]++;
-          } else {
-            s[tag] = 1;
+            songs[0].data[key][tag]++;
+          } else if (s.query) {
+            songs[0].data[key][tag] = 1;
           }
         }
         fs.writeFile(out_file, JSON.stringify(songs), function(err) {
@@ -62,16 +64,18 @@
           }
           console.log("JSON saved to " + out_file);
         });
-        return res.send(songs);
+        return res.send(songs[0].data.filter(function(q) {
+          return q.query === query;
+        }));
       });
     } else {
       _ref = songs[0].data;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        s = _ref[_i];
+      for (key = _i = 0, _len = _ref.length; _i < _len; key = ++_i) {
+        s = _ref[key];
         if (s.query === query && s[tag] !== void 0) {
-          s[tag]++;
+          songs[0].data[key][tag]++;
         } else {
-          s[tag] = 1;
+          songs[0].data[key][tag] = 1;
         }
       }
       fs.writeFile(out_file, JSON.stringify(songs), function(err) {
@@ -80,7 +84,9 @@
         }
         console.log("JSON saved to " + out_file);
       });
-      res.send(songs);
+      res.send(songs[0].data.filter(function(q) {
+        return q.query === query;
+      }));
     }
   });
 

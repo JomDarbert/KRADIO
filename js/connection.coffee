@@ -38,12 +38,12 @@ getSongJSON = ->
   xmlHttp.send null
   xmlHttp.responseText
 
-vote = (query, tag) ->
+vote = (query, tag, label) ->
   $.post "http://localhost:3000/vote",
     query: query
     tag: tag
   , (data) ->
-    console.log data
+    label.innerHTML = data[0][tag]
     return
 
 song_data = JSON.parse getSongJSON()
@@ -360,6 +360,7 @@ nextSong = ->
 document.addEventListener "touchmove", (event) -> 
   if event.target.tagName isnt "INPUT" then event.preventDefault()
 
+
 xStart = undefined
 yStart = 0
 document.addEventListener "touchstart", (e) ->
@@ -373,22 +374,7 @@ document.addEventListener "touchmove", (e) ->
   e.preventDefault()  if (yMovement * 3) > xMovement
   return
 
-$('#test').on "click", ->
-  p = document.getElementsByClassName("active")[0]
-  query = p.getAttribute "query"
-  vote("epik high happen ending","test tag")
-
-$('#nextButton').on "click", -> nextSong()
-
-$('#playButton').on "click", ->
-  p = document.getElementsByClassName("active")[0]
-  if p.paused
-    $('#playButton').html "&#xf04c;"
-    p.play()
-  else 
-    $('#playButton').html "&#xf04b;"
-    p.pause()
-
+# Apply to all players
 for player in players
   player.volume = 0.5
   player.oncanplay = ->
@@ -412,6 +398,27 @@ for player in players
   player.ontimeupdate = ->
     $('#currentTime').val @currentTime.toHHMMSS()
     $('#seek').val @currentTime
+
+
+$('#tags button').on "click", ->
+  p = document.getElementsByClassName("active")[0]
+  query = p.getAttribute "query"
+  tag = @innerHTML.replace("amp;","")
+  label = document.getElementById tag+"Label"
+  console.log tag+"Label"
+  vote(query,tag,label)
+
+$('#nextButton').on "click", -> nextSong()
+
+$('#playButton').on "click", ->
+  p = document.getElementsByClassName("active")[0]
+  if p.paused
+    $('#playButton').html "&#xf04c;"
+    p.play()
+  else 
+    $('#playButton').html "&#xf04b;"
+    p.pause()
+
 
 $('#seek').on "input", ->
   c = document.getElementsByClassName("active")[0]
@@ -439,9 +446,65 @@ $('#dontPlay').on "click", ->
   $('#thumbsDownSongs').prepend "<li>#{title}</li>"
   nextSong()
 
+$('.options').on "click", ->
+  $('.options').toggleClass("activeOpts")
+  $('.options').toggleClass("rotate")
+  $('#optionsContainer').toggleClass("hideBottom")
+  $('#playerControls').toggleClass("hideBottom")
+
 $('#showOverlay').on "click", ->
-  $('#overlay').toggleClass "hidden"
-  $('#container').toggleClass "hidden"
+  $('#showOverlay').toggleClass "active"
+  $('#showTags, #showFilters').removeClass "active"
+
+  overlayActive = $('#showOverlay').hasClass "active"
+  tagsActive    = $('#showTags').hasClass "active"
+  filtersActive = $('#showFilters').hasClass "active"
+
+  if overlayActive is true
+    $('#overlay').removeClass "hidden"
+    $('#container').addClass "hidden"
+    $('#tags').addClass "hidden"
+    $('#filters').addClass "hidden"
+  else
+    $('#overlay').addClass "hidden"
+    $('#container').removeClass "hidden"
+
+
+$('#showTags').on "click", ->
+  $('#showTags').toggleClass "active"
+  $('#showOverlay, #showFilters').removeClass "active"
+
+  overlayActive = $('#showOverlay').hasClass "active"
+  tagsActive    = $('#showTags').hasClass "active"
+  filtersActive = $('#showFilters').hasClass "active"
+
+  if tagsActive is true
+    $('#overlay').addClass "hidden"
+    $('#container').addClass "hidden"
+    $('#tags').removeClass "hidden"
+    $('#filters').addClass "hidden"
+  else
+    $('#tags').addClass "hidden"
+    $('#container').removeClass "hidden"
+
+
+$('#showFilters').on "click", ->
+  $('#showFilters').toggleClass "active"
+  $('#showTags, #showOverlay').removeClass "active"
+
+  overlayActive = $('#showOverlay').hasClass "active"
+  tagsActive    = $('#showTags').hasClass "active"
+  filtersActive = $('#showFilters').hasClass "active"
+
+  if filtersActive is true
+    $('#overlay').addClass "hidden"
+    $('#container').addClass "hidden"
+    $('#tags').addClass "hidden"
+    $('#filters').removeClass "hidden"
+  else
+    $('#filters').addClass "hidden"
+    $('#container').removeClass "hidden"
+
 
 for song in dontPlay
   $('#thumbsDownSongs').prepend "<li>#{song}</li>"

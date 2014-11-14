@@ -72,12 +72,12 @@
     return xmlHttp.responseText;
   };
 
-  vote = function(query, tag) {
+  vote = function(query, tag, label) {
     return $.post("http://localhost:3000/vote", {
       query: query,
       tag: tag
     }, function(data) {
-      console.log(data);
+      label.innerHTML = data[0][tag];
     });
   };
 
@@ -499,29 +499,6 @@
     }
   });
 
-  $('#test').on("click", function() {
-    var p, query;
-    p = document.getElementsByClassName("active")[0];
-    query = p.getAttribute("query");
-    return vote("epik high happen ending", "test tag");
-  });
-
-  $('#nextButton').on("click", function() {
-    return nextSong();
-  });
-
-  $('#playButton').on("click", function() {
-    var p;
-    p = document.getElementsByClassName("active")[0];
-    if (p.paused) {
-      $('#playButton').html("&#xf04c;");
-      return p.play();
-    } else {
-      $('#playButton').html("&#xf04b;");
-      return p.pause();
-    }
-  });
-
   for (_i = 0, _len = players.length; _i < _len; _i++) {
     player = players[_i];
     player.volume = 0.5;
@@ -553,6 +530,32 @@
       return $('#seek').val(this.currentTime);
     };
   }
+
+  $('#tags button').on("click", function() {
+    var label, p, query, tag;
+    p = document.getElementsByClassName("active")[0];
+    query = p.getAttribute("query");
+    tag = this.innerHTML.replace("amp;", "");
+    label = document.getElementById(tag + "Label");
+    console.log(tag + "Label");
+    return vote(query, tag, label);
+  });
+
+  $('#nextButton').on("click", function() {
+    return nextSong();
+  });
+
+  $('#playButton').on("click", function() {
+    var p;
+    p = document.getElementsByClassName("active")[0];
+    if (p.paused) {
+      $('#playButton').html("&#xf04c;");
+      return p.play();
+    } else {
+      $('#playButton').html("&#xf04b;");
+      return p.pause();
+    }
+  });
 
   $('#seek').on("input", function() {
     var c;
@@ -586,9 +589,65 @@
     return nextSong();
   });
 
+  $('.options').on("click", function() {
+    $('.options').toggleClass("activeOpts");
+    $('.options').toggleClass("rotate");
+    $('#optionsContainer').toggleClass("hideBottom");
+    return $('#playerControls').toggleClass("hideBottom");
+  });
+
   $('#showOverlay').on("click", function() {
-    $('#overlay').toggleClass("hidden");
-    return $('#container').toggleClass("hidden");
+    var filtersActive, overlayActive, tagsActive;
+    $('#showOverlay').toggleClass("active");
+    $('#showTags, #showFilters').removeClass("active");
+    overlayActive = $('#showOverlay').hasClass("active");
+    tagsActive = $('#showTags').hasClass("active");
+    filtersActive = $('#showFilters').hasClass("active");
+    if (overlayActive === true) {
+      $('#overlay').removeClass("hidden");
+      $('#container').addClass("hidden");
+      $('#tags').addClass("hidden");
+      return $('#filters').addClass("hidden");
+    } else {
+      $('#overlay').addClass("hidden");
+      return $('#container').removeClass("hidden");
+    }
+  });
+
+  $('#showTags').on("click", function() {
+    var filtersActive, overlayActive, tagsActive;
+    $('#showTags').toggleClass("active");
+    $('#showOverlay, #showFilters').removeClass("active");
+    overlayActive = $('#showOverlay').hasClass("active");
+    tagsActive = $('#showTags').hasClass("active");
+    filtersActive = $('#showFilters').hasClass("active");
+    if (tagsActive === true) {
+      $('#overlay').addClass("hidden");
+      $('#container').addClass("hidden");
+      $('#tags').removeClass("hidden");
+      return $('#filters').addClass("hidden");
+    } else {
+      $('#tags').addClass("hidden");
+      return $('#container').removeClass("hidden");
+    }
+  });
+
+  $('#showFilters').on("click", function() {
+    var filtersActive, overlayActive, tagsActive;
+    $('#showFilters').toggleClass("active");
+    $('#showTags, #showOverlay').removeClass("active");
+    overlayActive = $('#showOverlay').hasClass("active");
+    tagsActive = $('#showTags').hasClass("active");
+    filtersActive = $('#showFilters').hasClass("active");
+    if (filtersActive === true) {
+      $('#overlay').addClass("hidden");
+      $('#container').addClass("hidden");
+      $('#tags').addClass("hidden");
+      return $('#filters').removeClass("hidden");
+    } else {
+      $('#filters').addClass("hidden");
+      return $('#container').removeClass("hidden");
+    }
   });
 
   for (_j = 0, _len1 = dontPlay.length; _j < _len1; _j++) {
