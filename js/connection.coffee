@@ -66,6 +66,11 @@ UrlExists = (url, cb) ->
       return
   return
 
+ReplaceNumberWithCommas = (yourNumber) ->
+  components = yourNumber.toString().split(".")
+  components[0] = components[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  components.join "."
+
 checkBlacklist = (song,query) ->
   # Don't want songs where critical values are missing
   if not song.orig_title? then return false
@@ -513,6 +518,12 @@ for song in top_queries
   comb = "#{song.artist} - #{song.title}"
   $('#topList').append "<li>#{comb}</li>"
 
+
+
+
+
+
+
 # On document ready, load the first song for all three players.
 $(document).ready ->
   q_one = randomQuery()
@@ -566,3 +577,13 @@ $(document).ready ->
 
   processSong(q_five).done (res_five) ->
     setPlayerAttributes(player_five,res_five)
+
+  # Facebook Shares Count
+  $.getJSON "http://graph.facebook.com/?id=http://www.jombly.com", (fbdata) ->
+    $("#facebook-count").text ReplaceNumberWithCommas(fbdata.shares)
+    return
+  
+  # Twitter Shares Count
+  $.getJSON "http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", (twitdata) ->
+    $("#twitter-count").text ReplaceNumberWithCommas(twitdata.count)
+    return

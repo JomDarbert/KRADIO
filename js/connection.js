@@ -1,5 +1,5 @@
 (function() {
-  var UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
+  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -108,6 +108,13 @@
         }
       }
     });
+  };
+
+  ReplaceNumberWithCommas = function(yourNumber) {
+    var components;
+    components = yourNumber.toString().split(".");
+    components[0] = components[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return components.join(".");
   };
 
   checkBlacklist = function(song, query) {
@@ -712,8 +719,14 @@
     processSong(q_four).done(function(res_four) {
       return setPlayerAttributes(player_four, res_four);
     });
-    return processSong(q_five).done(function(res_five) {
+    processSong(q_five).done(function(res_five) {
       return setPlayerAttributes(player_five, res_five);
+    });
+    $.getJSON("http://graph.facebook.com/?id=http://www.jombly.com", function(fbdata) {
+      $("#facebook-count").text(ReplaceNumberWithCommas(fbdata.shares));
+    });
+    return $.getJSON("http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", function(twitdata) {
+      $("#twitter-count").text(ReplaceNumberWithCommas(twitdata.count));
     });
   });
 

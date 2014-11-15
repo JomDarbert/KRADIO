@@ -251,6 +251,7 @@ input[type="range"]::-webkit-slider-thumb {
     justify-content: stretch;
     align-content: stretch;
     align-items: stretch;
+    padding: 5px;
 
     button,label {
         font-size: 1rem;
@@ -272,9 +273,6 @@ input[type="range"]::-webkit-slider-thumb {
         top: 10px;
         right: 10px;
         background: $blue;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
         border: none;
         pointer-events: none;
     }
@@ -289,7 +287,7 @@ input[type="range"]::-webkit-slider-thumb {
         position: relative;
         flex: 1 0 25%;
         border: 1px solid;
-        margin: 10px;
+        margin: 5px;
         border-radius: 4px;
         border: none;
         background: $off-white;
@@ -391,6 +389,22 @@ input[type="range"]::-webkit-slider-thumb {
     button {
         margin: 0;
         padding: 0;
+    }
+}
+
+.share, .share * {
+    color: $red;
+    font-size: 2rem;
+    font-weight: $bold;
+    width: 150px;
+    margin-left: 10px;
+
+    i,label,a { margin: 0; padding: 0;}
+
+    i,label { 
+        width: 40px; 
+        text-align: center;
+        margin: 0;
     }
 }
 
