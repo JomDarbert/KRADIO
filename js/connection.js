@@ -43,26 +43,6 @@
     }
   };
 
-  cookie_dontPlay = getCookie("dontPlay");
-
-  if (cookie_dontPlay !== null) {
-    dontPlay = JSON.parse(cookie_dontPlay);
-  } else {
-    dontPlay = [];
-  }
-
-  player_one = document.getElementById("player_one");
-
-  player_two = document.getElementById("player_two");
-
-  player_three = document.getElementById("player_three");
-
-  player_four = document.getElementById("player_four");
-
-  player_five = document.getElementById("player_five");
-
-  players = [player_one, player_two, player_three, player_four, player_five];
-
   getSongJSON = function() {
     var xmlHttp;
     xmlHttp = null;
@@ -85,10 +65,29 @@
       query: query,
       tag: tag
     }, function(data) {
-      console.log(data);
       label.innerHTML = data[0][tag];
     });
   };
+
+  cookie_dontPlay = getCookie("dontPlay");
+
+  if (cookie_dontPlay !== null) {
+    dontPlay = JSON.parse(cookie_dontPlay);
+  } else {
+    dontPlay = [];
+  }
+
+  player_one = document.getElementById("player_one");
+
+  player_two = document.getElementById("player_two");
+
+  player_three = document.getElementById("player_three");
+
+  player_four = document.getElementById("player_four");
+
+  player_five = document.getElementById("player_five");
+
+  players = [player_one, player_two, player_three, player_four, player_five];
 
   song_data = JSON.parse(getSongJSON());
 
