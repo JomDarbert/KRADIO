@@ -73,7 +73,7 @@ body {
 /* PROJECT */
 #title {
     overflow: hidden;
-    max-height: 2rem; //make bigger if you want multiple lines
+    max-height: 2.2rem; //make bigger if you want multiple lines
     font-size: 1.7rem;
     line-height: 2.2rem;
     text-align: center;
@@ -272,6 +272,11 @@ input[type="range"]::-webkit-slider-thumb {
         position: absolute;
         top: 10px;
         right: 10px;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        border-radius: 4px;
+        text-align: center;
         background: $blue;
         border: none;
         pointer-events: none;
@@ -393,13 +398,13 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .share, .share * {
-    color: $red;
-    font-size: 2rem;
+    color: $seafoam;
+    font-size: 1.4rem;
     font-weight: $bold;
     width: 150px;
     margin-left: 10px;
 
-    i,label,a { margin: 0; padding: 0;}
+    i,label,a { margin: 0; padding: 0; text-decoration: none; cursor: pointer; }
 
     i,label { 
         width: 40px; 
@@ -418,4 +423,5 @@ input[type="range"]::-webkit-slider-thumb {
 .hideBottom { margin-left: -9000px; }
 .activeOpts { color: $blue; }
 .active { color: $red; }
+.activeTag { background: $green; }
 .rotate { transform: rotate(-90deg); }

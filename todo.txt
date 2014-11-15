@@ -15,3 +15,4 @@ fix scrolling in overlay
 remove thumbs downs
 song tagging
 reddit share tag
+look into using melon for songs

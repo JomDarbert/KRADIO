@@ -1,5 +1,5 @@
 (function() {
-  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
+  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, updateTags, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -67,9 +67,17 @@
     var xmlHttp;
     xmlHttp = null;
     xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", "http://jombly.com:3000/today", false);
+    xmlHttp.open("GET", "http://localhost:3000/today", false);
     xmlHttp.send(null);
     return xmlHttp.responseText;
+  };
+
+  getSong = function(query) {
+    return $.post("http://localhost:3000/getSong", {
+      query: query
+    }, function(data) {
+      return data;
+    });
   };
 
   vote = function(query, tag, label) {
@@ -77,6 +85,7 @@
       query: query,
       tag: tag
     }, function(data) {
+      console.log(data);
       label.innerHTML = data[0][tag];
     });
   };
@@ -423,8 +432,27 @@
     return player.load();
   };
 
+  updateTags = function(q) {
+    return getSong(q).done(function(data) {
+      var b, buttons, label, tag, _i, _len, _results;
+      buttons = document.getElementsByClassName("tagBtn");
+      _results = [];
+      for (_i = 0, _len = buttons.length; _i < _len; _i++) {
+        b = buttons[_i];
+        tag = b.innerHTML.replace("amp;", "").replace(/[^A-Za-z]/g, "");
+        label = document.getElementById(tag + "Label");
+        if (data[0][tag] !== void 0) {
+          _results.push(label.innerHTML = data[0][tag]);
+        } else {
+          _results.push(label.innerHTML = 0);
+        }
+      }
+      return _results;
+    });
+  };
+
   nextSong = function() {
-    var art, change, endTime, max, num_days, query, rank, source, title, url;
+    var art, change, endTime, max, num_days, q, query, rank, source, title, url;
     players = choosePlayer();
     source = players.active.getElementsByTagName("SOURCE")[0];
     query = randomQuery();
@@ -477,6 +505,8 @@
     }
     $('#daysOnChart').text("" + num_days + " days on chart");
     $('#recentSongs').prepend("<li>" + (players.last.getAttribute("songtitle")) + "</li><button class='removeThumb'>&#xf00d;</button>");
+    q = players.active.getAttribute("query");
+    updateTags(q);
     processSong(query).done(function(result) {
       return setPlayerAttributes(players.last, result);
     });
@@ -542,9 +572,8 @@
     var label, p, query, tag;
     p = document.getElementsByClassName("active")[0];
     query = p.getAttribute("query");
-    tag = this.innerHTML.replace("amp;", "");
+    tag = this.innerHTML.replace("amp;", "").replace(/[^A-Za-z]/g, "");
     label = document.getElementById(tag + "Label");
-    console.log(tag + "Label");
     return vote(query, tag, label);
   });
 
@@ -668,6 +697,12 @@
     $('#topList').append("<li>" + comb + "</li>");
   }
 
+  $('#reddit-count').on("change", function() {
+    var txt;
+    txt = $('#reddit-count').text();
+    return $('#reddit-count').text(txt.replace(/[^0-9]/g, ""));
+  });
+
   $(document).ready(function() {
     var q_five, q_four, q_one, q_three, q_two;
     q_one = randomQuery();
@@ -677,6 +712,7 @@
     q_five = randomQuery();
     processSong(q_one).done(function(res_one) {
       setPlayerAttributes(player_one, res_one);
+      updateTags(q_one.query);
       UrlExists(res_one.url, function(status) {
         if (status === 404 || status === 503) {
           nextSong();
@@ -725,8 +761,18 @@
     $.getJSON("http://graph.facebook.com/?id=http://www.jombly.com", function(fbdata) {
       $("#facebook-count").text(ReplaceNumberWithCommas(fbdata.shares));
     });
-    return $.getJSON("http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", function(twitdata) {
+    $.getJSON("http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", function(twitdata) {
       $("#twitter-count").text(ReplaceNumberWithCommas(twitdata.count));
+    });
+    return reddit.info().url("jombly.com").fetch(function(res) {
+      var p, redditScore, _l, _len3, _ref;
+      redditScore = 0;
+      _ref = res.data.children;
+      for (_l = 0, _len3 = _ref.length; _l < _len3; _l++) {
+        p = _ref[_l];
+        redditScore += p.data.score;
+      }
+      return $('#reddit-count').text(redditScore);
     });
   });
 

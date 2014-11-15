@@ -34,15 +34,22 @@ players = [player_one, player_two, player_three, player_four, player_five]
 getSongJSON = ->
   xmlHttp = null
   xmlHttp = new XMLHttpRequest()
-  xmlHttp.open "GET", "http://jombly.com:3000/today", false
+  xmlHttp.open "GET", "http://localhost:3000/today", false
   xmlHttp.send null
   xmlHttp.responseText
+
+getSong = (query) ->
+  $.post "http://localhost:3000/getSong",
+    query: query
+  , (data) ->
+    return data
 
 vote = (query, tag, label) ->
   $.post "http://localhost:3000/vote",
     query: query
     tag: tag
   , (data) ->
+    console.log data
     label.innerHTML = data[0][tag]
     return
 
@@ -306,6 +313,15 @@ setPlayerAttributes = (player,song) ->
   player.setAttribute "query", song.query
   player.load()
 
+updateTags = (q) ->
+  getSong(q).done (data) ->
+    buttons = document.getElementsByClassName "tagBtn"
+    for b in buttons
+      tag = b.innerHTML.replace("amp;","").replace(/[^A-Za-z]/g,"")
+      label = document.getElementById(tag+"Label")
+      if data[0][tag] isnt undefined then label.innerHTML = data[0][tag]
+      else label.innerHTML = 0
+
 nextSong = ->
   players = choosePlayer()
   source = players.active.getElementsByTagName("SOURCE")[0]
@@ -354,6 +370,10 @@ nextSong = ->
   $('#daysOnChart').text "#{num_days} days on chart"
 
   $('#recentSongs').prepend "<li>#{players.last.getAttribute "songtitle"}</li><button class='removeThumb'>&#xf00d;</button>"
+
+
+  q = players.active.getAttribute "query"
+  updateTags(q)
 
   processSong(query).done (result) ->
     setPlayerAttributes(players.last,result)
@@ -408,9 +428,8 @@ for player in players
 $('#tags button').on "click", ->
   p = document.getElementsByClassName("active")[0]
   query = p.getAttribute "query"
-  tag = @innerHTML.replace("amp;","")
-  label = document.getElementById tag+"Label"
-  console.log tag+"Label"
+  tag = @innerHTML.replace("amp;","").replace(/[^A-Za-z]/g,"")
+  label = document.getElementById(tag+"Label")
   vote(query,tag,label)
 
 $('#nextButton').on "click", -> nextSong()
@@ -519,6 +538,9 @@ for song in top_queries
   $('#topList').append "<li>#{comb}</li>"
 
 
+$('#reddit-count').on "change", ->
+  txt = $('#reddit-count').text()
+  $('#reddit-count').text(txt.replace(/[^0-9]/g,""))
 
 
 
@@ -534,6 +556,7 @@ $(document).ready ->
 
   processSong(q_one).done (res_one) ->
     setPlayerAttributes(player_one,res_one)
+    updateTags(q_one.query)
 
     UrlExists res_one.url, (status) ->
       if status is 404 or status is 503
@@ -587,3 +610,9 @@ $(document).ready ->
   $.getJSON "http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", (twitdata) ->
     $("#twitter-count").text ReplaceNumberWithCommas(twitdata.count)
     return
+
+  reddit.info().url("jombly.com").fetch (res) ->
+    redditScore = 0
+    for p in res.data.children
+      redditScore += p.data.score
+    $('#reddit-count').text(redditScore)

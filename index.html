@@ -44,48 +44,80 @@
     </section>
     <section id="tags" class="hidden">
         <div class="tag">
-            <button>Dance/Club</button><label id="Dance/ClubLabel"></label>
+            <button class="tagBtn">Dance/Club</button><label id="DanceClubLabel"></label>
         </div>
         <div class="tag">
-            <button>R&B</button><label id="R&BLabel"></label>
+            <button class="tagBtn">R&amp;B</button><label id="RBLabel"></label>
         </div>
         <div class="tag">
-            <button>Hip-Hop/Rap</button><label id="Hip-Hop/RapLabel"></label>
+            <button class="tagBtn">Hip-Hop/Rap</button><label id="HipHopRapLabel"></label>
         </div>
         <div class="tag">
-            <button>Ballad</button><label id="BalladLabel"></label>
+            <button class="tagBtn">Ballad</button><label id="BalladLabel"></label>
         </div>
         <div class="tag">
-            <button>Pop</button><label id="Pop"></label>
+            <button class="tagBtn">Pop</button><label id="PopLabel"></label>
         </div>
         <div class="tag">
-            <button>Rock</button><label id="Rock"></label>
+            <button class="tagBtn">Rock</button><label id="RockLabel"></label>
         </div>
         <div class="tag">
-            <button>Instrumental</button><label id="Instrumental"></label>
+            <button class="tagBtn">Instrumental</button><label id="InstrumentalLabel"></label>
         </div>
         <div class="tag">
-            <button>Male</button><label id="Male"></label>
+            <button class="tagBtn">Male</button><label id="MaleLabel"></label>
         </div>
         <div class="tag">
-            <button>Female</button><label id="Female"></label>
+            <button class="tagBtn">Female</button><label id="FemaleLabel"></label>
         </div>
     </section>
     <section id="filters" class="hidden">
-
+        <div class="tag">
+            <button class="filterBtn">Dance/Club</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">R&amp;B</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">Hip-Hop/Rap</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">Ballad</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">Pop</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">Rock</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">Instrumental</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">Male</button>
+        </div>
+        <div class="tag">
+            <button class="filterBtn">Female</button>
+        </div>
     </section>
     <div id="container">
         <div class="share">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=jombly.com" target="_blank"><i class="fa fa-facebook"></i></a>
-            <label id="facebook-count"></label>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=jombly.com" target="_blank">
+                <i class="fa fa-facebook"></i>
+                <label id="facebook-count"></label>
+            </a>
         </div>
         <div class="share">
-            <a href="https://twitter.com/share" target="_blank"><i class="fa fa-twitter"></i></a>
-            <label id="twitter-count"></label>
+            <a href="https://twitter.com/share" target="_blank">
+                <i class="fa fa-twitter"></i>
+                <label id="twitter-count"></label>
+            </a>
         </div>
         <div class="share">
-            <a href="#" target="_blank"><i class="fa fa-reddit"></i></a>
-            <label id="reddit-count"></label>
+            <a href="http://www.reddit.com/submit?url=http://www.jombly.com" target="_blank">
+                <i class="fa fa-reddit"></i>
+                <label id="reddit-count"></label>
+            </a>
         </div>
         <audio id="player_one" preload="metadata" crossorigin="anonymous" class="active">
             <source type="audio/mpeg">
@@ -138,10 +170,11 @@
     <script src="http://connect.soundcloud.com/sdk.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
     <!--<script src="http://cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>-->
+    <script src="js/min/reddit.min.js"></script>
     <script src="js/min/helpers.min.js"></script>
     <!--<script src="js/lastfm.js"></script>
     <script src="js/lastfm-md5.js"></script>-->
-    <script src="js/min/connection.min.js"></script>
+    <script src="js/connection.js"></script>
 
 </body>
 </html>

@@ -22,18 +22,16 @@ app.post "/update", (req,res) ->
 app.post "/vote", (req, res) ->
   query = req.body.query
   tag = req.body.tag
-  loc = null
   if songs is undefined or songs.length <= 0
     fs.readFile out_file, "utf8", "w", (err, in_file) ->
       throw err if err
       if not err then songs = JSON.parse in_file
       
       for s,key in songs[0].data
-        console.log s,key
         if s.query is query and s[tag] isnt undefined
           songs[0].data[key][tag]++
         else if s.query 
-          songs[0].data[key][tag] = 1
+          songs[0].data[key][tag] = 0
 
       fs.writeFile out_file, JSON.stringify(songs), (err) ->
         throw err if err
@@ -47,7 +45,7 @@ app.post "/vote", (req, res) ->
       if s.query is query and s[tag] isnt undefined
         songs[0].data[key][tag]++
       else
-        songs[0].data[key][tag] = 1
+        songs[0].data[key][tag] = 0
 
     fs.writeFile out_file, JSON.stringify(songs), (err) ->
       throw err if err
@@ -57,6 +55,18 @@ app.post "/vote", (req, res) ->
     # Return songs object
     res.send songs[0].data.filter((q) -> q.query is query)
   return
+
+
+app.post "/getSong", (req,res) ->
+  query = req.body.query
+  if songs is undefined or songs.length <= 0
+    fs.readFile out_file, "utf8", "w", (err, in_file) ->
+      throw err if err
+      if not err then songs = JSON.parse in_file
+
+      res.send songs[0].data.filter((q) -> q.query is query)
+  else
+    res.send songs[0].data.filter((q) -> q.query is query)
 
 
 app.get "/today", (req,res) ->
