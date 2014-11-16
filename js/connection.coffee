@@ -51,7 +51,7 @@ player_three = document.getElementById "player_three"
 player_four = document.getElementById "player_four"
 player_five = document.getElementById "player_five"
 players = [player_one, player_two, player_three, player_four, player_five]
-
+songTags = []
 song_data = JSON.parse getSongJSON()
 top_queries = arrayUnique(song_data)
 top_queries = top_queries.filter((z) -> dontPlay.indexOf(z.query) < 0)
@@ -429,7 +429,20 @@ $('#tags button').on "click", ->
   query = p.getAttribute "query"
   tag = @innerHTML.replace("amp;","").replace(/[^A-Za-z]/g,"")
   label = document.getElementById(tag+"Label")
-  vote(query,tag,label)
+
+  ct = 0
+  for st,key in songTags when st.query is query
+    ct++
+    if songTags[key].tags.indexOf(tag) < 0
+      vote(query,tag,label)
+      songTags[key].tags.push tag
+
+  if ct is 0
+    songTags.push
+      query: query
+      tags: [tag]
+    vote(query,tag,label)
+
 
 $('#nextButton').on "click", -> nextSong()
 

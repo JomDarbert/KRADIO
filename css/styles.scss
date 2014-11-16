@@ -277,8 +277,11 @@ input[type="range"]::-webkit-slider-thumb {
         line-height: 50px;
         border-radius: 4px;
         text-align: center;
-        background: $blue;
         border: none;
+        font-size: 1.5rem;
+        font-weight: $bold;
+        color: $off-white;
+        background: $blue;
         pointer-events: none;
     }
 

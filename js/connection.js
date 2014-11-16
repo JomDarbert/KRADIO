@@ -1,5 +1,5 @@
 (function() {
-  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, song_data, top_queries, updateTags, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
+  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, songTags, song_data, top_queries, updateTags, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -88,6 +88,8 @@
   player_five = document.getElementById("player_five");
 
   players = [player_one, player_two, player_three, player_four, player_five];
+
+  songTags = [];
 
   song_data = JSON.parse(getSongJSON());
 
@@ -568,12 +570,30 @@
   }
 
   $('#tags button').on("click", function() {
-    var label, p, query, tag;
+    var ct, key, label, p, query, st, tag, _j, _len1;
     p = document.getElementsByClassName("active")[0];
     query = p.getAttribute("query");
     tag = this.innerHTML.replace("amp;", "").replace(/[^A-Za-z]/g, "");
     label = document.getElementById(tag + "Label");
-    return vote(query, tag, label);
+    ct = 0;
+    for (key = _j = 0, _len1 = songTags.length; _j < _len1; key = ++_j) {
+      st = songTags[key];
+      if (!(st.query === query)) {
+        continue;
+      }
+      ct++;
+      if (songTags[key].tags.indexOf(tag) < 0) {
+        vote(query, tag, label);
+        songTags[key].tags.push(tag);
+      }
+    }
+    if (ct === 0) {
+      songTags.push({
+        query: query,
+        tags: [tag]
+      });
+      return vote(query, tag, label);
+    }
   });
 
   $('#nextButton').on("click", function() {
