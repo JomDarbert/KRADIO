@@ -19,43 +19,6 @@ app.post "/update", (req,res) ->
     res.sendStatus 200
     console.log "Updated songs!"
 
-app.post "/vote", (req, res) ->
-  query = req.body.query
-  tag = req.body.tag
-  if songs is undefined or songs.length <= 0
-    fs.readFile out_file, "utf8", "w", (err, in_file) ->
-      throw err if err
-      if not err then songs = JSON.parse in_file
-      
-      for s,key in songs[0].data
-        if s.query is query and s[tag] isnt undefined
-          songs[0].data[key][tag]++
-        else if s.query 
-          songs[0].data[key][tag] = 0
-
-      fs.writeFile out_file, JSON.stringify(songs), (err) ->
-        throw err if err
-        console.log "JSON saved to #{out_file}"
-        return
-
-      # Return songs object
-      res.send songs[0].data.filter((q) -> q.query is query)
-  else
-    for s,key in songs[0].data
-      if s.query is query and s[tag] isnt undefined
-        songs[0].data[key][tag]++
-      else
-        songs[0].data[key][tag] = 0
-
-    fs.writeFile out_file, JSON.stringify(songs), (err) ->
-      throw err if err
-      console.log "JSON saved to #{out_file}"
-      return
-
-    # Return songs object
-    res.send songs[0].data.filter((q) -> q.query is query)
-  return
-
 
 app.post "/getSong", (req,res) ->
   query = req.body.query
@@ -64,9 +27,9 @@ app.post "/getSong", (req,res) ->
       throw err if err
       if not err then songs = JSON.parse in_file
 
-      res.send songs[0].data.filter((q) -> q.query is query)
+      res.send songs.filter((q) -> q.query is query)
   else
-    res.send songs[0].data.filter((q) -> q.query is query)
+    res.send songs.filter((q) -> q.query is query)
 
 
 app.get "/today", (req,res) ->
@@ -76,10 +39,11 @@ app.get "/today", (req,res) ->
       throw err if err
       if not err
         songs = JSON.parse in_file
-        res.send songs[0].data
+        console.log songs
+        res.send songs
   else
     console.log "sending existing from memory"
-    res.send songs[0].data
+    res.send songs
 
 server = app.listen 3000, ->
     host = server.address().address

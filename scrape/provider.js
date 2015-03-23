@@ -34,60 +34,6 @@
     return console.log("Updated songs!");
   });
 
-  app.post("/vote", function(req, res) {
-    var key, query, s, tag, _i, _len, _ref;
-    query = req.body.query;
-    tag = req.body.tag;
-    if (songs === void 0 || songs.length <= 0) {
-      fs.readFile(out_file, "utf8", "w", function(err, in_file) {
-        var key, s, _i, _len, _ref;
-        if (err) {
-          throw err;
-        }
-        if (!err) {
-          songs = JSON.parse(in_file);
-        }
-        _ref = songs[0].data;
-        for (key = _i = 0, _len = _ref.length; _i < _len; key = ++_i) {
-          s = _ref[key];
-          if (s.query === query && s[tag] !== void 0) {
-            songs[0].data[key][tag]++;
-          } else if (s.query) {
-            songs[0].data[key][tag] = 0;
-          }
-        }
-        fs.writeFile(out_file, JSON.stringify(songs), function(err) {
-          if (err) {
-            throw err;
-          }
-          console.log("JSON saved to " + out_file);
-        });
-        return res.send(songs[0].data.filter(function(q) {
-          return q.query === query;
-        }));
-      });
-    } else {
-      _ref = songs[0].data;
-      for (key = _i = 0, _len = _ref.length; _i < _len; key = ++_i) {
-        s = _ref[key];
-        if (s.query === query && s[tag] !== void 0) {
-          songs[0].data[key][tag]++;
-        } else {
-          songs[0].data[key][tag] = 0;
-        }
-      }
-      fs.writeFile(out_file, JSON.stringify(songs), function(err) {
-        if (err) {
-          throw err;
-        }
-        console.log("JSON saved to " + out_file);
-      });
-      res.send(songs[0].data.filter(function(q) {
-        return q.query === query;
-      }));
-    }
-  });
-
   app.post("/getSong", function(req, res) {
     var query;
     query = req.body.query;
@@ -99,12 +45,12 @@
         if (!err) {
           songs = JSON.parse(in_file);
         }
-        return res.send(songs[0].data.filter(function(q) {
+        return res.send(songs.filter(function(q) {
           return q.query === query;
         }));
       });
     } else {
-      return res.send(songs[0].data.filter(function(q) {
+      return res.send(songs.filter(function(q) {
         return q.query === query;
       }));
     }
@@ -119,12 +65,13 @@
         }
         if (!err) {
           songs = JSON.parse(in_file);
-          return res.send(songs[0].data);
+          console.log(songs);
+          return res.send(songs);
         }
       });
     } else {
       console.log("sending existing from memory");
-      return res.send(songs[0].data);
+      return res.send(songs);
     }
   });
 

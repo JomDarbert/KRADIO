@@ -23,23 +23,15 @@ getCookie = (name) ->
 getSongJSON = ->
   xmlHttp = null
   xmlHttp = new XMLHttpRequest()
-  xmlHttp.open "GET", "http://localhost:3000/today", false
+  xmlHttp.open "GET", "http://jombly.com:3000/today", false
   xmlHttp.send null
   xmlHttp.responseText
 
 getSong = (query) ->
-  $.post "http://localhost:3000/getSong",
+  $.post "http://jombly.com:3000/getSong",
     query: query
   , (data) ->
     return data
-
-vote = (query, tag, label) ->
-  $.post "http://localhost:3000/vote",
-    query: query
-    tag: tag
-  , (data) ->
-    label.innerHTML = data[0][tag]
-    return
 
 cookie_dontPlay = getCookie("dontPlay")
 if cookie_dontPlay isnt null then dontPlay = JSON.parse cookie_dontPlay
@@ -212,8 +204,6 @@ loadSong = (q) ->
           song: q.title
           artist: q.artist
           rank: q.rank
-          num_days: q.num_days
-          change: q.change
           korean: korean
           genre: genre
           tags: tags
@@ -307,19 +297,8 @@ setPlayerAttributes = (player,song) ->
   player.setAttribute "songtitle", song.title
   player.setAttribute "songlength", song.duration
   player.setAttribute "rank", song.rank
-  player.setAttribute "change", song.change
-  player.setAttribute "num_days", song.num_days
   player.setAttribute "query", song.query
   player.load()
-
-updateTags = (q) ->
-  getSong(q).done (data) ->
-    buttons = document.getElementsByClassName "tagBtn"
-    for b in buttons
-      tag = b.innerHTML.replace("amp;","").replace(/[^A-Za-z]/g,"")
-      label = document.getElementById(tag+"Label")
-      if data[0][tag] isnt undefined then label.innerHTML = data[0][tag]
-      else label.innerHTML = 0
 
 nextSong = ->
   players = choosePlayer()
@@ -331,8 +310,6 @@ nextSong = ->
   max = players.active.getAttribute "songlength"
   url = source.getAttribute "src"
   rank = players.active.getAttribute "rank"
-  change = players.active.getAttribute "change"
-  num_days = players.active.getAttribute "num_days"
 
   UrlExists url, (status) ->
     if status is 404 or status is 503
@@ -356,23 +333,12 @@ nextSong = ->
   $('#title').text title
   document.title = title
   $('#rank').text "Rank #{rank}"
-  if change < 0 
-    $('#change').css "color", "#D7431B"
-    $('#change').text "( #{change} )"
-  if change > 0 
-    $('#change').css "color", "#288668"
-    $('#change').text "( +#{change} )"
-  if change is 0 
-    $('#change').css "color", "#2d3033"
-    $('#change').text "( — )"
 
-  $('#daysOnChart').text "#{num_days} days on chart"
 
   $('#recentSongs').prepend "<li>#{players.last.getAttribute "songtitle"}</li><button class='removeThumb'>&#xf00d;</button>"
 
 
   q = players.active.getAttribute "query"
-  updateTags(q)
 
   processSong(query).done (result) ->
     setPlayerAttributes(players.last,result)
@@ -424,26 +390,6 @@ for player in players
     $('#seek').val @currentTime
 
 
-$('#tags button').on "click", ->
-  p = document.getElementsByClassName("active")[0]
-  query = p.getAttribute "query"
-  tag = @innerHTML.replace("amp;","").replace(/[^A-Za-z]/g,"")
-  label = document.getElementById(tag+"Label")
-
-  ct = 0
-  for st,key in songTags when st.query is query
-    ct++
-    if songTags[key].tags.indexOf(tag) < 0
-      vote(query,tag,label)
-      songTags[key].tags.push tag
-
-  if ct is 0
-    songTags.push
-      query: query
-      tags: [tag]
-    vote(query,tag,label)
-
-
 $('#nextButton').on "click", -> nextSong()
 
 $('#playButton').on "click", ->
@@ -490,56 +436,18 @@ $('.options').on "click", ->
 
 $('#showOverlay').on "click", ->
   $('#showOverlay').toggleClass "active"
-  $('#showTags, #showFilters').removeClass "active"
 
   overlayActive = $('#showOverlay').hasClass "active"
-  tagsActive    = $('#showTags').hasClass "active"
-  filtersActive = $('#showFilters').hasClass "active"
 
   if overlayActive is true
     $('#overlay').removeClass "hidden"
     $('#container').addClass "hidden"
-    $('#tags').addClass "hidden"
-    $('#filters').addClass "hidden"
   else
     $('#overlay').addClass "hidden"
     $('#container').removeClass "hidden"
 
-
-$('#showTags').on "click", ->
-  $('#showTags').toggleClass "active"
-  $('#showOverlay, #showFilters').removeClass "active"
 
   overlayActive = $('#showOverlay').hasClass "active"
-  tagsActive    = $('#showTags').hasClass "active"
-  filtersActive = $('#showFilters').hasClass "active"
-
-  if tagsActive is true
-    $('#overlay').addClass "hidden"
-    $('#container').addClass "hidden"
-    $('#tags').removeClass "hidden"
-    $('#filters').addClass "hidden"
-  else
-    $('#tags').addClass "hidden"
-    $('#container').removeClass "hidden"
-
-
-$('#showFilters').on "click", ->
-  $('#showFilters').toggleClass "active"
-  $('#showTags, #showOverlay').removeClass "active"
-
-  overlayActive = $('#showOverlay').hasClass "active"
-  tagsActive    = $('#showTags').hasClass "active"
-  filtersActive = $('#showFilters').hasClass "active"
-
-  if filtersActive is true
-    $('#overlay').addClass "hidden"
-    $('#container').addClass "hidden"
-    $('#tags').addClass "hidden"
-    $('#filters').removeClass "hidden"
-  else
-    $('#filters').addClass "hidden"
-    $('#container').removeClass "hidden"
 
 
 for song in dontPlay
@@ -549,10 +457,6 @@ for song in top_queries
   comb = "#{song.artist} - #{song.title}"
   $('#topList').append "<li>#{comb}</li>"
 
-
-$('#reddit-count').on "change", ->
-  txt = $('#reddit-count').text()
-  $('#reddit-count').text(txt.replace(/[^0-9]/g,""))
 
 
 
@@ -568,7 +472,6 @@ $(document).ready ->
 
   processSong(q_one).done (res_one) ->
     setPlayerAttributes(player_one,res_one)
-    updateTags(q_one.query)
 
     UrlExists res_one.url, (status) ->
       if status is 404 or status is 503
@@ -589,17 +492,6 @@ $(document).ready ->
 
     $('#title').text res_one.title
     $('#rank').text "Rank #{res_one.rank}"
-    if res_one.change < 0 
-      $('#change').css "color", "#D7431B"
-      $('#change').text "( #{res_one.change} )"
-    if res_one.change > 0 
-      $('#change').css "color", "#288668"
-      $('#change').text "( +#{res_one.change} )"
-    if res_one.change is 0 
-      $('#change').css "color", "#2d3033"
-      $('#change').text "( — )"
-
-    $('#daysOnChart').text "#{res_one.num_days} days on chart"
 
   processSong(q_two).done (res_two) ->
     setPlayerAttributes(player_two,res_two)
@@ -622,9 +514,3 @@ $(document).ready ->
   $.getJSON "http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", (twitdata) ->
     $("#twitter-count").text ReplaceNumberWithCommas(twitdata.count)
     return
-
-  reddit.info().url("jombly.com").fetch (res) ->
-    redditScore = 0
-    for p in res.data.children
-      redditScore += p.data.score
-    $('#reddit-count').text(redditScore)

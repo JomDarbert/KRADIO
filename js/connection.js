@@ -1,5 +1,5 @@
 (function() {
-  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, songTags, song_data, top_queries, updateTags, vote, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
+  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, songTags, song_data, top_queries, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -47,25 +47,16 @@
     var xmlHttp;
     xmlHttp = null;
     xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", "http://localhost:3000/today", false);
+    xmlHttp.open("GET", "http://jombly.com:3000/today", false);
     xmlHttp.send(null);
     return xmlHttp.responseText;
   };
 
   getSong = function(query) {
-    return $.post("http://localhost:3000/getSong", {
+    return $.post("http://jombly.com:3000/getSong", {
       query: query
     }, function(data) {
       return data;
-    });
-  };
-
-  vote = function(query, tag, label) {
-    return $.post("http://localhost:3000/vote", {
-      query: query,
-      tag: tag
-    }, function(data) {
-      label.innerHTML = data[0][tag];
     });
   };
 
@@ -292,8 +283,6 @@
             song: q.title,
             artist: q.artist,
             rank: q.rank,
-            num_days: q.num_days,
-            change: q.change,
             korean: korean,
             genre: genre,
             tags: tags,
@@ -427,33 +416,12 @@
     player.setAttribute("songtitle", song.title);
     player.setAttribute("songlength", song.duration);
     player.setAttribute("rank", song.rank);
-    player.setAttribute("change", song.change);
-    player.setAttribute("num_days", song.num_days);
     player.setAttribute("query", song.query);
     return player.load();
   };
 
-  updateTags = function(q) {
-    return getSong(q).done(function(data) {
-      var b, buttons, label, tag, _i, _len, _results;
-      buttons = document.getElementsByClassName("tagBtn");
-      _results = [];
-      for (_i = 0, _len = buttons.length; _i < _len; _i++) {
-        b = buttons[_i];
-        tag = b.innerHTML.replace("amp;", "").replace(/[^A-Za-z]/g, "");
-        label = document.getElementById(tag + "Label");
-        if (data[0][tag] !== void 0) {
-          _results.push(label.innerHTML = data[0][tag]);
-        } else {
-          _results.push(label.innerHTML = 0);
-        }
-      }
-      return _results;
-    });
-  };
-
   nextSong = function() {
-    var art, change, endTime, max, num_days, q, query, rank, source, title, url;
+    var art, endTime, max, q, query, rank, source, title, url;
     players = choosePlayer();
     source = players.active.getElementsByTagName("SOURCE")[0];
     query = randomQuery();
@@ -463,8 +431,6 @@
     max = players.active.getAttribute("songlength");
     url = source.getAttribute("src");
     rank = players.active.getAttribute("rank");
-    change = players.active.getAttribute("change");
-    num_days = players.active.getAttribute("num_days");
     UrlExists(url, function(status) {
       if (status === 404 || status === 503) {
         nextSong();
@@ -492,22 +458,8 @@
     $('#title').text(title);
     document.title = title;
     $('#rank').text("Rank " + rank);
-    if (change < 0) {
-      $('#change').css("color", "#D7431B");
-      $('#change').text("( " + change + " )");
-    }
-    if (change > 0) {
-      $('#change').css("color", "#288668");
-      $('#change').text("( +" + change + " )");
-    }
-    if (change === 0) {
-      $('#change').css("color", "#2d3033");
-      $('#change').text("( — )");
-    }
-    $('#daysOnChart').text("" + num_days + " days on chart");
     $('#recentSongs').prepend("<li>" + (players.last.getAttribute("songtitle")) + "</li><button class='removeThumb'>&#xf00d;</button>");
     q = players.active.getAttribute("query");
-    updateTags(q);
     processSong(query).done(function(result) {
       return setPlayerAttributes(players.last, result);
     });
@@ -569,33 +521,6 @@
     };
   }
 
-  $('#tags button').on("click", function() {
-    var ct, key, label, p, query, st, tag, _j, _len1;
-    p = document.getElementsByClassName("active")[0];
-    query = p.getAttribute("query");
-    tag = this.innerHTML.replace("amp;", "").replace(/[^A-Za-z]/g, "");
-    label = document.getElementById(tag + "Label");
-    ct = 0;
-    for (key = _j = 0, _len1 = songTags.length; _j < _len1; key = ++_j) {
-      st = songTags[key];
-      if (!(st.query === query)) {
-        continue;
-      }
-      ct++;
-      if (songTags[key].tags.indexOf(tag) < 0) {
-        vote(query, tag, label);
-        songTags[key].tags.push(tag);
-      }
-    }
-    if (ct === 0) {
-      songTags.push({
-        query: query,
-        tags: [tag]
-      });
-      return vote(query, tag, label);
-    }
-  });
-
   $('#nextButton').on("click", function() {
     return nextSong();
   });
@@ -652,57 +577,17 @@
   });
 
   $('#showOverlay').on("click", function() {
-    var filtersActive, overlayActive, tagsActive;
+    var overlayActive;
     $('#showOverlay').toggleClass("active");
-    $('#showTags, #showFilters').removeClass("active");
     overlayActive = $('#showOverlay').hasClass("active");
-    tagsActive = $('#showTags').hasClass("active");
-    filtersActive = $('#showFilters').hasClass("active");
     if (overlayActive === true) {
       $('#overlay').removeClass("hidden");
       $('#container').addClass("hidden");
-      $('#tags').addClass("hidden");
-      return $('#filters').addClass("hidden");
     } else {
       $('#overlay').addClass("hidden");
-      return $('#container').removeClass("hidden");
+      $('#container').removeClass("hidden");
     }
-  });
-
-  $('#showTags').on("click", function() {
-    var filtersActive, overlayActive, tagsActive;
-    $('#showTags').toggleClass("active");
-    $('#showOverlay, #showFilters').removeClass("active");
-    overlayActive = $('#showOverlay').hasClass("active");
-    tagsActive = $('#showTags').hasClass("active");
-    filtersActive = $('#showFilters').hasClass("active");
-    if (tagsActive === true) {
-      $('#overlay').addClass("hidden");
-      $('#container').addClass("hidden");
-      $('#tags').removeClass("hidden");
-      return $('#filters').addClass("hidden");
-    } else {
-      $('#tags').addClass("hidden");
-      return $('#container').removeClass("hidden");
-    }
-  });
-
-  $('#showFilters').on("click", function() {
-    var filtersActive, overlayActive, tagsActive;
-    $('#showFilters').toggleClass("active");
-    $('#showTags, #showOverlay').removeClass("active");
-    overlayActive = $('#showOverlay').hasClass("active");
-    tagsActive = $('#showTags').hasClass("active");
-    filtersActive = $('#showFilters').hasClass("active");
-    if (filtersActive === true) {
-      $('#overlay').addClass("hidden");
-      $('#container').addClass("hidden");
-      $('#tags').addClass("hidden");
-      return $('#filters').removeClass("hidden");
-    } else {
-      $('#filters').addClass("hidden");
-      return $('#container').removeClass("hidden");
-    }
+    return overlayActive = $('#showOverlay').hasClass("active");
   });
 
   for (_j = 0, _len1 = dontPlay.length; _j < _len1; _j++) {
@@ -716,12 +601,6 @@
     $('#topList').append("<li>" + comb + "</li>");
   }
 
-  $('#reddit-count').on("change", function() {
-    var txt;
-    txt = $('#reddit-count').text();
-    return $('#reddit-count').text(txt.replace(/[^0-9]/g, ""));
-  });
-
   $(document).ready(function() {
     var q_five, q_four, q_one, q_three, q_two;
     q_one = randomQuery();
@@ -731,7 +610,6 @@
     q_five = randomQuery();
     processSong(q_one).done(function(res_one) {
       setPlayerAttributes(player_one, res_one);
-      updateTags(q_one.query);
       UrlExists(res_one.url, function(status) {
         if (status === 404 || status === 503) {
           nextSong();
@@ -750,20 +628,7 @@
         $('#container').css("background", "url(" + res_one.artwork + ") no-repeat center center");
       }
       $('#title').text(res_one.title);
-      $('#rank').text("Rank " + res_one.rank);
-      if (res_one.change < 0) {
-        $('#change').css("color", "#D7431B");
-        $('#change').text("( " + res_one.change + " )");
-      }
-      if (res_one.change > 0) {
-        $('#change').css("color", "#288668");
-        $('#change').text("( +" + res_one.change + " )");
-      }
-      if (res_one.change === 0) {
-        $('#change').css("color", "#2d3033");
-        $('#change').text("( — )");
-      }
-      return $('#daysOnChart').text("" + res_one.num_days + " days on chart");
+      return $('#rank').text("Rank " + res_one.rank);
     });
     processSong(q_two).done(function(res_two) {
       return setPlayerAttributes(player_two, res_two);
@@ -780,18 +645,8 @@
     $.getJSON("http://graph.facebook.com/?id=http://www.jombly.com", function(fbdata) {
       $("#facebook-count").text(ReplaceNumberWithCommas(fbdata.shares));
     });
-    $.getJSON("http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", function(twitdata) {
+    return $.getJSON("http://cdn.api.twitter.com/1/urls/count.json?url=http://www.jombly.com&callback=?", function(twitdata) {
       $("#twitter-count").text(ReplaceNumberWithCommas(twitdata.count));
-    });
-    return reddit.info().url("jombly.com").fetch(function(res) {
-      var p, redditScore, _l, _len3, _ref;
-      redditScore = 0;
-      _ref = res.data.children;
-      for (_l = 0, _len3 = _ref.length; _l < _len3; _l++) {
-        p = _ref[_l];
-        redditScore += p.data.score;
-      }
-      return $('#reddit-count').text(redditScore);
     });
   });
 
