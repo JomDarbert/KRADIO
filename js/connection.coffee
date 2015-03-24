@@ -194,6 +194,7 @@ loadSong = (q) ->
         if t.tag_list?        then tags     = t.tag_list.toLowerCase().split(" ")
         if t.created_at?      then created  = t.created_at
         if t.stream_url?      then url      = t.stream_url+"?client_id="+client_id
+        if t.permalink_url?   then perma    = t.permalink_url
         if t.artwork_url?     then artwork  = t.artwork_url.replace("-large","-t500x500")
         if t.playback_count?  then views    = t.playback_count
         if t.duration?        then duration = t.duration/1000
@@ -209,6 +210,7 @@ loadSong = (q) ->
           tags: tags
           created: created
           url: url
+          perma: perma
           artwork: artwork
           duration: duration
           views: views
@@ -347,6 +349,7 @@ nextSong = ->
 
 
 # ----------------------------------------------------------
+###
 document.addEventListener "touchmove", (event) -> 
   if event.target.tagName isnt "INPUT" then event.preventDefault()
 
@@ -363,6 +366,7 @@ document.addEventListener "touchmove", (e) ->
   yMovement = Math.abs(e.touches[0].screenY - yStart)
   e.preventDefault()  if (yMovement * 3) > xMovement
   return
+###
 
 # Apply to all players
 for player in players

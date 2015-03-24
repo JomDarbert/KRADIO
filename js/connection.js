@@ -1,5 +1,5 @@
 (function() {
-  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, songTags, song_data, top_queries, whitelist, xStart, yStart, _i, _j, _k, _len, _len1, _len2,
+  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, songTags, song_data, top_queries, whitelist, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -249,7 +249,7 @@
       } else {
         acceptable = [];
         tracks.forEach(function(t) {
-          var artwork, blacklist_pass, created, duration, genre, korean, song, tags, test, url, views;
+          var artwork, blacklist_pass, created, duration, genre, korean, perma, song, tags, test, url, views;
           test = has_korean.test(t.title);
           if ((t.title != null) && test === true) {
             korean = "(" + (t.title.toLowerCase().replace(only_korean, "")) + ")";
@@ -267,6 +267,9 @@
           }
           if (t.stream_url != null) {
             url = t.stream_url + "?client_id=" + client_id;
+          }
+          if (t.permalink_url != null) {
+            perma = t.permalink_url;
           }
           if (t.artwork_url != null) {
             artwork = t.artwork_url.replace("-large", "-t500x500");
@@ -288,6 +291,7 @@
             tags: tags,
             created: created,
             url: url,
+            perma: perma,
             artwork: artwork,
             duration: duration,
             views: views,
@@ -465,29 +469,25 @@
     });
   };
 
-  document.addEventListener("touchmove", function(event) {
-    if (event.target.tagName !== "INPUT") {
-      return event.preventDefault();
-    }
-  });
 
-  xStart = void 0;
-
-  yStart = 0;
-
-  document.addEventListener("touchstart", function(e) {
-    xStart = e.touches[0].screenX;
-    yStart = e.touches[0].screenY;
-  });
-
-  document.addEventListener("touchmove", function(e) {
-    var xMovement, yMovement;
-    xMovement = Math.abs(e.touches[0].screenX - xStart);
-    yMovement = Math.abs(e.touches[0].screenY - yStart);
-    if ((yMovement * 3) > xMovement) {
-      e.preventDefault();
-    }
-  });
+  /*
+  document.addEventListener "touchmove", (event) -> 
+    if event.target.tagName isnt "INPUT" then event.preventDefault()
+  
+  
+  xStart = undefined
+  yStart = 0
+  document.addEventListener "touchstart", (e) ->
+    xStart = e.touches[0].screenX
+    yStart = e.touches[0].screenY
+    return
+  
+  document.addEventListener "touchmove", (e) ->
+    xMovement = Math.abs(e.touches[0].screenX - xStart)
+    yMovement = Math.abs(e.touches[0].screenY - yStart)
+    e.preventDefault()  if (yMovement * 3) > xMovement
+    return
+   */
 
   for (_i = 0, _len = players.length; _i < _len; _i++) {
     player = players[_i];
