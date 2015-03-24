@@ -73,6 +73,8 @@
     });
   };
 
-  update_data();
+  new CronJob("0 0 * * *", function() {
+    return update_data();
+  }, null, true);
 
 }).call(this);

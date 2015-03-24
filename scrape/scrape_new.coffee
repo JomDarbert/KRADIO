@@ -20,11 +20,12 @@ get_data = (url, callback) ->
           title = $(this).find(".tit_song a").text().replace("(","").replace(")","").replace("'","")
           rank = $(this).find(".nb em").text()
           query = artist + " " + title
+
           if artist? and artist isnt ""
             mwave = artist: artist, title: title, query: query.toLowerCase(), rank: rank
             # Push meta-data into parsedResults array
             parsedResults.push mwave
-            
+
         callback(parsedResults)
     )
 
@@ -55,4 +56,7 @@ update_data = ->
       return
 
 
-update_data()
+# Once per day at midnight
+new CronJob("0 0 * * *", ->
+  update_data()
+, null, true)
