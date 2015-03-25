@@ -1,5 +1,5 @@
 (function() {
-  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, songTags, song_data, top_queries, whitelist, _i, _j, _k, _len, _len1, _len2,
+  var ReplaceNumberWithCommas, UrlExists, addToHistory, blacklist, checkBlacklist, checkWhitelist, choosePlayer, client_id, comb, cookie_dontPlay, dontPlay, getCookie, getPlayerSequence, getSong, getSongJSON, has_korean, history, loadSong, nextSong, notAvailable, not_kor_eng, only_korean, player, player_five, player_four, player_one, player_three, player_two, players, processSong, queryLimit, randomQuery, setPlayerAttributes, song, songTags, song_data, top_queries, whitelist, _i, _j, _k, _len, _len1, _len2,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   client_id = "2721807f620a4047d473472d46865f14";
@@ -366,6 +366,46 @@
     return dfd.promise();
   };
 
+  getPlayerSequence = function() {
+    var a, c, len, n, o, othr, otwo, seq;
+    players = [player_one, player_two, player_three, player_four, player_five];
+    c = players.indexOf(document.getElementsByClassName("active")[0]);
+    len = players.length - 1;
+    if ((c == null) || c === len) {
+      a = 0;
+    } else {
+      a = c + 1;
+    }
+    if (a === len) {
+      n = 0;
+    } else {
+      n = a + 1;
+    }
+    if (n === len) {
+      o = 0;
+    } else {
+      o = n + 1;
+    }
+    if (o === len) {
+      otwo = 0;
+    } else {
+      otwo = o + 1;
+    }
+    if (otwo === len) {
+      othr = 0;
+    } else {
+      othr = otwo + 1;
+    }
+    return seq = {
+      active: players[a],
+      next: players[n],
+      onDeck: players[o],
+      onDeckTwo: players[otwo],
+      onDeckThree: players[othr],
+      last: players[c]
+    };
+  };
+
   choosePlayer = function() {
     var a, c, len, n, o, othr, otwo, seq;
     players = [player_one, player_two, player_three, player_four, player_five];
@@ -424,8 +464,8 @@
     return player.load();
   };
 
-  nextSong = function() {
-    var art, endTime, max, q, query, rank, source, title, url;
+  nextSong = function(q) {
+    var art, endTime, max, query, rank, source, title, url;
     players = choosePlayer();
     source = players.active.getElementsByTagName("SOURCE")[0];
     query = randomQuery();
@@ -598,7 +638,7 @@
   for (_k = 0, _len2 = top_queries.length; _k < _len2; _k++) {
     song = top_queries[_k];
     comb = "" + song.artist + " - " + song.title;
-    $('#topList').append("<li>" + comb + "</li>");
+    $('#topList').append("<li class='topSong'>" + comb + "</li>");
   }
 
   $(document).ready(function() {
@@ -641,6 +681,22 @@
     });
     processSong(q_five).done(function(res_five) {
       return setPlayerAttributes(player_five, res_five);
+    });
+    $('.topSong').on("click", function() {
+      var clean, q, result, seq;
+      q = this.innerHTML;
+      clean = q.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim();
+      result = $.grep(top_queries, function(e) {
+        return e.query === clean;
+      })[0];
+      seq = getPlayerSequence();
+      return processSong(result).done(function(r) {
+        UrlExists(r.url, function(status) {});
+        if (status !== 404 && status !== 503) {
+          setPlayerAttributes(seq.active, r);
+          nextSong();
+        }
+      });
     });
     $.getJSON("http://graph.facebook.com/?id=http://www.jombly.com", function(fbdata) {
       $("#facebook-count").text(ReplaceNumberWithCommas(fbdata.shares));

@@ -164,6 +164,7 @@ checkWhitelist = (song,query) ->
 
 
 loadSong = (q) ->
+
   ###
   get purchase links from lastfm
   lastfm.track.getBuylinks({artist: q.artist, track: q.title, country: 'US'}
@@ -265,6 +266,25 @@ processSong = (query) ->
   request(query)
   return dfd.promise()
 
+getPlayerSequence = ->
+  players = [player_one,player_two,player_three,player_four,player_five]
+  c = players.indexOf(document.getElementsByClassName("active")[0])
+  len = players.length - 1
+
+
+  if not c? or c is len then a = 0
+  else a = c + 1
+  if a is len then n = 0
+  else n = a + 1
+  if n is len then o = 0
+  else o = n + 1
+  if o is len then otwo = 0
+  else otwo = o + 1
+  if otwo is len then othr = 0
+  else othr = otwo + 1
+
+  return seq = active: players[a], next: players[n], onDeck: players[o], onDeckTwo: players[otwo], onDeckThree: players[othr], last: players[c]
+
 choosePlayer = ->
   players = [player_one,player_two,player_three,player_four,player_five]
   c = players.indexOf(document.getElementsByClassName("active")[0])
@@ -302,7 +322,7 @@ setPlayerAttributes = (player,song) ->
   player.setAttribute "query", song.query
   player.load()
 
-nextSong = ->
+nextSong = (q) ->
   players = choosePlayer()
   source = players.active.getElementsByTagName("SOURCE")[0]
   query = randomQuery()
@@ -454,12 +474,14 @@ $('#showOverlay').on "click", ->
   overlayActive = $('#showOverlay').hasClass "active"
 
 
+
+
 for song in dontPlay
   $('#thumbsDownSongs').prepend "<li>#{song}</li>"
 
 for song in top_queries
   comb = "#{song.artist} - #{song.title}"
-  $('#topList').append "<li>#{comb}</li>"
+  $('#topList').append "<li class='topSong'>#{comb}</li>"
 
 
 
@@ -508,6 +530,24 @@ $(document).ready ->
 
   processSong(q_five).done (res_five) ->
     setPlayerAttributes(player_five,res_five)
+
+  $('.topSong').on "click", ->
+    q = @innerHTML
+    clean = q.replace(/[^A-Za-z0-9\s]+/g, "").replace(/\s+/g, ' ').toLowerCase().trim()
+    result = $.grep(top_queries, (e) ->
+      e.query == clean
+    )[0]
+    seq = getPlayerSequence()
+
+    processSong(result).done (r) ->
+      UrlExists r.url, (status) ->
+      if status isnt 404 and status isnt 503
+        setPlayerAttributes(seq.active,r)
+        nextSong()
+        return
+
+
+
 
   # Facebook Shares Count
   $.getJSON "http://graph.facebook.com/?id=http://www.jombly.com", (fbdata) ->
